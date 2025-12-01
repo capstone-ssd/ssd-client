@@ -35,7 +35,7 @@ export async function extractPDFWithPDFJS(file: File) {
             ) {
                 lineCount++;
             }
-            if (lineCount >= 20) {
+            if (lineCount >= 25) {
                 tablePagesNumbers.push(pageNum);
                 break;
             }
