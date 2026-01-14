@@ -110,6 +110,19 @@ export async function extractPDFWithPDFJS(file: File) {
             }
         }
 
+        // pdfjs는 이미지 실행 명령어만 가지고 있기 때문에 실제로 렌더링하려면 Worker에게 이미지 렌더링 트리거하여 실제로 디코딩하도록
+        const viewport = pageInfo.getViewport({ scale: 1.0 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await pageInfo.render({
+            canvasContext: context!,
+            viewport: viewport, // width와 height 다룸
+            canvas: canvas,
+        }).promise; // 렌더링 완료 대기 (이미지 디코딩도 완료됨)
+
         for (const imageName of imageNames) {
             try {
                 const image = pageInfo.objs.get(imageName); // 이미지 식별자(name)로 worker가 디코딩한 이미지 데이터 가져옴
