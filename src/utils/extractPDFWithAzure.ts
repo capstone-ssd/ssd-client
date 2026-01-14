@@ -72,7 +72,7 @@ export interface AzureExtractionResult {
 const endpoint = import.meta.env.VITE_AZURE_ENDPOINT;
 const apiKey = import.meta.env.VITE_AZURE_KEY;
 
-export async function extractPDFTable(file: File, options?: AzureOptions): Promise<AzureExtractionResult> {
+export async function extractPDFWithAzure(file: File, options?: AzureOptions): Promise<AzureExtractionResult> {
     const arrayBuffer = await file.arrayBuffer();
     const bytes = new Uint8Array(arrayBuffer);
 
@@ -97,6 +97,7 @@ export async function extractPDFTable(file: File, options?: AzureOptions): Promi
         throw new Error(`분석 시작 실패: ${initialResponse}`);
     }
 
+    // 작업 진행 상황을 확인하는 url
     const operationLocation = initialResponse.headers['operation-location'];
     if (!operationLocation) {
         throw new Error('Operation Location을 찾을 수 없습니다');

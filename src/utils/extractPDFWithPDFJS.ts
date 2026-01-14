@@ -70,6 +70,7 @@ export async function extractPDFWithPDFJS(file: File) {
             if (role !== '') {
                 // 제목
                 if (currentParagraph) {
+                    // 제목이 나오면 본문을 끊고 저장
                     paragraphs.push({
                         content: currentParagraph.trim(),
                         role: currentRole,
