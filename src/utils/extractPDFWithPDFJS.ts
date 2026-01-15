@@ -16,6 +16,7 @@ export async function extractPDFWithPDFJS(file: File) {
     let fullText = '';
     const paragraphs: Array<{ content: string; role?: string }> = [];
     const images: Array<{ data: string; width: number; height: number; pageNumber: number }> = [];
+    const pageTexts: Array<{ pageNum: number; text: string }> = [];
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const pageInfo = await pdf.getPage(pageNum);
@@ -58,6 +59,7 @@ export async function extractPDFWithPDFJS(file: File) {
 
         let currentParagraph = '';
         let currentRole: '#' | '##' | '###' | '' = '';
+        let pageText = '';
 
         for (const item of items) {
             if (!item.text) continue;
@@ -66,6 +68,7 @@ export async function extractPDFWithPDFJS(file: File) {
             const role = detector.getRole(item.fontSize);
 
             fullText += item.text + ' '; //띄어쓰기 처리
+            pageText += item.text + ' ';
 
             if (role !== '') {
                 // 제목
@@ -92,6 +95,11 @@ export async function extractPDFWithPDFJS(file: File) {
                 role: currentRole,
             });
         }
+
+        pageTexts.push({
+            pageNum,
+            text: pageText.trim(),
+        });
 
         /**
          * 이미지 추출
@@ -143,6 +151,7 @@ export async function extractPDFWithPDFJS(file: File) {
 
     return {
         text: fullText.trim(),
+        pageTexts,
         paragraphs,
         images,
         hasTable: tablePagesNumbers.length > 0,

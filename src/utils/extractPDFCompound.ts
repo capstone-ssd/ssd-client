@@ -28,14 +28,28 @@ export async function extractPDFCompound(file: File): Promise<PDFContent> {
             azureResults.push(result);
         }
 
-        const mergedResult = mergeAzureResults(azureResults);
+        const mergedAzureResult = mergeAzureResults(azureResults);
+        const tablePagesSet = new Set(tablePages);
+        const combinedText = pdfjsResult.pageTexts
+            .map((page) => {
+                // 표가 있는 페이지는 스킵 (Azure 결과 사용)
+                if (tablePagesSet.has(page.pageNum)) {
+                    return '';
+                }
+                return page.text;
+            })
+            .filter((text) => text !== '')
+            .join('\n\n');
+
+        // Azure 텍스트 + PDF.js 텍스트 결합
+        const finalText = [mergedAzureResult.text, combinedText].filter((text) => text !== '').join('\n\n');
 
         return {
-            text: mergedResult.text || pdfjsResult.text,
-            paragraphs: mergedResult.paragraphs,
-            tables: mergedResult.tables,
+            text: finalText,
+            paragraphs: mergedAzureResult.paragraphs,
+            tables: mergedAzureResult.tables,
             images: pdfjsResult.images,
-            figures: mergedResult.figures,
+            figures: mergedAzureResult.figures,
             extractionMethod: 'azure+pdfjs',
             cost: Math.ceil(tablePages.length / 2),
             tablePagesNumbers: tablePages,

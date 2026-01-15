@@ -140,13 +140,9 @@ export async function extractPDFWithAzure(file: File, options?: AzureOptions): P
         attempts++;
     }
 
-    if (attempts >= maxAttempts) {
-        throw new Error('분석 시간 초과');
-    }
+    if (attempts >= maxAttempts) throw new Error('분석 시간 초과');
 
-    if (!result?.analyzeResult) {
-        throw new Error('분석 결과가 없습니다');
-    }
+    if (!result?.analyzeResult) throw new Error('분석 결과가 없습니다');
 
     return parseAzureResult(result.analyzeResult);
 }
@@ -180,10 +176,6 @@ function formatPageRange(pages: number[]): string {
 }
 
 function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionResult {
-    if (!analyzeResult) {
-        throw new Error('분석 결과가 비어있습니다');
-    }
-
     // 모든 테이블이 차지하는 영역(범위)을 수집
     const tableSpans = analyzeResult.tables?.flatMap((table) => table.spans || []) || [];
 
