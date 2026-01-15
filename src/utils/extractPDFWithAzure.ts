@@ -11,10 +11,22 @@ interface AzureTableCell {
     content: string;
 }
 
+interface AzureSpan {
+    offset: number;
+    length: number;
+}
+
+interface AzureParagraph {
+    content: string;
+    role?: string;
+    spans: AzureSpan[];
+}
+
 interface AzureTable {
     rowCount: number;
     columnCount: number;
     cells: AzureTableCell[];
+    spans: AzureSpan[];
 }
 
 interface AzureFigure {
@@ -23,11 +35,6 @@ interface AzureFigure {
         content: string;
     };
     boundingRegions: unknown;
-}
-
-interface AzureParagraph {
-    content: string;
-    role?: string;
 }
 
 interface AzureAnalyzeResult {
@@ -177,13 +184,32 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
         throw new Error('분석 결과가 비어있습니다');
     }
 
-    const text = analyzeResult.content || '';
+    // 모든 테이블이 차지하는 영역(범위)을 수집
+    const tableSpans = analyzeResult.tables?.flatMap((table) => table.spans || []) || [];
 
+    // 단락(Paragraphs) 중에서 테이블 영역과 겹치는 것은 제외
     const paragraphs: ExtractedParagraph[] =
-        analyzeResult.paragraphs?.map((p) => ({
-            content: p.content,
-            role: p.role,
-        })) || [];
+        analyzeResult.paragraphs
+            ?.filter((para) => {
+                // 단락의 spans가 어떤 테이블의 영역 안에라도 포함되는지 확인
+                const isInsideTable = tableSpans.some(
+                    (tableSpan) =>
+                        para.spans &&
+                        para.spans.some(
+                            (pSpan) =>
+                                pSpan.offset >= tableSpan.offset &&
+                                pSpan.offset + pSpan.length <= tableSpan.offset + tableSpan.length
+                        )
+                );
+                return !isInsideTable; // 테이블 안에 없는 것만 유지
+            })
+            .map((p) => ({
+                content: p.content,
+                role: p.role,
+            })) || [];
+
+    // 필터링된 단락들만 합쳐서 text를 재구
+    const text = paragraphs.map((p) => p.content).join('\n\n');
 
     const tables: ExtractedTable[] =
         analyzeResult.tables?.map((table) => {
