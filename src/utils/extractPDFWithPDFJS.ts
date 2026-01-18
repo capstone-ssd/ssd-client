@@ -1,6 +1,6 @@
 import type { TextItem } from 'pdfjs-dist/types/src/display/api';
 import { pdfjsLib } from './pdfConfig';
-import { TextLevelDetector } from './TextLevelDetector';
+import { TextLevelDetector, type MarkdownRole } from './TextLevelDetector';
 
 interface PDFImage {
     width: number;
@@ -9,14 +9,26 @@ interface PDFImage {
     data?: Uint8Array | Uint8ClampedArray;
 }
 
+interface Paragraphs {
+    content: string;
+    role?: string;
+    pageNumber: number;
+}
+
+interface Images {
+    data: string;
+    width: number;
+    height: number;
+    pageNumber: number;
+}
+
 export async function extractPDFWithPDFJS(file: File) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     const tablePagesNumbers: number[] = [];
     let fullText = '';
-    const paragraphs: Array<{ content: string; role?: string }> = [];
-    const images: Array<{ data: string; width: number; height: number; pageNumber: number }> = [];
-    const pageTexts: Array<{ pageNum: number; text: string }> = [];
+    const paragraphs: Paragraphs[] = [];
+    const images: Images[] = [];
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const pageInfo = await pdf.getPage(pageNum);
@@ -47,7 +59,7 @@ export async function extractPDFWithPDFJS(file: File) {
          * 페이지별 텍스트 정보를 가지고 있는 `items`를 TextLevelDetector에게 전달하여 텍스트 role 결정
          */
         const items = textContent.items
-            .filter((item): item is TextItem => 'str' in item)
+            .filter((item): item is TextItem => 'str' in item) // str 속성들만
             .map((item) => ({
                 text: item.str.trim(),
                 fontSize: item.height,
@@ -58,48 +70,35 @@ export async function extractPDFWithPDFJS(file: File) {
         const detector = new TextLevelDetector(items);
 
         let currentParagraph = '';
-        let currentRole: '#' | '##' | '###' | '' = '';
-        let pageText = '';
+        let lastRole: MarkdownRole = ''; // 이전 아이템의 role 저장
 
         for (const item of items) {
             if (!item.text) continue;
 
-            // detector가 폰트 크기의 빈도별로 알아서 할당해줌
             const role = detector.getRole(item.fontSize);
+            fullText += item.text + ' ';
 
-            fullText += item.text + ' '; //띄어쓰기 처리
-            pageText += item.text + ' ';
-
-            if (role !== '') {
-                // 제목
-                if (currentParagraph) {
-                    // 제목이 나오면 본문을 끊고 저장
-                    paragraphs.push({
-                        content: currentParagraph.trim(),
-                        role: currentRole,
-                    });
-                    currentParagraph = '';
-                }
-                paragraphs.push({ content: item.text, role });
-                currentRole = '';
-            } else {
-                // 본문
-                currentParagraph += item.text + ' ';
-                currentRole = role;
+            // Role이 바뀌거나 새로운 단락이 시작되어야 하는 경우
+            if (role !== lastRole && currentParagraph !== '') {
+                paragraphs.push({
+                    content: currentParagraph.trim(),
+                    role: lastRole,
+                    pageNumber: pageNum,
+                });
+                currentParagraph = '';
             }
+
+            currentParagraph += item.text + ' ';
+            lastRole = role; // 현재 role을 저장하여 다음 아이템과 비교
         }
 
         if (currentParagraph) {
             paragraphs.push({
                 content: currentParagraph.trim(),
-                role: currentRole,
+                role: lastRole,
+                pageNumber: pageNum,
             });
         }
-
-        pageTexts.push({
-            pageNum,
-            text: pageText.trim(),
-        });
 
         /**
          * 이미지 추출
@@ -151,7 +150,6 @@ export async function extractPDFWithPDFJS(file: File) {
 
     return {
         text: fullText.trim(),
-        pageTexts,
         paragraphs,
         images,
         hasTable: tablePagesNumbers.length > 0,
