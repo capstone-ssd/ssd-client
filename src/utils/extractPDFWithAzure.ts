@@ -19,7 +19,8 @@ interface AzureSpan {
 interface AzureParagraph {
     content: string;
     role?: string;
-    spans: AzureSpan[];
+    spans?: AzureSpan[];
+    boundingRegions?: Array<{ pageNumber: number }>;
 }
 
 interface AzureTable {
@@ -27,6 +28,7 @@ interface AzureTable {
     columnCount: number;
     cells: AzureTableCell[];
     spans: AzureSpan[];
+    boundingRegions?: Array<{ pageNumber: number }>;
 }
 
 interface AzureFigure {
@@ -35,6 +37,7 @@ interface AzureFigure {
         content: string;
     };
     boundingRegions: unknown;
+    spans?: AzureSpan[];
 }
 
 interface AzureAnalyzeResult {
@@ -56,6 +59,7 @@ export interface ExtractedTable {
     rows: number;
     cols: number;
     data: string[][];
+    pageNumber?: number;
 }
 
 export interface ExtractedFigure {
@@ -67,6 +71,7 @@ export interface ExtractedFigure {
 export interface ExtractedParagraph {
     content: string;
     role?: string;
+    pageNumber?: number;
 }
 
 export interface AzureExtractionResult {
@@ -178,6 +183,7 @@ function formatPageRange(pages: number[]): string {
 function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionResult {
     // 모든 테이블이 차지하는 영역(범위)을 수집
     const tableSpans = analyzeResult.tables?.flatMap((table) => table.spans || []) || [];
+    const figureSpans = analyzeResult.figures?.flatMap((figure) => figure.spans || []) || [];
 
     // 단락(Paragraphs) 중에서 테이블 영역과 겹치는 것은 제외
     const paragraphs: ExtractedParagraph[] =
@@ -193,14 +199,26 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
                                 pSpan.offset + pSpan.length <= tableSpan.offset + tableSpan.length
                         )
                 );
-                return !isInsideTable; // 테이블 안에 없는 것만 유지
+
+                const isInsideFigure = figureSpans.some(
+                    (figureSpan) =>
+                        para.spans &&
+                        para.spans.some(
+                            (pSpan) =>
+                                pSpan.offset >= figureSpan.offset &&
+                                pSpan.offset + pSpan.length <= figureSpan.offset + figureSpan.length
+                        )
+                );
+                return !isInsideTable && !isInsideFigure;
             })
             .map((p) => ({
                 content: p.content,
-                role: p.role,
+                role: mapAzureRoleToMarkdown(p.role),
+                pageNumber: p.boundingRegions?.[0]?.pageNumber,
             })) || [];
 
-    // 필터링된 단락들만 합쳐서 text를 재구
+    // 필터링된 단락들만 합쳐서 text를 재구성
+    // TODO 전체 텍스트 쓸 일 없으면 지우기
     const text = paragraphs.map((p) => p.content).join('\n\n');
 
     const tables: ExtractedTable[] =
@@ -217,9 +235,11 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
                 rows: table.rowCount,
                 cols: table.columnCount,
                 data: grid,
+                pageNumber: table.boundingRegions?.[0]?.pageNumber,
             };
         }) || [];
 
+    // TODO figures에 들어가는 값 확인 후 불필요하면 제거
     const figures: ExtractedFigure[] =
         analyzeResult.figures?.map((figure) => ({
             id: figure.id,
@@ -228,4 +248,14 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
         })) || [];
 
     return { text, paragraphs, tables, figures };
+}
+
+function mapAzureRoleToMarkdown(azureRole?: string): '#' | '##' | '###' | '' {
+    if (!azureRole) return '';
+
+    if (azureRole === 'title') return '#';
+    if (azureRole === 'sectionHeading') return '##';
+    if (azureRole === 'heading') return '###';
+
+    return '';
 }
