@@ -4,12 +4,11 @@ import { extractPDFWithPDFJS } from './extractPDFWithPDFJS';
 
 export interface PDFContent {
     text: string;
-    paragraphs: Array<{ content: string; role?: string }>;
-    tables: Array<{ rows: number; cols: number; data: string[][] }>;
+    paragraphs: Array<{ content: string; role?: string; pageNumber?: number }>;
+    tables: Array<{ rows: number; cols: number; data: string[][]; pageNumber?: number }>;
     images: Array<{ data: string; width: number; height: number; pageNumber: number }>;
     figures: Array<{ id: string; caption?: string; boundingRegions: unknown }>;
     extractionMethod: 'pdfjs-only' | 'azure+pdfjs';
-    cost: number;
     tablePagesNumbers?: number[];
 }
 
@@ -22,7 +21,6 @@ export async function extractPDFCompound(file: File): Promise<PDFContent> {
 
         for (let i = 0; i < tablePages.length; i += 2) {
             const chunk = tablePages.slice(i, i + 2);
-            console.log(tablePages);
 
             const result = await extractPDFWithAzure(file, { pages: chunk });
             azureResults.push(result);
@@ -30,28 +28,24 @@ export async function extractPDFCompound(file: File): Promise<PDFContent> {
 
         const mergedAzureResult = mergeAzureResults(azureResults);
         const tablePagesSet = new Set(tablePages);
-        const combinedText = pdfjsResult.pageTexts
-            .map((page) => {
-                // 표가 있는 페이지는 스킵 (Azure 결과 사용)
-                if (tablePagesSet.has(page.pageNum)) {
-                    return '';
-                }
-                return page.text;
-            })
-            .filter((text) => text !== '')
-            .join('\n\n');
+        const nonTableParagraphs = pdfjsResult.paragraphs.filter(
+            (paragraph) => !tablePagesSet.has(paragraph.pageNumber)
+        );
 
-        // Azure 텍스트 + PDF.js 텍스트 결합
-        const finalText = [mergedAzureResult.text, combinedText].filter((text) => text !== '').join('\n\n');
+        const allParagraphs = [...mergedAzureResult.paragraphs, ...nonTableParagraphs].sort(
+            (a, b) => (a.pageNumber || 0) - (b.pageNumber || 0)
+        );
+
+        // text는 paragraphs로부터 재구성 (또는 그냥 빈 문자열)
+        const finalText = allParagraphs.map((p) => p.content).join('\n\n');
 
         return {
             text: finalText,
-            paragraphs: mergedAzureResult.paragraphs,
+            paragraphs: allParagraphs,
             tables: mergedAzureResult.tables,
             images: pdfjsResult.images,
             figures: mergedAzureResult.figures,
             extractionMethod: 'azure+pdfjs',
-            cost: Math.ceil(tablePages.length / 2),
             tablePagesNumbers: tablePages,
         };
     }
@@ -63,7 +57,6 @@ export async function extractPDFCompound(file: File): Promise<PDFContent> {
         images: pdfjsResult.images,
         figures: [],
         extractionMethod: 'pdfjs-only',
-        cost: 0,
         tablePagesNumbers: [],
     };
 }
