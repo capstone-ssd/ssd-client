@@ -1,32 +1,11 @@
 import type { TextItem } from 'pdfjs-dist/types/src/display/api';
 import { pdfjsLib } from './pdfConfig';
-import { TextLevelDetector, type MarkdownRole } from './TextLevelDetector';
-
-interface PDFImage {
-    width: number;
-    height: number;
-    bitmap?: ImageBitmap;
-    data?: Uint8Array | Uint8ClampedArray;
-}
-
-interface Paragraphs {
-    content: string;
-    role?: string;
-    pageNumber: number;
-}
-
-interface Images {
-    data: string;
-    width: number;
-    height: number;
-    pageNumber: number;
-}
+import type { Images, Paragraphs, PDFImage } from '../types/pdfjs.types';
 
 export async function extractPDFWithPDFJS(file: File) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     const tablePagesNumbers: number[] = [];
-    let fullText = '';
     const paragraphs: Paragraphs[] = [];
     const images: Images[] = [];
 
@@ -54,49 +33,57 @@ export async function extractPDFWithPDFJS(file: File) {
             }
         }
 
+        const viewport = pageInfo.getViewport({ scale: 1.0 });
+        const pageHeight = viewport.height; // 페이지의 전체 높이 (pt)
+
         /**
          * 텍스트 추출
-         * 페이지별 텍스트 정보를 가지고 있는 `items`를 TextLevelDetector에게 전달하여 텍스트 role 결정
+         * 페이지별 텍스트 정보를 가지고 있는 `items`를 순회하여 폰트 크기와 y축 기준 위치 비율로(중복 테스트 제거 용도) 반환
          */
         const items = textContent.items
-            .filter((item): item is TextItem => 'str' in item) // str 속성들만
-            .map((item) => ({
-                text: item.str.trim(),
-                fontSize: item.height,
-            }));
+            .filter((item): item is TextItem => 'str' in item)
+            .map((item) => {
+                const yFromTop = pageHeight - item.transform[5];
+                const yRatio = yFromTop / pageHeight;
+                return {
+                    text: item.str.trim(),
+                    fontSize: item.height, // 폰트 크기
+                    yRatio: yRatio,
+                };
+            });
 
         if (items.length === 0) continue;
 
-        const detector = new TextLevelDetector(items);
-
         let currentParagraph = '';
-        let lastRole: MarkdownRole = ''; // 이전 아이템의 role 저장
-
+        let lastFontSize = items[0].fontSize; // 이전 폰트 크기 추적 용도
+        let paragraphYRatio = items[0].yRatio;
         for (const item of items) {
             if (!item.text) continue;
 
-            const role = detector.getRole(item.fontSize);
-            fullText += item.text + ' ';
-
-            // Role이 바뀌거나 새로운 단락이 시작되어야 하는 경우
-            if (role !== lastRole && currentParagraph !== '') {
+            // 폰트 크기가 변하거나(제목/본문 구분) 줄바꿈 등으로 단락이 나뉠 때
+            if (item.fontSize !== lastFontSize && currentParagraph !== '') {
                 paragraphs.push({
                     content: currentParagraph.trim(),
-                    role: lastRole,
+                    role: '', // Compound에서 한꺼번에 결정할 것이므로 비워둠
                     pageNumber: pageNum,
+                    yRatio: paragraphYRatio,
+                    fontSize: lastFontSize, // 이 단락의 폰트 크기 저장
                 });
                 currentParagraph = '';
+                paragraphYRatio = item.yRatio;
             }
 
             currentParagraph += item.text + ' ';
-            lastRole = role; // 현재 role을 저장하여 다음 아이템과 비교
+            lastFontSize = item.fontSize;
         }
 
         if (currentParagraph) {
             paragraphs.push({
                 content: currentParagraph.trim(),
-                role: lastRole,
+                role: '',
                 pageNumber: pageNum,
+                yRatio: paragraphYRatio,
+                fontSize: lastFontSize,
             });
         }
 
@@ -118,7 +105,6 @@ export async function extractPDFWithPDFJS(file: File) {
         }
 
         // pdfjs는 이미지 실행 명령어만 가지고 있기 때문에 실제로 렌더링하려면 Worker에게 이미지 렌더링 트리거하여 실제로 디코딩하도록
-        const viewport = pageInfo.getViewport({ scale: 1.0 });
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         canvas.width = viewport.width;
@@ -129,15 +115,18 @@ export async function extractPDFWithPDFJS(file: File) {
             viewport: viewport, // width와 height 다룸
             canvas: canvas,
         }).promise; // 렌더링 완료 대기 (이미지 디코딩도 완료됨)
-
+        await new Promise((resolve) => setTimeout(resolve, 100));
         for (const imageName of imageNames) {
             try {
                 const image = pageInfo.objs.get(imageName); // 이미지 식별자(name)로 worker가 디코딩한 이미지 데이터 가져옴
                 if (!image) continue;
 
-                const base64 = await imageToBase64(image);
+                const blob = await imageToBlob(image);
+                const objectUrl = URL.createObjectURL(blob);
+
                 images.push({
-                    data: base64,
+                    data: objectUrl, // 마크다운에 들어갈 주소
+                    file: blob, // 서버 전송 시 사용할 원본 객체
                     width: image.width,
                     height: image.height,
                     pageNumber: pageNum,
@@ -149,7 +138,6 @@ export async function extractPDFWithPDFJS(file: File) {
     }
 
     return {
-        text: fullText.trim(),
         paragraphs,
         images,
         hasTable: tablePagesNumbers.length > 0,
@@ -157,7 +145,7 @@ export async function extractPDFWithPDFJS(file: File) {
     };
 }
 
-async function imageToBase64(image: PDFImage): Promise<string> {
+async function imageToBlob(image: PDFImage): Promise<Blob> {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas context 생성 실패');
@@ -166,15 +154,20 @@ async function imageToBase64(image: PDFImage): Promise<string> {
     canvas.height = image.height;
 
     if (image.bitmap) {
-        // jpeg, png를 디코딩한 형태
         ctx.drawImage(image.bitmap, 0, 0);
-        // toDataURL 호출하기 위해 `<canvas>` 요소에 그림
-    } else if (image.data) {
-        // TODO pdf 이미지가 rgb, rgba 형태인 경우를 커버해야할지 고려해보고 추후에 추가 -> Adobe 공식에서는 안 쓴다고 함
-        throw new Error('RGB, RGBA 이미지 형식 미지원');
     } else {
-        throw new Error('이미지 데이터 형식을 알 수 없음');
+        throw new Error('지원하지 않는 이미지 형식');
     }
 
-    return canvas.toDataURL('image/png');
+    return new Promise((resolve, reject) => {
+        // JPEG 포맷 최적화 (quality: 0.8)
+        canvas.toBlob(
+            (blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error('Blob 생성 실패'));
+            },
+            'image/jpeg',
+            0.8
+        );
+    });
 }
