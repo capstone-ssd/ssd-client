@@ -31,8 +31,8 @@ export class TextLevelDetector {
         const bodySize = sortedSizes[0];
         this.roleMap.set(bodySize, '');
 
-        // 본문보다 큰 크기들은 제목으로 간주하고 크기순으로 할당(2는 최소한의 임계치)
-        const largerSizes = sortedSizes.filter((size) => size > bodySize + 2).sort((a, b) => b - a);
+        // 본문보다 큰 크기들은 제목으로 간주하고 크기순으로 할당
+        const largerSizes = sortedSizes.filter((size) => size > bodySize).sort((a, b) => b - a);
 
         if (largerSizes.length >= 1) this.roleMap.set(largerSizes[0], '#');
         if (largerSizes.length >= 2) this.roleMap.set(largerSizes[1], '##');

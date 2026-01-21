@@ -1,4 +1,4 @@
-import type { PDFContent } from './extractPDFCompound';
+import type { PDFContent } from '../types/extracted-pdf.types';
 
 export function convertToMarkdown(content: PDFContent): string {
     const pageMap = new Map<
