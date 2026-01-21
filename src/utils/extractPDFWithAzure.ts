@@ -1,59 +1,11 @@
-import DocumentIntelligence, { isUnexpected } from '@azure-rest/ai-document-intelligence';
+import DocumentIntelligence from '@azure-rest/ai-document-intelligence';
 import { AzureKeyCredential } from '@azure/core-auth';
-
-interface AzureOptions {
-    pages?: number[];
-}
-
-interface AzureTableCell {
-    rowIndex: number;
-    columnIndex: number;
-    content: string;
-}
-
-interface AzureSpan {
-    offset: number;
-    length: number;
-}
-
-interface AzureParagraph {
-    content: string;
-    role?: string;
-    spans?: AzureSpan[];
-    boundingRegions?: Array<{ pageNumber: number }>;
-}
-
-interface AzureTable {
-    rowCount: number;
-    columnCount: number;
-    cells: AzureTableCell[];
-    spans: AzureSpan[];
-    boundingRegions?: Array<{ pageNumber: number }>;
-}
-
-interface AzureFigure {
-    id: string;
-    caption?: {
-        content: string;
-    };
-    boundingRegions: unknown;
-    spans?: AzureSpan[];
-}
-
-interface AzureAnalyzeResult {
-    content?: string;
-    paragraphs?: AzureParagraph[];
-    tables?: AzureTable[];
-    figures?: AzureFigure[];
-}
-
-interface AzureOperationResult {
-    status: 'succeeded' | 'failed' | 'running' | 'notStarted';
-    analyzeResult?: AzureAnalyzeResult;
-    error?: {
-        message: string;
-    };
-}
+import type {
+    AzureAnalyzeResult,
+    AzureInitialResponse,
+    AzureOperationResult,
+    AzureOptions,
+} from '../types/azure-docs-sdk.types';
 
 export interface ExtractedTable {
     rows: number;
@@ -62,23 +14,15 @@ export interface ExtractedTable {
     pageNumber?: number;
 }
 
-export interface ExtractedFigure {
-    id: string;
-    caption?: string;
-    boundingRegions: unknown;
-}
-
-export interface ExtractedParagraph {
-    content: string;
-    role?: string;
-    pageNumber?: number;
+export interface TableRegion {
+    pageNumber: number;
+    top: number; // y축 시작 비율 (0~1)
+    bottom: number; // y축 끝 비율 (0~1)
 }
 
 export interface AzureExtractionResult {
-    text: string;
-    paragraphs: ExtractedParagraph[];
     tables: ExtractedTable[];
-    figures: ExtractedFigure[];
+    tableRegions: TableRegion[]; // 필터링을 위한 영역 정보 추가
 }
 
 const endpoint = import.meta.env.VITE_AZURE_ENDPOINT;
@@ -88,67 +32,99 @@ export async function extractPDFWithAzure(file: File, options?: AzureOptions): P
     const arrayBuffer = await file.arrayBuffer();
     const bytes = new Uint8Array(arrayBuffer);
 
-    if (!endpoint || !apiKey) {
-        throw new Error('Azure 환경 변수가 설정되지 않았습니다');
-    }
+    if (!endpoint || !apiKey) throw new Error('Azure 환경 변수가 설정되지 않았습니다');
 
     const client = DocumentIntelligence(endpoint, new AzureKeyCredential(apiKey));
-
     const queryParameters: Record<string, unknown> = {};
     if (options?.pages && options.pages.length > 0) {
         queryParameters.pages = formatPageRange(options.pages);
     }
 
-    const initialResponse = await client.path('/documentModels/{modelId}:analyze', 'prebuilt-layout').post({
-        contentType: 'application/octet-stream',
-        body: bytes,
-        queryParameters,
-    });
+    let initialResponse: AzureInitialResponse | undefined;
+    let postAttempts = 0;
+    const maxPostAttempts = 10;
 
-    if (isUnexpected(initialResponse)) {
+    while (postAttempts < maxPostAttempts) {
+        initialResponse = (await client.path('/documentModels/{modelId}:analyze', 'prebuilt-layout').post({
+            contentType: 'application/octet-stream',
+            body: bytes,
+            queryParameters,
+        })) as AzureInitialResponse;
+
+        // HTTP status 429 체크
+        const is429Status = initialResponse.status === '429';
+
+        // Body 내부 error.code 429 체크
+        const is429Body = initialResponse.body?.error?.code === '429';
+
+        if (is429Status || is429Body) {
+            const retryAfter = initialResponse.headers['retry-after'];
+
+            // 에러 메시지 "retry after n seconds"에서 추출
+            let messageRetrySeconds = 0;
+            if (is429Body && initialResponse.body?.error?.message) {
+                const match = initialResponse.body.error.message.match(/retry after (\d+) second/i);
+                if (match) {
+                    messageRetrySeconds = parseInt(match[1]);
+                }
+            }
+
+            const waitTime = retryAfter
+                ? parseInt(retryAfter) * 1000
+                : messageRetrySeconds > 0
+                ? messageRetrySeconds * 1000
+                : 2000;
+
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+            postAttempts++;
+            continue;
+        }
+
+        break;
+    }
+
+    if (!initialResponse) {
         throw new Error(`분석 시작 실패: ${initialResponse}`);
     }
 
-    // 작업 진행 상황을 확인하는 url
     const operationLocation = initialResponse.headers['operation-location'];
-    if (!operationLocation) {
-        throw new Error('Operation Location을 찾을 수 없습니다');
-    }
+    if (!operationLocation) throw new Error('Operation Location을 찾을 수 없습니다');
 
-    let result: AzureOperationResult | undefined = undefined;
+    let result: AzureOperationResult | undefined;
     let attempts = 0;
     const maxAttempts = 60;
-    let delay = 2000; // 2초 간격으로 풀링
+    let currentDelay = 2000;
 
     while (attempts < maxAttempts) {
-        const resultResponse = await fetch(operationLocation, {
-            headers: {
-                'Ocp-Apim-Subscription-Key': apiKey,
-            },
+        const res = await fetch(operationLocation, {
+            headers: { 'Ocp-Apim-Subscription-Key': apiKey },
         });
 
-        result = await resultResponse.json();
-
-        if (result?.status === 'succeeded') {
-            break;
-        } else if (result?.status === 'failed') {
-            throw new Error(`분석 실패: ${result.error?.message || '알 수 없는 오류'}`);
+        if (res.status === 429) {
+            const retryAfter = res.headers.get('Retry-After');
+            const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : currentDelay * 2;
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+            currentDelay = waitTime;
+            attempts++;
+            continue;
         }
 
-        const retryAfter = resultResponse.headers.get('Retry-After');
-        if (retryAfter) {
-            delay = parseInt(retryAfter) * 1000;
-        }
+        result = await res.json();
+        if (result?.status === 'succeeded') break;
+        if (result?.status === 'failed') throw new Error('분석 실패');
 
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        const serverRetryAfter = res.headers.get('Retry-After');
+        const nextDelay = serverRetryAfter ? parseInt(serverRetryAfter) * 1000 : currentDelay;
 
+        await new Promise((resolve) => setTimeout(resolve, nextDelay));
         attempts++;
+
+        if (!serverRetryAfter) {
+            currentDelay = Math.min(currentDelay * 1.5, 10000);
+        }
     }
 
-    if (attempts >= maxAttempts) throw new Error('분석 시간 초과');
-
     if (!result?.analyzeResult) throw new Error('분석 결과가 없습니다');
-
     return parseAzureResult(result.analyzeResult);
 }
 
@@ -181,45 +157,10 @@ function formatPageRange(pages: number[]): string {
 }
 
 function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionResult {
-    // 모든 테이블이 차지하는 영역(범위)을 수집
-    const tableSpans = analyzeResult.tables?.flatMap((table) => table.spans || []) || [];
-    const figureSpans = analyzeResult.figures?.flatMap((figure) => figure.spans || []) || [];
-
-    // 단락(Paragraphs) 중에서 테이블 영역과 겹치는 것은 제외
-    const paragraphs: ExtractedParagraph[] =
-        analyzeResult.paragraphs
-            ?.filter((para) => {
-                // 단락의 spans가 어떤 테이블의 영역 안에라도 포함되는지 확인
-                const isInsideTable = tableSpans.some(
-                    (tableSpan) =>
-                        para.spans &&
-                        para.spans.some(
-                            (pSpan) =>
-                                pSpan.offset >= tableSpan.offset &&
-                                pSpan.offset + pSpan.length <= tableSpan.offset + tableSpan.length
-                        )
-                );
-
-                const isInsideFigure = figureSpans.some(
-                    (figureSpan) =>
-                        para.spans &&
-                        para.spans.some(
-                            (pSpan) =>
-                                pSpan.offset >= figureSpan.offset &&
-                                pSpan.offset + pSpan.length <= figureSpan.offset + figureSpan.length
-                        )
-                );
-                return !isInsideTable && !isInsideFigure;
-            })
-            .map((p) => ({
-                content: p.content,
-                role: mapAzureRoleToMarkdown(p.role),
-                pageNumber: p.boundingRegions?.[0]?.pageNumber,
-            })) || [];
-
-    // 필터링된 단락들만 합쳐서 text를 재구성
-    // TODO 전체 텍스트 쓸 일 없으면 지우기
-    const text = paragraphs.map((p) => p.content).join('\n\n');
+    const pageHeightMap = new Map<number, number>();
+    analyzeResult.pages?.forEach((page) => {
+        pageHeightMap.set(page.pageNumber, page.height);
+    });
 
     const tables: ExtractedTable[] =
         analyzeResult.tables?.map((table) => {
@@ -227,9 +168,9 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
                 .fill(null)
                 .map(() => Array(table.columnCount).fill(''));
 
-            for (const cell of table.cells) {
+            table.cells.forEach((cell) => {
                 grid[cell.rowIndex][cell.columnIndex] = cell.content;
-            }
+            });
 
             return {
                 rows: table.rowCount,
@@ -239,23 +180,22 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
             };
         }) || [];
 
-    // TODO figures에 들어가는 값 확인 후 불필요하면 제거
-    const figures: ExtractedFigure[] =
-        analyzeResult.figures?.map((figure) => ({
-            id: figure.id,
-            caption: figure.caption?.content,
-            boundingRegions: figure.boundingRegions,
-        })) || [];
+    const tableRegions: TableRegion[] =
+        analyzeResult.tables?.map((table) => {
+            const region = table.boundingRegions?.[0];
+            const polygon = region?.polygon || [];
+            const pageHeight = pageHeightMap.get(region?.pageNumber || 0) || 1;
 
-    return { text, paragraphs, tables, figures };
-}
+            const yValues = [polygon[1], polygon[3], polygon[5], polygon[7]];
+            return {
+                pageNumber: region?.pageNumber || 0,
+                top: Math.min(...yValues) / pageHeight,
+                bottom: Math.max(...yValues) / pageHeight,
+            };
+        }) || [];
 
-function mapAzureRoleToMarkdown(azureRole?: string): '#' | '##' | '###' | '' {
-    if (!azureRole) return '';
-
-    if (azureRole === 'title') return '#';
-    if (azureRole === 'sectionHeading') return '##';
-    if (azureRole === 'heading') return '###';
-
-    return '';
+    return {
+        tables,
+        tableRegions,
+    };
 }
