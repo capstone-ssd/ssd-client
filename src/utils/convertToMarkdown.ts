@@ -1,5 +1,10 @@
 import type { PDFContent } from '../types/extracted-pdf.types';
 
+/**
+ * PDF 추출 결과를 Markdown 형식으로 변환
+ * @param content - PDF 추출 결과 (단락, 표, 이미지 포함)
+ * @returns Markdown 형식의 문자열
+ */
 export function convertToMarkdown(content: PDFContent): string {
     const pageMap = new Map<
         number,
@@ -10,9 +15,9 @@ export function convertToMarkdown(content: PDFContent): string {
         }
     >();
 
-    // 몇 페이지 있는지 기록
     const allPageNumbers = new Set<number>();
 
+    // 페이지 번호 수집
     content.paragraphs.forEach((paragraph) => {
         if (paragraph.pageNumber !== undefined) {
             allPageNumbers.add(paragraph.pageNumber);
@@ -54,6 +59,7 @@ export function convertToMarkdown(content: PDFContent): string {
     const sections: string[] = [];
     const sortedPages = Array.from(allPageNumbers).sort((a, b) => a - b);
 
+    // 페이지별로 순회하며 Markdown 생성
     sortedPages.forEach((pageNumber) => {
         const pageContent = pageMap.get(pageNumber);
         if (!pageContent) return;
@@ -73,7 +79,8 @@ export function convertToMarkdown(content: PDFContent): string {
 
         // 표
         if (pageContent.tables.length > 0) {
-            pageContent.tables.forEach((table) => {
+            pageContent.tables.forEach((table, index) => {
+                sections.push(`\n**표 ${index + 1}**\n`);
                 sections.push(tableToMarkdown(table));
             });
         }
@@ -89,23 +96,27 @@ export function convertToMarkdown(content: PDFContent): string {
     return sections.join('\n\n');
 }
 
+/**
+ * 표 데이터를 Markdown 표 형식으로 변환
+ * 모든 행을 동일하게 처리하며, 첫 행 다음에 구분선을 추가
+ * @param table - 표 데이터 (행, 열, 데이터 배열)
+ * @returns Markdown 형식의 표 문자열
+ */
 function tableToMarkdown(table: { rows: number; cols: number; data: string[][] }): string {
     if (table.rows === 0 || table.cols === 0) return '';
 
     const lines: string[] = [];
 
-    // 헤더 행
-    const headerRow = table.data[0].map((cell) => cell || ' ').join(' | ');
-    lines.push(`| ${headerRow} |`);
+    // 모든 행을 동일하게 처리
+    for (let i = 0; i < table.rows; i++) {
+        const row = table.data[i].map((cell) => cell || '-').join(' | ');
+        lines.push(`| ${row} |`);
 
-    // 구분선
-    const separator = Array(table.cols).fill('---').join(' | ');
-    lines.push(`| ${separator} |`);
-
-    // 데이터 행
-    for (let i = 1; i < table.rows; i++) {
-        const dataRow = table.data[i].map((cell) => cell || ' ').join(' | ');
-        lines.push(`| ${dataRow} |`);
+        // 첫 행 다음에 구분선 추가 (Markdown 표 규칙)
+        if (i === 0) {
+            const separator = Array(table.cols).fill('---').join(' | ');
+            lines.push(`| ${separator} |`);
+        }
     }
 
     return lines.join('\n');
