@@ -7,22 +7,25 @@ import prettier from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-    globalIgnores(['dist']),
-    {
-        files: ['**/*.{ts,tsx}'],
-        extends: [
-            js.configs.recommended,
-            tseslint.configs.recommended,
-            reactHooks.configs['recommended-latest'],
-            reactRefresh.configs.vite,
-            prettier,
-        ],
-        languageOptions: {
-            ecmaVersion: 2020,
-            globals: globals.browser,
-        },
-        rules: {
-            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-        },
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+      prettier,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'tailwindcss/classnames-order': 'warn',
+      'tailwindcss/no-custom-classname': 'warn',
+      'tailwindcss/no-contradicting-classname': 'error',
+    },
+  },
 ]);
