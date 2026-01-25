@@ -17,6 +17,7 @@
     "@azure-rest/ai-document-intelligence": "^1.1.0",
     "@azure/core-auth": "^1.10.1",
     "@azure/identity": "^4.13.0",
+    "@tanstack/react-router": "^1.157.5",
     "pdfjs-dist": "^5.4.394",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
@@ -27,6 +28,8 @@
     "@svgr/plugin-jsx": "^8.1.0",
     "@svgr/plugin-prettier": "^8.1.0",
     "@tailwindcss/vite": "4.1.18",
+    "@tanstack/router-devtools": "^1.157.5",
+    "@tanstack/router-vite-plugin": "^1.157.5",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
