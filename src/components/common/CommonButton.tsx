@@ -31,7 +31,7 @@ export const CommonButton = ({
   return (
     <button 
       type="button"
-      className={`w-[130px] h-[40px] flex items-center justify-center font-medium transition-all ${modeStyles[mode]} ${radiusStyles[radius]} ${className}`}
+      className={`w-[130px] h-[40px] flex items-center justify-center font-medium transition-all duration-200 hover:brightness-90 active:scale-95  ${modeStyles[mode]} ${radiusStyles[radius]} ${className}`}
       disabled={mode === 'disabled'}
       {...props}
     >
