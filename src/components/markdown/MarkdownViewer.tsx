@@ -4,21 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { MarkdownComponent } from './MarkdownComponent';
 import { getBlockIdForContent } from './utils/getBlockIdForContent';
 import { getCommentCount } from './utils/getCommentCount';
-
-export interface Comment {
-  id: string;
-  blockId: number;
-  content: string;
-  author: string;
-  createdAt: Date;
-}
-
-export interface Paragraph {
-  blockId: number;
-  content: string;
-  role?: string;
-  pageNumber?: number;
-}
+import type { Comment, Paragraph } from './types/markdown-view.types';
 
 interface MarkdownViewerProps {
   markdown: string;

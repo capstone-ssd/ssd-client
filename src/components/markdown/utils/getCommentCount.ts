@@ -1,4 +1,4 @@
-import type { Comment } from '../MarkdownViewer';
+import type { Comment } from '../types/markdown-view.types';
 
 /**
  * 특정 blockId에 달린 주석 개수를 반환합니다
