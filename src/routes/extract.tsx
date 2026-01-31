@@ -1,5 +1,6 @@
 import { ExtractHeader } from '@/components/layout/extract/ExtractHeader';
-import MarkdownViewer, { type Paragraph } from '@/components/markdown/MarkdownViewer';
+import MarkdownViewer from '@/components/markdown/MarkdownViewer';
+import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 import { dummyComments } from '@/mock/sampleComments';
 import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { createFileRoute } from '@tanstack/react-router';
