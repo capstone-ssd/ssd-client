@@ -1,4 +1,4 @@
-import type { Comment } from '@/components/markdown/MarkdownViewer';
+import type { Comment } from '@/components/markdown/types/markdown-view.types';
 
 export const dummyComments: Comment[] = [
   {
