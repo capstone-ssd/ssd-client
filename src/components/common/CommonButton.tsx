@@ -1,41 +1,59 @@
-import { type ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  mode?: 'main' | 'normal' | 'accent' | 'disabled' | 'sub' | 'sub2';
-  radius?: 'none' | 'full';
-  text: string;
+const buttonVariants = cva(
+    'w-[130px] h-[40px] min-h-[40px] font-small heading-small inline-flex items-center justify-center text-center transition-colors duration-200 ease-in-out disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-600 transition-all duration-200 hover:brightness-95 active:scale-[0.98] active:brightness-90' ,
+    {
+        variants: {
+            variant: {
+                main: "bg-[var(--color-primary-400)] text-gray-800",
+                normal: "bg-white text-gray-800 border border-gray-100",
+                accent: "bg-white text-[#FF2410] border border-[#FF2410]",
+                disabled: "bg-gray-300 text-gray-50 cursor-not-allowed",
+                sub: "bg-gray-700 text-white",
+                sub2: "bg-gray-50 text-gray-800",
+            },
+            rounded: {
+                none: "rounded-lg",
+                full: "rounded-full",
+            },
+        },
+        defaultVariants: {
+            variant: 'main',
+            rounded: 'none',
+        }
+    },
+);
+
+export interface ButtonProps
+    extends ButtonHTMLAttributes<HTMLButtonElement>,
+        VariantProps<typeof buttonVariants> {
+    children: ReactNode; 
 }
 
-export const CommonButton = ({ 
-  mode = 'main',
-  radius = 'full', 
-  text, 
-  className = '', 
-
-  ...props 
+const Button = ({
+    children, 
+    className,
+    variant,
+    rounded,
+    disabled,
+    type = 'button',
+    ...props
 }: ButtonProps) => {
-  const modeStyles = {
-    main: "bg-[var(--color-primary-400)] text-gray-800 heading-small",
-    normal: "bg-white text-gray-800 border border-gray-100 heading-small",
-    accent: "bg-white text-[#FF2410] border border-[#FF2410] heading-small",
-    disabled: "bg-gray-300 text-gray-50 cursor-not-allowed heading-small",
-    sub: "bg-gray-700 text-white heading-small",
-    sub2: "bg-gray-50 text-gray-800 heading-small",
-  };
+    const combinedClassName = `${buttonVariants({ variant, rounded })} ${className || ''}`;
 
-  const radiusStyles = {
-    none: "rounded-lg",
-    full: "rounded-full",
-  };
-
-  return (
-    <button 
-      type="button"
-      className={`w-[130px] h-[40px] flex items-center justify-center font-medium transition-all duration-200 hover:brightness-90 active:scale-95  ${modeStyles[mode]} ${radiusStyles[radius]} ${className}`}
-      disabled={mode === 'disabled'}
-      {...props}
-    >
-      {text}
-    </button>
-  );
+    return (
+        <button
+            type={type}
+            className={combinedClassName} 
+            disabled={variant === 'disabled'}
+            aria-live="polite"
+            aria-disabled={disabled}
+            {...props}
+        >
+            {children}
+        </button>
+    );
 };
+
+export default Button;
