@@ -18,9 +18,11 @@
     "@azure/core-auth": "^1.10.1",
     "@azure/identity": "^4.13.0",
     "@tanstack/react-router": "^1.157.5",
+    "@tanstack/zod-adapter": "^1.157.18",
     "pdfjs-dist": "^5.4.394",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
