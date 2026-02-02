@@ -17,14 +17,11 @@ export default function BlockWrapper({
   className,
 }: BlockWrapperProps) {
   const { openSidebar } = useSidebarNavigation();
-  const handleClick = () => {
-    openSidebar('comments', blockId);
-  };
 
   return (
     <div
       data-block-id={blockId}
-      onClick={handleClick}
+      onClick={() => openSidebar('comments', blockId)}
       className={cn(
         'relative cursor-pointer rounded-lg transition-all duration-200',
         'mb-4 py-2 pl-4',
