@@ -1,17 +1,32 @@
 import { Header } from '@/components/layout/Header';
-import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { createRootRoute, Outlet, useSearch } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 export const Route = createRootRoute({
   component: RootComponent,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      sidebar: search.sidebar as string | undefined,
+    };
+  },
 });
 
 function RootComponent() {
+  const { sidebar } = useSearch({ from: '__root__' });
+  const isSidebarOpen = sidebar === 'comments';
+
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex min-h-screen flex-col bg-gray-50">
         <Header />
-        <Outlet />
+        <div className="flex flex-1">
+          <main className="flex-1">
+            <Outlet />
+          </main>
+
+          {isSidebarOpen && <Sidebar />}
+        </div>
       </div>
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </>

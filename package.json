@@ -20,8 +20,14 @@
     "@tanstack/react-router": "^1.157.5",
     "@tanstack/zod-adapter": "^1.157.18",
     "pdfjs-dist": "^5.4.394",
+    "clsx": "^2.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

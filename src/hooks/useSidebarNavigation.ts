@@ -17,10 +17,11 @@ export function useSidebarNavigation() {
 
   const closeSidebar = () => {
     navigate({
-      search: (prev) => {
-        const { sidebar, blockId, ...rest } = prev;
-        return rest;
-      },
+      search: (prev) => ({
+        ...prev,
+        sidebar: undefined,
+        blockId: undefined,
+      }),
     });
   };
   return { openSidebar, closeSidebar };
