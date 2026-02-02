@@ -1,27 +1,18 @@
+import { sidebarSchema } from '@/schemas/searchSchemas';
 import { ExtractHeader } from '@/components/layout/extract/ExtractHeader';
 import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 import { dummyComments } from '@/mock/sampleComments';
 import { sampleMarkdown } from '@/mock/sampleMarkdown';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi } from '@tanstack/react-router';
+import { zodValidator } from '@tanstack/zod-adapter';
 
 export const Route = createFileRoute('/extract')({
   component: RouteComponent,
-  validateSearch: (
-    search: Record<string, unknown>
-  ): {
-    sidebar?: 'comments';
-    blockId?: number;
-  } => {
-    return {
-      sidebar:
-        typeof search.sidebar === 'string' && search.sidebar === 'comments'
-          ? 'comments'
-          : undefined,
-      blockId: typeof search.blockId === 'number' ? search.blockId : undefined,
-    };
-  }, // TODO zod 스키마
+  validateSearch: zodValidator(sidebarSchema),
 });
+
+const routeApi = getRouteApi('/extract');
 
 function RouteComponent() {
   const sampleComments = dummyComments;

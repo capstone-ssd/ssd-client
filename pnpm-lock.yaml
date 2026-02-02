@@ -20,6 +20,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.157.5
         version: 1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/zod-adapter':
+        specifier: ^1.157.18
+        version: 1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@3.25.76)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -47,6 +50,9 @@ importers:
       tailwindcss:
         specifier: ^4.0.0
         version: 4.1.18
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@eslint/js':
         specifier: ^9.36.0
@@ -973,6 +979,13 @@ packages:
   '@tanstack/virtual-file-routes@1.154.7':
     resolution: {integrity: sha512-cHHDnewHozgjpI+MIVp9tcib6lYEQK5MyUr0ChHpHFGBl8Xei55rohFK0I0ve/GKoHeioaK42Smd8OixPp6CTg==}
     engines: {node: '>=12'}
+
+  '@tanstack/zod-adapter@1.157.18':
+    resolution: {integrity: sha512-QrwRC6OUHTUFnp9zaBWrpQRTmueJK+3sRITJPOgyjzd2zPL8k5LXQQ0sNwx+oonOtfkj4afOkmUaeuyJi4KlFw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@tanstack/react-router': '>=1.43.2'
+      zod: ^3.23.8
 
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
@@ -3307,6 +3320,11 @@ snapshots:
   '@tanstack/store@0.8.0': {}
 
   '@tanstack/virtual-file-routes@1.154.7': {}
+
+  '@tanstack/zod-adapter@1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@3.25.76)':
+    dependencies:
+      '@tanstack/react-router': 1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      zod: 3.25.76
 
   '@trysound/sax@0.2.0': {}
 
