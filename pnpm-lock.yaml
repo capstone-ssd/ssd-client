@@ -22,7 +22,7 @@ importers:
         version: 1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/zod-adapter':
         specifier: ^1.157.18
-        version: 1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@4.3.6)
+        version: 1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@3.25.76)
       pdfjs-dist:
         specifier: ^5.4.394
         version: 5.4.530
@@ -33,8 +33,8 @@ importers:
         specifier: ^19.1.1
         version: 19.2.3(react@19.2.3)
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@eslint/js':
         specifier: ^9.36.0
@@ -2149,9 +2149,6 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
-
 snapshots:
 
   '@azure-rest/ai-document-intelligence@1.1.0':
@@ -2975,10 +2972,10 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.154.7': {}
 
-  '@tanstack/zod-adapter@1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@4.3.6)':
+  '@tanstack/zod-adapter@1.157.18(@tanstack/react-router@1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(zod@3.25.76)':
     dependencies:
       '@tanstack/react-router': 1.157.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      zod: 4.3.6
+      zod: 3.25.76
 
   '@trysound/sax@0.2.0': {}
 
@@ -4087,5 +4084,3 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.76: {}
-
-  zod@4.3.6: {}
