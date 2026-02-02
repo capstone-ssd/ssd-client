@@ -7,7 +7,7 @@ export interface Comment {
 }
 
 export interface Paragraph {
-  blockId: number;
+  blockId: number | null;
   content: string;
   role?: string;
   pageNumber?: number;

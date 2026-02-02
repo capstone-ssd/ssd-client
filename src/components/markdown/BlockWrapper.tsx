@@ -43,12 +43,6 @@ export default function BlockWrapper({
       )}
     >
       {children}
-
-      {/* {hasComments && (
-        <div className="absolute top-2 -right-5">
-          <span className="text-xs font-semibold">💬</span>
-        </div>
-      )} */}
     </div>
   );
 }
