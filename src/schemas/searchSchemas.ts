@@ -6,3 +6,5 @@ export const sidebarSchema = z
     blockId: z.coerce.number().int().positive().optional(),
   })
   .strip();
+
+export type SidebarSearch = z.infer<typeof sidebarSchema>;
