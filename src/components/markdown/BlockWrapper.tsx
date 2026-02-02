@@ -7,6 +7,7 @@ interface BlockWrapperProps {
   isSelected: boolean;
   children: React.ReactNode;
   className?: string;
+  onSelect?: (blockId: number) => void;
 }
 
 export default function BlockWrapper({
@@ -15,13 +16,17 @@ export default function BlockWrapper({
   isSelected,
   children,
   className,
+  onSelect,
 }: BlockWrapperProps) {
   const { openSidebar } = useSidebarNavigation();
-
+  const handleClick = () => {
+    onSelect?.(blockId);
+    openSidebar('comments', blockId);
+  };
   return (
     <div
       data-block-id={blockId}
-      onClick={() => openSidebar('comments', blockId)}
+      onClick={handleClick}
       className={cn(
         'relative cursor-pointer rounded-lg transition-all duration-200',
         'mb-4 py-2 pl-4',

@@ -13,6 +13,7 @@ export function MarkdownComponent({
   getBlockIdForContent,
   getCommentCount,
   selectedBlockId,
+  onClick,
 }: MarkdownComponentProps): Components {
   return {
     h1: ({ children, ...props }) => {
@@ -32,6 +33,7 @@ export function MarkdownComponent({
           blockId={blockId}
           hasComments={getCommentCount(blockId) > 0}
           isSelected={selectedBlockId === blockId}
+          onSelect={onClick}
         >
           <h1 className="text-3xl font-bold text-gray-900" {...props}>
             {children}
@@ -56,6 +58,7 @@ export function MarkdownComponent({
           blockId={blockId}
           hasComments={getCommentCount(blockId) > 0}
           isSelected={selectedBlockId === blockId}
+          onSelect={onClick}
         >
           <h2 className="text-2xl font-bold text-gray-800" {...props}>
             {children}
@@ -81,6 +84,7 @@ export function MarkdownComponent({
           blockId={blockId}
           hasComments={getCommentCount(blockId) > 0}
           isSelected={selectedBlockId === blockId}
+          onSelect={onClick}
         >
           <h3 className="text-xl font-semibold text-gray-800" {...props}>
             {children}
@@ -106,6 +110,7 @@ export function MarkdownComponent({
           blockId={blockId}
           hasComments={getCommentCount(blockId) > 0}
           isSelected={selectedBlockId === blockId}
+          onSelect={onClick}
         >
           <p className="leading-7 text-gray-700" {...props}>
             {children}
