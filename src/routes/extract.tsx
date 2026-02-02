@@ -4,15 +4,13 @@ import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 import { dummyComments } from '@/mock/sampleComments';
 import { sampleMarkdown } from '@/mock/sampleMarkdown';
-import { createFileRoute, getRouteApi } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 
 export const Route = createFileRoute('/extract')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
 });
-
-const routeApi = getRouteApi('/extract');
 
 function RouteComponent() {
   const sampleComments = dummyComments;

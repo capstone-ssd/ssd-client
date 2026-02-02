@@ -1,5 +1,5 @@
+import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
 import { cn } from '@/utils/cn';
-import { useNavigate } from '@tanstack/react-router';
 
 interface BlockWrapperProps {
   blockId: number;
@@ -16,17 +16,9 @@ export default function BlockWrapper({
   children,
   className,
 }: BlockWrapperProps) {
-  const navigate = useNavigate();
-
+  const { openSidebar } = useSidebarNavigation();
   const handleClick = () => {
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        sidebar: 'comments',
-        blockId: blockId,
-      }),
-    });
+    openSidebar('comments', blockId);
   };
 
   return (
