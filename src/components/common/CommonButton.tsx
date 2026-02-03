@@ -49,7 +49,7 @@ export interface ButtonProps
     children: ReactNode; 
 }
 
-const Button = ({ children, className, variant='main', rounded='small', disabled, ...props }: ButtonProps) => {
+const Button = ({ children, className, variant='main', rounded='small', disabled, type='button', ...props }: ButtonProps) => {
     const combinedClassName = buttonVariants({ 
         variant, 
         rounded, 
@@ -61,6 +61,7 @@ const Button = ({ children, className, variant='main', rounded='small', disabled
         <button
             {...props}
             disabled={disabled} 
+            type={type}
             className={combinedClassName} 
             aria-disabled={disabled}
         >
