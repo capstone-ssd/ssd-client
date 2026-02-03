@@ -178,7 +178,7 @@ export function MarkdownComponent({
         {children}
       </blockquote>
     ),
-    code: ({ inline, children, ...props }: any) =>
+    code: ({ inline, children, ...props }: unknown) =>
       inline ? (
         <code className="rounded bg-gray-100 px-2 py-1 font-mono text-sm text-red-600" {...props}>
           {children}
