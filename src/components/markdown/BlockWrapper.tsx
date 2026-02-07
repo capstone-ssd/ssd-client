@@ -4,29 +4,23 @@ import { cn } from '@/utils/cn';
 interface BlockWrapperProps {
   blockId: number;
   hasComments: boolean;
-  isSelected: boolean;
   children: React.ReactNode;
   className?: string;
-  onSelect?: (blockId: number) => void;
 }
 
 export default function BlockWrapper({
   blockId,
   hasComments,
-  isSelected,
   children,
   className,
-  onSelect,
 }: BlockWrapperProps) {
-  const { openSidebar } = useSidebarNavigation();
-  const handleClick = () => {
-    onSelect?.(blockId);
-    openSidebar('comments', blockId);
-  };
+  const { openSidebar, isBlockSelected } = useSidebarNavigation();
+
+  const isSelected = isBlockSelected(blockId);
   return (
     <button
       data-block-id={blockId}
-      onClick={handleClick}
+      onClick={() => openSidebar('comments', blockId)}
       className={cn(
         'w-full text-left',
         'relative cursor-pointer rounded-lg transition-all duration-200',

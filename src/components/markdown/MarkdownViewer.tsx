@@ -13,13 +13,9 @@ interface MarkdownViewerProps {
 }
 
 export default function MarkdownViewer({ markdown, paragraph, comments }: MarkdownViewerProps) {
-  const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
-
   const annotatedComponents = MarkdownComponent({
     getBlockIdForContent: (content: string) => getBlockIdForContent(content, paragraph),
     getCommentCount: (blockId: number) => getCommentCount(blockId, comments),
-    selectedBlockId,
-    onClick: setSelectedBlockId,
   });
 
   return (
