@@ -24,7 +24,7 @@ export default function MarkdownViewer({ markdown, paragraph, comments }: Markdo
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-4xl p-5">
         <Markdown remarkPlugins={[remarkGfm]} components={annotatedComponents}>
           {markdown}
         </Markdown>
