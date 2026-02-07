@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MarkdownComponent } from './MarkdownComponent';
@@ -19,7 +18,7 @@ export default function MarkdownViewer({ markdown, paragraph, comments }: Markdo
   });
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="min-w-0 flex-1 overflow-x-hidden">
       <div className="mx-auto max-w-4xl p-5">
         <Markdown remarkPlugins={[remarkGfm]} components={annotatedComponents}>
           {markdown}

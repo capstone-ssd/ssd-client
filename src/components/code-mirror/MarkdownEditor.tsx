@@ -24,7 +24,7 @@ const doubleEnterKeymap = keymap.of([
 
 export default function MarkdownEditor({ text, onChange, className }: MarkdownEditorProps) {
   return (
-    <div className={cn(className, 'flex-1')}>
+    <div className={cn('min-w-0 flex-1 overflow-hidden', className)}>
       <CodeMirror
         value={text}
         height="100%"
