@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MarkdownComponent } from './MarkdownComponent';
@@ -13,18 +12,14 @@ interface MarkdownViewerProps {
 }
 
 export default function MarkdownViewer({ markdown, paragraph, comments }: MarkdownViewerProps) {
-  const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
-
   const annotatedComponents = MarkdownComponent({
     getBlockIdForContent: (content: string) => getBlockIdForContent(content, paragraph),
     getCommentCount: (blockId: number) => getCommentCount(blockId, comments),
-    selectedBlockId,
-    onClick: setSelectedBlockId,
   });
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-w-0 flex-1 overflow-x-hidden">
+      <div className="mx-auto max-w-4xl p-5">
         <Markdown remarkPlugins={[remarkGfm]} components={annotatedComponents}>
           {markdown}
         </Markdown>
