@@ -5,15 +5,11 @@ import { extractTextFromChildren } from './utils/extractTextFromChildren';
 interface MarkdownComponentProps {
   getBlockIdForContent: (content: string) => number | null;
   getCommentCount: (blockId: number) => number;
-  selectedBlockId: number | null;
-  onClick: (blockId: number) => void;
 }
 
 export function MarkdownComponent({
   getBlockIdForContent,
   getCommentCount,
-  selectedBlockId,
-  onClick,
 }: MarkdownComponentProps): Components {
   return {
     h1: ({ children, ...props }) => {
@@ -29,12 +25,7 @@ export function MarkdownComponent({
       }
 
       return (
-        <BlockWrapper
-          blockId={blockId}
-          hasComments={getCommentCount(blockId) > 0}
-          isSelected={selectedBlockId === blockId}
-          onSelect={onClick}
-        >
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
           <h1 className="text-3xl font-bold text-gray-900" {...props}>
             {children}
           </h1>
@@ -54,12 +45,7 @@ export function MarkdownComponent({
       }
 
       return (
-        <BlockWrapper
-          blockId={blockId}
-          hasComments={getCommentCount(blockId) > 0}
-          isSelected={selectedBlockId === blockId}
-          onSelect={onClick}
-        >
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
           <h2 className="text-2xl font-bold text-gray-800" {...props}>
             {children}
           </h2>
@@ -80,12 +66,7 @@ export function MarkdownComponent({
       }
 
       return (
-        <BlockWrapper
-          blockId={blockId}
-          hasComments={getCommentCount(blockId) > 0}
-          isSelected={selectedBlockId === blockId}
-          onSelect={onClick}
-        >
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
           <h3 className="text-xl font-semibold text-gray-800" {...props}>
             {children}
           </h3>
@@ -106,12 +87,7 @@ export function MarkdownComponent({
       }
 
       return (
-        <BlockWrapper
-          blockId={blockId}
-          hasComments={getCommentCount(blockId) > 0}
-          isSelected={selectedBlockId === blockId}
-          onSelect={onClick}
-        >
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
           <p className="leading-7 text-gray-700" {...props}>
             {children}
           </p>

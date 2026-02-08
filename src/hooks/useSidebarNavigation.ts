@@ -1,13 +1,15 @@
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import type { SidebarSearch } from '@/schemas/searchSchemas';
-import { getRouteApi } from '@tanstack/react-router';
 
-const routeApi = getRouteApi('/extract');
 export function useSidebarNavigation() {
-  const navigate = routeApi.useNavigate();
+  const navigate = useNavigate();
+
+  const search = useSearch({ strict: false });
 
   const openSidebar = (sidebar: SidebarSearch['sidebar'], blockId: SidebarSearch['blockId']) => {
     navigate({
-      search: (prev) => ({
+      to: '.',
+      search: (prev: Record<string, unknown>) => ({
         ...prev,
         sidebar,
         blockId,
@@ -17,12 +19,20 @@ export function useSidebarNavigation() {
 
   const closeSidebar = () => {
     navigate({
-      search: (prev) => ({
+      to: '.',
+      search: (prev: Record<string, unknown>) => ({
         ...prev,
         sidebar: undefined,
         blockId: undefined,
       }),
     });
   };
-  return { openSidebar, closeSidebar };
+
+  return {
+    openSidebar,
+    closeSidebar,
+    currentSidebar: search.sidebar,
+    currentBlockId: search.blockId,
+    isBlockSelected: (id: number) => search.blockId === id,
+  };
 }
