@@ -72,3 +72,17 @@ export const syncParagraphsWithTracking = (
     };
   });
 };
+
+/**
+ *
+ * @param newParagraphs syncParagraphsWithTracking()로 반환된 수정 이후 Paragraphs[]
+ * @param prevParagraphs 기존 Paragraphs[]
+ * @returns 수정 이후 변화가 생긴 Paragraphs[]
+ */
+export const getChangedParagraphs = (
+  newParagraphs: Paragraph[],
+  prevParagraphs: Paragraph[]
+): Paragraph[] => {
+  const prevIds = new Set(prevParagraphs.map((paragraph) => paragraph.blockId));
+  return newParagraphs.filter((paragraph) => !prevIds.has(paragraph.blockId));
+};
