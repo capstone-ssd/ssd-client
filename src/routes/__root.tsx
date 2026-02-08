@@ -11,7 +11,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const { sidebar } = useSearch({ from: '__root__' });
-  const isSidebarOpen = sidebar === 'comments';
+  const isSidebarOpen = !!sidebar;
 
   return (
     <>
