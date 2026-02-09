@@ -28,11 +28,21 @@ export function useSidebarNavigation() {
     });
   };
 
+  const handleTabClick = (tabId: SidebarSearch['sidebar']) => {
+    if (!tabId) return;
+
+    if (search.sidebar === tabId) return;
+
+    openSidebar(tabId, search.blockId);
+  };
+
   return {
     openSidebar,
     closeSidebar,
     currentSidebar: search.sidebar,
     currentBlockId: search.blockId,
+    currentRole: search.role,
     isBlockSelected: (id: number) => search.blockId === id,
+    handleTabClick,
   };
 }

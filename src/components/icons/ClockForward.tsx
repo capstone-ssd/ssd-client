@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgClockForward = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 23 22" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m14 13.5-3-1v-5m9 3C20 5.53 15.97 1 11 1S1 4.298 1 10.638C1 17.276 6 21 11 21s7.5-3.5 8-4.5m-1-6 2.156 2.25L22 10.5" /></svg>;
+export default SvgClockForward;

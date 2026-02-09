@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgAiEvaluation = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 23" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 22h-6c-2 0-3.5-1.343-3.5-3V3.835C1 2.178 1.733 1 3.5 1h12c1.767 0 3.2 1.178 3.2 2.835V9m1.347 10.68s1.895 1.734 2.52 2.32M5.1 5h9.6M5.1 9.5h9.6M5.1 14h4.8M21 17.25C21 19.32 19.21 21 17 21s-4-1.679-4-3.75 1.79-3.75 4-3.75 4 1.679 4 3.75" /></svg>;
+export default SvgAiEvaluation;
