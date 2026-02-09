@@ -1,5 +1,5 @@
 import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
-import { getTabsByRole } from './utils/getTablesByRole';
+import { getTabsByRole } from './utils/getTabsByRole';
 
 /**
  * Sidebar Tab Navigation Component
