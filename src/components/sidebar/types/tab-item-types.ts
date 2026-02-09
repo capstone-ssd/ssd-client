@@ -1,3 +1,4 @@
+import React from 'react';
 import type { SidebarSearch } from '@/schemas/searchSchemas';
 
 export interface TabItem {
