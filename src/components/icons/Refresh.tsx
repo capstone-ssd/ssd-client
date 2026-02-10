@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgRefresh = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 12 12" role="img" {...props}><path stroke="#434343" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1.891 3.4C2.676 1.965 4.143 1 5.823 1c1.905 0 3.536 1.24 4.21 3M3.27 4H1V1.6m8.709 6.6c-.785 1.435-2.252 2.4-3.932 2.4-1.905 0-3.536-1.24-4.21-3m6.763 0h2.27V10" /></svg>;
+export default SvgRefresh;
