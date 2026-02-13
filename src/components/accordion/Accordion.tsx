@@ -52,12 +52,13 @@ export interface AccordionTriggerProps extends React.ComponentPropsWithoutRef<
   typeof AccordionPrimitive.Trigger
 > {
   showRefreshIcon?: boolean;
+  onRefresh?: () => void;
 }
 
 export const AccordionTrigger = React.forwardRef<
   React.ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
->(({ className, children, showRefreshIcon = false, ...props }, ref) => (
+>(({ className, children, showRefreshIcon = false, onRefresh, ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -67,7 +68,17 @@ export const AccordionTrigger = React.forwardRef<
       <span className="heading-medium">{children}</span>
       <div className="flex items-center gap-2.5">
         {showRefreshIcon && (
-          <Refresh className="h-[9.6px] w-[9.6px] shrink-0 text-gray-800" aria-hidden="true" />
+          <button
+            type="button"
+            aria-label="새로고침"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRefresh?.();
+            }}
+            className="rounded p-0.5 hover:text-gray-600"
+          >
+            <Refresh className="h-[9.6px] w-[9.6px] shrink-0 text-gray-800" aria-hidden="true" />
+          </button>
         )}
         <ChevronRight
           className="h-2 w-2 shrink-0 items-center justify-center text-gray-800 transition-transform duration-200 group-data-[state=open]:rotate-90"
