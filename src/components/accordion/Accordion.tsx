@@ -118,7 +118,7 @@ AccordionContent.displayName = 'AccordionContent';
  * @example
  * ```tsx
  * <Accordion.Root type="single" collapsible>
- *   <Accordion.Item value="item-1" variant="box">
+ *   <Accordion.Item value="item-1">
  *     <Accordion.Trigger showRefreshIcon>키워드</Accordion.Trigger>
  *     <Accordion.Content>
  *       <YourComponent />
