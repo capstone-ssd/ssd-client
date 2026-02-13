@@ -59,33 +59,30 @@ export const AccordionTrigger = React.forwardRef<
   React.ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >(({ className, children, showRefreshIcon = false, onRefresh, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
+  <AccordionPrimitive.Header className="group flex items-center justify-between px-5 py-4">
     <AccordionPrimitive.Trigger
       ref={ref}
-      className={`group focus-visible:ring-primary-500 flex flex-1 items-center justify-between px-5 py-4 text-[24px] leading-normal font-bold text-gray-800 transition-all hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className || ''}`}
+      className={`focus-visible:ring-primary-500 flex flex-1 items-center text-[24px] leading-normal font-bold text-gray-800 transition-all hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className || ''}`}
       {...props}
     >
       <span className="heading-medium">{children}</span>
-      <div className="flex items-center gap-2.5">
-        {showRefreshIcon && (
-          <button
-            type="button"
-            aria-label="새로고침"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRefresh?.();
-            }}
-            className="rounded p-0.5 hover:text-gray-600"
-          >
-            <Refresh className="h-[9.6px] w-[9.6px] shrink-0 text-gray-800" aria-hidden="true" />
-          </button>
-        )}
-        <ChevronRight
-          className="h-2 w-2 shrink-0 items-center justify-center text-gray-800 transition-transform duration-200 group-data-[state=open]:rotate-90"
-          aria-hidden="true"
-        />
-      </div>
     </AccordionPrimitive.Trigger>
+    <div className="flex items-center gap-2.5">
+      {showRefreshIcon && (
+        <button
+          type="button"
+          aria-label="새로고침"
+          onClick={() => onRefresh?.()}
+          className="rounded p-0.5 hover:text-gray-600"
+        >
+          <Refresh className="h-[9.6px] w-[9.6px] shrink-0 text-gray-800" aria-hidden="true" />
+        </button>
+      )}
+      <ChevronRight
+        className="h-2 w-2 shrink-0 text-gray-800 transition-transform duration-200 group-data-[state=open]:rotate-90"
+        aria-hidden="true"
+      />
+    </div>
   </AccordionPrimitive.Header>
 ));
 AccordionTrigger.displayName = 'AccordionTrigger';
