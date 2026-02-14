@@ -81,27 +81,27 @@
   --color-green-100: #D4FDC5;
   --color-green-50: #EEFFE8;
 
-  --color-Limegreen-900: #7D8900;
-  --color-Limegreen-800: #91B200;
-  --color-Limegreen-700: #9FC900;
-  --color-Limegreen-600: #ADE100;
-  --color-Limegreen-500: #B7F30D;
-  --color-Limegreen-400: #C2F647;
-  --color-Limegreen-300: #CDF96D;
-  --color-Limegreen-200: #DCFB9A;
-  --color-Limegreen-100: #EAFCC2;
-  --color-Limegreen-50: #F6FEE7;
+  --color-limegreen-900: #7D8900;
+  --color-limegreen-800: #91B200;
+  --color-limegreen-700: #9FC900;
+  --color-limegreen-600: #ADE100;
+  --color-limegreen-500: #B7F30D;
+  --color-limegreen-400: #C2F647;
+  --color-limegreen-300: #CDF96D;
+  --color-limegreen-200: #DCFB9A;
+  --color-limegreen-100: #EAFCC2;
+  --color-limegreen-50: #F6FEE7;
 
-  --color-Brick-900: #B64614;
-  --color-Brick-800: #CE531C;
-  --color-Brick-700: #DC5A1F;
-  --color-Brick-600: #EA6123;
-  --color-Brick-500: #F56727;
-  --color-Brick-400: #F67C47;
-  --color-Brick-300: #F79268;
-  --color-Brick-200: #F9B093;
-  --color-Brick-100: #FBCFBE;
-  --color-Brick-50: #FCEAE7;
+  --color-brick-900: #B64614;
+  --color-brick-800: #CE531C;
+  --color-brick-700: #DC5A1F;
+  --color-brick-600: #EA6123;
+  --color-brick-500: #F56727;
+  --color-brick-400: #F67C47;
+  --color-brick-300: #F79268;
+  --color-brick-200: #F9B093;
+  --color-brick-100: #FBCFBE;
+  --color-brick-50: #FCEAE7;
 
   --color-purple-900: #3C31B6;
   --color-purple-800: #523DC5;
@@ -114,16 +114,16 @@
   --color-purple-100: #D8CCF6;
   --color-purple-50: #F0EAFB;
 
-  --color-Violet-900: #760081;
-  --color-Violet-800: #94008C;
-  --color-Violet-700: #A40092;
-  --color-Violet-600: #B70097;
-  --color-Violet-500: #C4009B;
-  --color-Violet-400: #D219AA;
-  --color-Violet-300: #DE51BA;
-  --color-Violet-200: #EB87CF;
-  --color-Violet-100: #F3B8E1;
-  --color-Violet-50: #FBE3F3;
+  --color-violet-900: #760081;
+  --color-violet-800: #94008C;
+  --color-violet-700: #A40092;
+  --color-violet-600: #B70097;
+  --color-violet-500: #C4009B;
+  --color-violet-400: #D219AA;
+  --color-violet-300: #DE51BA;
+  --color-violet-200: #EB87CF;
+  --color-violet-100: #F3B8E1;
+  --color-violet-50: #FBE3F3;
 
   /* Font */
   --font-sans:
