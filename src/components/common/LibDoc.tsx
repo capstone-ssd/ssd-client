@@ -135,7 +135,10 @@ export default function LibraryDocument({
 
   className,
 }: LibraryDocumentProps) {    // 링크 주소 생성
-  const to = `/extract?documentId=${encodeURIComponent(documentId)}`
+  // const to = `/extract?documentId=${encodeURIComponent(documentId)}`
+  const to = '/extract'
+  const search = { documentId }
+
 
   // 즐겨찾기
   const [fav, setFav] = useState<boolean>(isFavorite)
@@ -161,6 +164,7 @@ export default function LibraryDocument({
         {/* 썸네일 클릭 시 extract 이동 */}
         <Link
           to={to}
+          search={search}
           aria-label={`문서 열기: ${title}`}
           className={thumbnailButtonVariants({ itemType })}
         >
@@ -205,6 +209,7 @@ export default function LibraryDocument({
         {/* 타이틀 클릭 시 extract 이동 */}
         <Link
           to={to}
+          search={search}
           className={cn(titleButtonVariants(), 'flex-1')}
           title={title}
           aria-label={`문서 열기: ${title}`}
