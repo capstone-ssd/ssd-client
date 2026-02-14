@@ -2,22 +2,15 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { cva } from 'class-variance-authority'
+import { useState, useEffect } from 'react'
+
 
 // generated icons 
 import DotVertical from '@/components/icons/DotVertical'
 import IconStar from '@/components/icons/IconStar'
 import Folder from '@/components/icons/Folder'
 
-// import IconStarFilled from '@/components/icons/IconStarFilled'
-// import IconStarFilled2 from '@/components/icons/IconStarFilled2'
-
-// 추가함 -- clsx와 cn중에 뭐로 해야 하나요?
-// import clsx from 'clsx'
-
-// cn 유틸
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(' ')
-}
+import { cn } from '@/utils/cn'
 
 type LibraryItemType = 'document' | 'folder'
 
@@ -33,7 +26,6 @@ export interface LibraryDocumentProps {
   // 상태(표시용)
   isFavorite?: boolean
   isActive?: boolean // 현재/최근 열었던 문서 하이라이트
-  isChecked?: boolean // 멀티 선택(체크박스) (부가기능)
   
 
   // 액션(부가 기능)
@@ -127,14 +119,6 @@ const moreButtonVariants = cva(    // 더보기 버튼
 
 const contentLayer = 'relative z-10'
 
-// const checkButtonVariants = cva(  // 문서 다중 선택(부가기능)
-//   [
-//     'absolute left-0 top-0',
-//     'p-1',
-//     'bg-transparent backdrop-blur hover:bg-white/50',
-//   ].join(' ')
-// )
-
 export default function LibraryDocument({
   documentId,
   itemType = 'document',
@@ -144,10 +128,8 @@ export default function LibraryDocument({
   folderColor = 'text-primary-400',
 
   isFavorite = false,
-  isChecked = false,
   isActive = false,
 
-  onCheck,
   onToggleFavorite,
   onMore,
 
@@ -155,9 +137,9 @@ export default function LibraryDocument({
 }: LibraryDocumentProps) {    // 링크 주소 생성
   const to = `/extract?documentId=${encodeURIComponent(documentId)}`
 
-  // 즐겨찾기: 로컬 state로 즉시 UI 변화 보장 + 부모 콜백도 호출
-  const [fav, setFav] = React.useState<boolean>(isFavorite)
-  React.useEffect(() => {
+  // 즐겨찾기
+  const [fav, setFav] = useState<boolean>(isFavorite)
+    useEffect(() => {
     setFav(isFavorite)
   }, [isFavorite])
 
@@ -200,26 +182,7 @@ export default function LibraryDocument({
           )}
         </Link>
 
-        {/* 체크박스(멀티 선택) - 부가기능 */}
-        {onCheck && (
-          <button
-            type="button"
-            onClick={(e) => {
-              stopLink(e)
-              onCheck(documentId, !isChecked)
-            }}
-            // aria-label={isChecked ? '선택 해제' : '선택'}
-            // aria-pressed={isChecked}
-            // className={clsx(iconButtonBase(), checkButtonVariants())}
-          >
-            {/* TODO: 체크 아이콘 생성되면 여기 교체 */}
-            {/* <span className={cn(
-              'text-[18px] leading-none', 
-              isChecked ? 'text-primary-500' : 'text-gray-300')}>
-              {isChecked ? '✓' : '□'}
-            </span> */}
-          </button>
-        )}
+       
 
         {/* 즐겨찾기 */}
         <button
@@ -269,61 +232,3 @@ export default function LibraryDocument({
     </article>
   )
 }
-
-// function FolderThumbnail({
-//   color = 'text-primary-400',
-//   className = '',
-//   title = '폴더',
-// }: {
-//   color?: string
-//   className?: string
-//   title?: string
-// }) {
-//   return (
-//     <svg
-//       viewBox="0 0 320 260"
-//       role="img"
-//       aria-label={title}
-//       className={className}
-//       xmlns="http://www.w3.org/2000/svg"
-//     >
-//       <path
-//         d="M36 60
-//            C36 49 45 40 56 40
-//            H138
-//            C144 40 150 43 154 47
-//            L190 83
-//            C194 87 200 90 206 90
-//            H284
-//            C295 90 304 99 304 110
-//            V120
-//            H36
-//            Z"
-//         fill="currentColor"
-//       />
-//       <path
-//         d="M36 100
-//            H304
-//            V214
-//            C304 228 293 240 279 240
-//            H61
-//            C47 240 36 228 36 214
-//            Z"
-//         fill="currentColor"
-//       />
-//     </svg>
-//   )
-// }
-
-// 사용
-{/* <LibDoc
-  documentId="doc-001"
-  itemType="document"
-  title="이건 cva 코드"
-  date="2025.02.02"
-  thumbnailUrl="" // 빈 문자열이면 false로 취급되어 placeholder 로직이면 placeholder로 갈 가능성 큼
-  isFavorite={false}
-  isChecked={false}
-  isActive={false}
-  className=""
-/> */}
