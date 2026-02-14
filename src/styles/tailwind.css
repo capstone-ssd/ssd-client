@@ -48,82 +48,16 @@
   --color-accent-100: #e5ffcc;
   --color-accent-50: #f0ffe5;
 
-  --color-skyblue-900: #00528A;
-  --color-skyblue-800: #0071AA;
-  --color-skyblue-700: #0281BE;
-  --color-skyblue-600: #0D94D1;
-  --color-skyblue-500: #12A1DF;
-  --color-skyblue-400: #37AFE2;
-  --color-skyblue-300: #5BBCE4;
-  --color-skyblue-200: #87CFEB;
-  --color-skyblue-100: #B5E2F3;
-  --color-skyblue-50: #E1F4FA;
-
-  --color-blue-900: #0016B6;
-  --color-blue-800: #002DCF;
-  --color-blue-700: #0039D9;
-  --color-blue-600: #0045E6;
-  --color-blue-500: #004EF2;
-  --color-blue-400: #476AF6;
-  --color-blue-300: #6F87F8;
-  --color-blue-200: #9DA9FA;
-  --color-blue-100: #C5CBFC;
-  --color-blue-50: #E8EAFE;
-
-  --color-green-900: #009100;
-  --color-green-800: #00B600;
-  --color-green-700: #00CA00;
-  --color-green-600: #18E000;
-  --color-green-500: #3BF200;
-  --color-green-400: #6AF647;
-  --color-green-300: #8FFA71;
-  --color-green-200: #B4FC9E;
-  --color-green-100: #D4FDC5;
-  --color-green-50: #EEFFE8;
-
-  --color-limegreen-900: #7D8900;
-  --color-limegreen-800: #91B200;
-  --color-limegreen-700: #9FC900;
-  --color-limegreen-600: #ADE100;
-  --color-limegreen-500: #B7F30D;
-  --color-limegreen-400: #C2F647;
-  --color-limegreen-300: #CDF96D;
-  --color-limegreen-200: #DCFB9A;
-  --color-limegreen-100: #EAFCC2;
-  --color-limegreen-50: #F6FEE7;
-
-  --color-brick-900: #B64614;
-  --color-brick-800: #CE531C;
-  --color-brick-700: #DC5A1F;
-  --color-brick-600: #EA6123;
-  --color-brick-500: #F56727;
-  --color-brick-400: #F67C47;
-  --color-brick-300: #F79268;
-  --color-brick-200: #F9B093;
-  --color-brick-100: #FBCFBE;
-  --color-brick-50: #FCEAE7;
-
-  --color-purple-900: #3C31B6;
-  --color-purple-800: #523DC5;
-  --color-purple-700: #5F43CD;
-  --color-purple-600: #6D4CD7;
-  --color-purple-500: #7851DE;
-  --color-purple-400: #8D6BE5;
-  --color-purple-300: #A387EB;
-  --color-purple-200: #BEABF0;
-  --color-purple-100: #D8CCF6;
-  --color-purple-50: #F0EAFB;
-
-  --color-violet-900: #760081;
-  --color-violet-800: #94008C;
-  --color-violet-700: #A40092;
-  --color-violet-600: #B70097;
-  --color-violet-500: #C4009B;
-  --color-violet-400: #D219AA;
-  --color-violet-300: #DE51BA;
-  --color-violet-200: #EB87CF;
-  --color-violet-100: #F3B8E1;
-  --color-violet-50: #FBE3F3;
+  --color-red-900: #d70000;
+  --color-red-800: #ee0202;
+  --color-red-700: #fc1808;
+  --color-red-600: #ff2410;
+  --color-red-500: #ff2c14;
+  --color-red-400: #ff593a;
+  --color-red-300: #ff7c5d;
+  --color-red-200: #ffa38c;
+  --color-red-100: #ffc8b9;
+  --color-red-50: #ffe7e6;
 
   /* Font */
   --font-sans:
@@ -131,6 +65,36 @@
 }
 
 @layer utilities {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+
+  .animate-accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .animate-accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+
   .heading-xlarge {
     font-size: 3.75rem;
     font-weight: 700;
@@ -183,20 +147,6 @@
   .body-small-s {
     font-size: 1.25rem;
     font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0;
-  }
-
-  .body-Button {
-    font-size: 1.25rem;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0;
-  }
-
-  .body-xsmall-s {
-    font-size: 1.125rem;
-    font-weight: 600;
     line-height: normal;
     letter-spacing: 0;
   }
