@@ -30,7 +30,7 @@ import SvgDebateNote from '@/components/icons/DebateNote';
  */
 export interface DebateContentProps {
   question?: string;
-  onQuestionChange?: (value: string) => void;
+  onQuestionChange: (value: string) => void;
   onAsk?: () => void;
   answer?: string;
   showRefreshIcon?: boolean;
@@ -65,7 +65,7 @@ const DebateContent = ({
       >
         <textarea
           value={question}
-          onChange={(e) => onQuestionChange?.(e.target.value)}
+          onChange={(e) => onQuestionChange(e.target.value)}
           placeholder={QUESTION_PLACEHOLDER}
           rows={3}
           className="w-full resize-none bg-transparent text-[14px] leading-normal text-white placeholder-white/60 outline-none"
