@@ -51,7 +51,7 @@ const AccordionSection = ({
           <Accordion.Trigger showRefreshIcon={showRefreshIcon} onRefresh={onRefresh}>
             {title}
           </Accordion.Trigger>
-          <Accordion.Content className="p-5 pt-0">{children}</Accordion.Content>
+          <Accordion.Content className="px-5 pb-5">{children}</Accordion.Content>
         </Accordion.Item>
       </Accordion>
     </section>
