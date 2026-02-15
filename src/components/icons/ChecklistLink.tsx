@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgChecklistLink = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 16 16" role="img" {...props}><rect width={16} height={16} fill="#F5C816" rx={3} /><path stroke="#262626" strokeLinecap="round" strokeLinejoin="round" d="M5.286 7.003 3.922 8.366a2.717 2.717 0 0 0 .028 3.873c.517.534 1.215.82 1.943.825a2.66 2.66 0 0 0 1.93-.78l1.364-1.363m1.741-1.709 1.364-1.363a2.717 2.717 0 0 0-.028-3.873 2.77 2.77 0 0 0-1.943-.808 2.7 2.7 0 0 0-1.93.78L7.027 5.31M6.04 10.14l4.09-4.09" /></svg>;
+export default SvgChecklistLink;
