@@ -1,10 +1,14 @@
 export { default as AiEvaluation } from './AiEvaluation';
 export { default as Bookmark } from './Bookmark';
+export { default as Check } from './Check';
+export { default as ChecklistLink } from './ChecklistLink';
 export { default as ChevronRight } from './ChevronRight';
 export { default as ClockForward } from './ClockForward';
+export { default as DebateNote } from './DebateNote';
 export { default as Download } from './Download';
 export { default as File } from './File';
 export { default as MessageText } from './MessageText';
+export { default as NonCheck } from './NonCheck';
 export { default as Refresh } from './Refresh';
 export { default as Summary } from './Summary';
 export { default as Upload } from './Upload';
