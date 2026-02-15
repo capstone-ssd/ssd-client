@@ -40,9 +40,9 @@ const KeywordContent = ({
     defaultOpen={defaultOpen}
   >
     <div className="flex flex-wrap gap-2.5">
-      {keywords.map((keyword) => (
+      {keywords.map((keyword, index) => (
         <span
-          key={keyword}
+          key={`${keyword}-${index}`}
           className={`inline-flex items-center rounded-lg bg-gray-700 px-2.5 py-1 text-[14px] leading-normal font-semibold text-white`}
         >
           {keyword}
