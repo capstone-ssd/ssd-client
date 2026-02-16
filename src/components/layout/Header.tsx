@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 import Svglogo from '@/components/icons/logo';
 import Svgmenu from '@/components/icons/menu';
