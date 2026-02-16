@@ -27,11 +27,12 @@ export const Header = () => {
       <header className="grid h-[100px] w-full grid-cols-[1fr_3fr_1fr] items-center border-b border-gray-200 bg-white whitespace-nowrap">
         <div className="flex justify-start">
           <Link to="/">
-            <Svglogo className="h-10 w-auto" />
+            <Svglogo />
           </Link>
         </div>
         <nav className="flex justify-center">
-          <ul className="flex list-none items-center gap-40">
+          <ul className="flex list-none items-center gap-25">
+            {/*화면에 따라 다르게 보일 거라 수정이 더 필요합니다*/}
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -39,7 +40,7 @@ export const Header = () => {
                   <Link
                     to={item.path}
                     className={`body-nav pb-2 ${
-                      isActive ? 'text-primary-400 border-b-4 font-bold' : 'text-gray-900'
+                      isActive ? 'text-primary-400 border-b-4 font-bold' : 'font-bold text-gray-900'
                     }`}
                   >
                     {item.name}
