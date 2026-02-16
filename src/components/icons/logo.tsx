@@ -1,5 +1,4 @@
-import type { SVGProps } from 'react';
-const Svglogo = (props: SVGProps<SVGSVGElement>) => (
+const Svglogo = () => (
   <svg
     width="356"
     height="55"
