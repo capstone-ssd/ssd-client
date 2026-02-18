@@ -9,6 +9,7 @@ export { default as Download } from './Download';
 export { default as File } from './File';
 export { default as MessageText } from './MessageText';
 export { default as NonCheck } from './NonCheck';
+export { default as Profile } from './Profile';
 export { default as Refresh } from './Refresh';
 export { default as Summary } from './Summary';
 export { default as Upload } from './Upload';
