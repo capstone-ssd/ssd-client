@@ -53,12 +53,13 @@ export interface AccordionTriggerProps extends React.ComponentPropsWithoutRef<
 > {
   showRefreshIcon?: boolean;
   onRefresh?: () => void;
+  trailing?: React.ReactNode;
 }
 
 export const AccordionTrigger = React.forwardRef<
   React.ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
->(({ className, children, showRefreshIcon = false, onRefresh, ...props }, ref) => (
+>(({ className, children, showRefreshIcon = false, onRefresh, trailing, ...props }, ref) => (
   <AccordionPrimitive.Header className="group flex items-center justify-between px-5 py-4">
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -68,6 +69,7 @@ export const AccordionTrigger = React.forwardRef<
       <span className="heading-medium">{children}</span>
     </AccordionPrimitive.Trigger>
     <div className="flex items-center gap-2.5">
+      {trailing}
       {showRefreshIcon && (
         <button
           type="button"
