@@ -7,20 +7,20 @@ import SvgProfile from '@/components/icons/Profile';
  * @param timestamp - 작성 시각 (예: "오후 14:30:00")
  * @param children - 사용자 정보 아래에 렌더링될 콘텐츠
  */
-export interface AccordionBookmarkProps {
+export interface AccordionProfileSectionProps {
   userName: string;
   userEmail: string;
   timestamp: string;
   children?: React.ReactNode;
 }
 
-const AccordionBookmark = ({
+const AccordionProfileSection = ({
   userName,
   userEmail,
   timestamp,
   children,
-}: AccordionBookmarkProps) => (
-  <div className="flex gap-5">
+}: AccordionProfileSectionProps) => (
+  <section className="flex gap-5">
     <div className="flex w-[38px] shrink-0 flex-col items-center">
       <SvgProfile width={38} height={38} />
     </div>
@@ -33,7 +33,7 @@ const AccordionBookmark = ({
       </div>
       {children}
     </div>
-  </div>
+  </section>
 );
 
-export default AccordionBookmark;
+export default AccordionProfileSection;

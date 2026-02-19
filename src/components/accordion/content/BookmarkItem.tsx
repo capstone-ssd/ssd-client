@@ -1,5 +1,5 @@
 import { cn } from '@/utils/cn';
-import AccordionBookmark from './AccordionBookmark';
+import AccordionProfileSection from './AccordionProfileSection';
 
 /**
  *
@@ -42,7 +42,7 @@ const BookmarkItem = ({
     className={`${cn('rounded-xl border border-gray-100 bg-white p-5', className)}`}
     aria-label={`${userName}의 북마크`}
   >
-    <AccordionBookmark userName={userName} userEmail={userEmail} timestamp={timestamp}>
+    <AccordionProfileSection userName={userName} userEmail={userEmail} timestamp={timestamp}>
       {/* 북마크 내용 */}
       <div className="flex flex-col gap-1.5">
         {/* 인용문 */}
@@ -55,7 +55,7 @@ const BookmarkItem = ({
           <p className="text-xxsmall text-gray-800">{comment}</p>
         </div>
       </div>
-    </AccordionBookmark>
+    </AccordionProfileSection>
   </article>
 );
 
