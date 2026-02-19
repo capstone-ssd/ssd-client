@@ -63,7 +63,7 @@ export const AccordionTrigger = React.forwardRef<
   <AccordionPrimitive.Header className="group flex items-center justify-between px-5 py-4">
     <AccordionPrimitive.Trigger
       ref={ref}
-      className={`focus-visible:ring-primary-500 flex flex-1 items-center text-[24px] leading-normal font-bold text-gray-800 transition-all hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className || ''}`}
+      className={`focus-visible:ring-primary-500 flex flex-1 items-center text-gray-800 transition-all hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className || ''}`}
       {...props}
     >
       <span className="heading-medium">{children}</span>

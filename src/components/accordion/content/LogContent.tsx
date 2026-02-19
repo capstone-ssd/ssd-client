@@ -39,11 +39,7 @@ const LogContent = ({ date, entries, defaultOpen = false, className }: LogConten
       <Accordion type="single" collapsible defaultValue={defaultOpen ? itemValue : undefined}>
         <Accordion.Item value={itemValue} className="mb-0 rounded-xl border-0 bg-white">
           <Accordion.Trigger
-            trailing={
-              <span className="text-[18px] leading-normal font-normal text-gray-700">
-                {entries.length}건
-              </span>
-            }
+            trailing={<span className="body-xsmall text-gray-700">{entries.length}건</span>}
           >
             {date}
           </Accordion.Trigger>
@@ -62,9 +58,7 @@ const LogContent = ({ date, entries, defaultOpen = false, className }: LogConten
                       timestamp={entry.timestamp}
                     >
                       <div className="rounded bg-gray-50 px-5 py-0.5">
-                        <span className="text-[18px] leading-normal font-normal text-gray-800">
-                          {entry.content}
-                        </span>
+                        <span className="body-xsmall text-gray-800">{entry.content}</span>
                       </div>
                     </AccordionProfileSection>
                   </article>

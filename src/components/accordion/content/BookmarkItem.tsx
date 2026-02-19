@@ -47,12 +47,12 @@ const BookmarkItem = ({
       <div className="flex flex-col gap-1.5">
         {/* 인용문 */}
         <div className="px-1 py-1">
-          <blockquote className="text-xsmall text-gray-800">&ldquo;{quotedText}&rdquo;</blockquote>
+          <blockquote className="body-xsmall text-gray-800">&ldquo;{quotedText}&rdquo;</blockquote>
         </div>
         <hr />
         {/* 코멘트 */}
         <div className="rounded bg-gray-50 px-5 py-0.5">
-          <p className="text-xxsmall text-gray-800">{comment}</p>
+          <p className="body-xxsmall text-gray-800">{comment}</p>
         </div>
       </div>
     </AccordionProfileSection>
