@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgProfile = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 38 38" role="img" {...props}><circle cx={19} cy={19} r={19} fill="#C4C4C4" /><path fill="#C4C4C4" d="M5.02 5.019h28.679v28.679H5.019z" /><path stroke="#fff" strokeLinecap="round" strokeWidth={2} d="M8.889 28.321c1.584-2.642 5.055-4.45 10.47-4.45s8.887 1.808 10.471 4.45m-6.169-13.623a4.302 4.302 0 1 1-8.604 0 4.302 4.302 0 0 1 8.604 0Z" /></svg>;
+export default SvgProfile;
