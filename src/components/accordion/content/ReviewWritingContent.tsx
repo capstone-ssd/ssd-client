@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Accordion from '..';
 
 /**
  * 리뷰 쓰기 폼의 점수 입력 카테고리 항목
@@ -31,14 +30,12 @@ export interface ReviewWritingFormData {
  * @param scoreFields - 점수 입력 카테고리 목록
  * @param maxCommentLength - 상세 의견 최대 글자 수 (기본: 200)
  * @param onSubmit - 폼 제출 핸들러
- * @param defaultOpen - 초기 열림 상태 (기본: true)
  * @param className - 외부 컨테이너에 추가할 클래스
  */
 export interface ReviewWritingContentProps {
   scoreFields: ReviewWritingScoreField[];
   maxCommentLength?: number;
   onSubmit?: (data: ReviewWritingFormData) => void;
-  defaultOpen?: boolean;
   className?: string;
 }
 
@@ -71,7 +68,6 @@ const ScoreInputField = ({ label, fieldKey, value, maxScore, onChange }: ScoreIn
         {label}
       </label>
       <div className="flex items-center gap-2.5">
-        {/* 숫자 입력 */}
         <div className="flex flex-1 items-center rounded-[10px] border border-gray-200 bg-gray-50 px-5 py-2.5">
           <input
             id={inputId}
@@ -85,7 +81,6 @@ const ScoreInputField = ({ label, fieldKey, value, maxScore, onChange }: ScoreIn
             aria-label={`${label} 점수 입력 (0~${maxScore})`}
           />
         </div>
-        {/* 최대 점수 표시 */}
         <span className="body-xxsmall shrink-0 text-gray-400" aria-hidden="true">
           | {maxScore}
         </span>
@@ -97,31 +92,38 @@ const ScoreInputField = ({ label, fieldKey, value, maxScore, onChange }: ScoreIn
 /**
  * ReviewWritingContent
  *
- * - white/unfolded: 카테고리별 점수 입력 + 상세의견 textarea + 등록하기 버튼
- * - white/folded: "리뷰 쓰기" 제목 헤더만 표시
+ * 리뷰 쓰기 버튼을 눌렀을 때 나타나는 리뷰 입력 폼 컴포넌트입니다.
+ * 아코디언이 아닌 독립 컴포넌트로, 표시 여부는 부모에서 제어합니다.
+ *
+ * - 카테고리별 점수 숫자 입력 (`| 100` 최대 점수 표시)
+ * - 상세의견 textarea (글자 수 카운터 포함)
+ * - 등록하기 제출 버튼
  *
  * @example
  * ```tsx
- * <ReviewWritingContent
- *   scoreFields={[
- *     { key: 'feasibility', label: '사업타당성' },
- *     { key: 'differentiation', label: '사업차별성' },
- *     { key: 'finance', label: '재무적정성' },
- *   ]}
- *   onSubmit={(data) => console.log(data)}
- *   defaultOpen
- * />
+ * const [isOpen, setIsOpen] = useState(false);
+ *
+ * <>
+ *   <button onClick={() => setIsOpen(true)}>리뷰 쓰기</button>
+ *   {isOpen && (
+ *     <ReviewWritingContent
+ *       scoreFields={[
+ *         { key: 'feasibility', label: '사업타당성' },
+ *         { key: 'differentiation', label: '사업차별성' },
+ *         { key: 'finance', label: '재무적정성' },
+ *       ]}
+ *       onSubmit={(data) => console.log(data)}
+ *     />
+ *   )}
+ * </>
  * ```
  */
 const ReviewWritingContent = ({
   scoreFields,
   maxCommentLength = 200,
   onSubmit,
-  defaultOpen = true,
   className,
 }: ReviewWritingContentProps) => {
-  const itemValue = 'review-writing';
-
   const [scores, setScores] = useState<Record<string, number | ''>>(() => {
     const initial: Record<string, number | ''> = {};
     scoreFields.forEach((field) => {
@@ -150,74 +152,59 @@ const ReviewWritingContent = ({
 
   return (
     <section
-      className={`rounded-xl border border-gray-100 bg-white ${className ?? ''}`}
+      className={`rounded-xl border border-gray-100 bg-white p-5 ${className ?? ''}`}
       aria-label="리뷰 쓰기"
     >
-      <Accordion type="single" collapsible defaultValue={defaultOpen ? itemValue : undefined}>
-        <Accordion.Item value={itemValue} className="mb-0 rounded-xl border-0 bg-white">
-          <Accordion.Trigger>리뷰 쓰기</Accordion.Trigger>
+      <form onSubmit={handleSubmit} noValidate aria-label="리뷰 입력 폼">
+        <div className="flex flex-col gap-5">
+          {scoreFields.map((field) => (
+            <ScoreInputField
+              key={field.key}
+              label={field.label}
+              fieldKey={field.key}
+              value={scores[field.key] ?? ''}
+              maxScore={field.maxScore ?? 100}
+              onChange={handleScoreChange}
+            />
+          ))}
 
-          <Accordion.Content className="px-5 pb-5">
-            <form onSubmit={handleSubmit} noValidate aria-label="리뷰 입력 폼">
-              <div className="flex flex-col gap-5">
-                {/* 카테고리별 점수 입력 */}
-                {scoreFields.map((field) => (
-                  <ScoreInputField
-                    key={field.key}
-                    label={field.label}
-                    fieldKey={field.key}
-                    value={scores[field.key] ?? ''}
-                    maxScore={field.maxScore ?? 100}
-                    onChange={handleScoreChange}
-                  />
-                ))}
-
-                {/* 상세의견 입력 */}
-                <div className="flex flex-col gap-2.5">
-                  <label
-                    htmlFor="review-comment"
-                    className="body-xsmall font-semibold text-gray-800"
-                  >
-                    상세의견
-                  </label>
-                  <div className="flex flex-col gap-2.5">
-                    <div className="rounded-[10px] border border-gray-200 bg-gray-50 px-5 py-2.5">
-                      <textarea
-                        id="review-comment"
-                        value={comment}
-                        onChange={handleCommentChange}
-                        placeholder={`상세 의견을 입력하세요(${maxCommentLength}자 이내)`}
-                        rows={4}
-                        className="body-xxsmall w-full resize-none bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none"
-                        aria-label={`상세 의견 입력 (최대 ${maxCommentLength}자)`}
-                        aria-describedby="review-comment-count"
-                      />
-                    </div>
-                    {/* 글자 수 표시 */}
-                    <p
-                      id="review-comment-count"
-                      className="body-tiny text-right text-gray-400"
-                      aria-live="polite"
-                      aria-atomic="true"
-                    >
-                      {comment.length} / {maxCommentLength}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 등록하기 버튼 */}
-                <button
-                  type="submit"
-                  className="body-xsmall flex w-full items-center justify-center rounded-[10px] bg-gray-700 px-5 py-2.5 text-white transition-colors hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-700 focus-visible:ring-offset-2 focus-visible:outline-none active:bg-gray-900"
-                  aria-label="리뷰 등록하기"
-                >
-                  등록하기
-                </button>
+          <div className="flex flex-col gap-2.5">
+            <label htmlFor="review-comment" className="body-xsmall font-semibold text-gray-800">
+              상세의견
+            </label>
+            <div className="flex flex-col gap-2.5">
+              <div className="rounded-[10px] border border-gray-200 bg-gray-50 px-5 py-2.5">
+                <textarea
+                  id="review-comment"
+                  value={comment}
+                  onChange={handleCommentChange}
+                  placeholder={`상세 의견을 입력하세요(${maxCommentLength}자 이내)`}
+                  rows={4}
+                  className="body-xxsmall w-full resize-none bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none"
+                  aria-label={`상세 의견 입력 (최대 ${maxCommentLength}자)`}
+                  aria-describedby="review-comment-count"
+                />
               </div>
-            </form>
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion>
+              <p
+                id="review-comment-count"
+                className="body-tiny text-right text-gray-400"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {comment.length} / {maxCommentLength}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="body-xsmall flex w-full items-center justify-center rounded-[10px] bg-gray-700 px-5 py-2.5 text-white transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-700 focus-visible:ring-offset-2 active:bg-gray-900"
+            aria-label="리뷰 등록하기"
+          >
+            등록하기
+          </button>
+        </div>
+      </form>
     </section>
   );
 };
