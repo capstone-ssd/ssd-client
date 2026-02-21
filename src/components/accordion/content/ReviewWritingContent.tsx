@@ -92,9 +92,6 @@ const ScoreInputField = ({ label, fieldKey, value, maxScore, onChange }: ScoreIn
 /**
  * ReviewWritingContent
  *
- * 리뷰 쓰기 버튼을 눌렀을 때 나타나는 리뷰 입력 폼 컴포넌트입니다.
- * 아코디언이 아닌 독립 컴포넌트로, 표시 여부는 부모에서 제어합니다.
- *
  * - 카테고리별 점수 숫자 입력 (`| 100` 최대 점수 표시)
  * - 상세의견 textarea (글자 수 카운터 포함)
  * - 등록하기 제출 버튼
@@ -152,7 +149,7 @@ const ReviewWritingContent = ({
 
   return (
     <section
-      className={`rounded-xl border border-gray-100 bg-white p-5 ${className ?? ''}`}
+      className={`w-90 rounded-xl border border-gray-100 bg-white p-5 ${className ?? ''}`}
       aria-label="리뷰 쓰기"
     >
       <form onSubmit={handleSubmit} noValidate aria-label="리뷰 입력 폼">
@@ -198,7 +195,7 @@ const ReviewWritingContent = ({
 
           <button
             type="submit"
-            className="body-xsmall flex w-full items-center justify-center rounded-[10px] bg-gray-700 px-5 py-2.5 text-white transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-700 focus-visible:ring-offset-2 active:bg-gray-900"
+            className="body-xsmall flex w-full items-center justify-center rounded-[10px] bg-gray-700 px-5 py-2.5 text-white transition-colors hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-gray-700 focus-visible:ring-offset-2 focus-visible:outline-none active:bg-gray-900"
             aria-label="리뷰 등록하기"
           >
             등록하기
