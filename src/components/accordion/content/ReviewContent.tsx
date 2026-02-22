@@ -1,9 +1,6 @@
-import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import Accordion from '..';
-import { ChevronRight } from '@/components/icons';
 import SvgProfile from '@/components/icons/Profile';
 import AccordionProfileSection from './AccordionProfileSection';
-
 import ReviewScoreDetail from './ReviewScoreDetail';
 
 /**
@@ -45,6 +42,23 @@ export interface ReviewContentProps {
 }
 
 /**
+ * ReviewContent
+ *
+ * Figma "accodion/review" 컴포넌트 (Property 1: review)를 구현합니다.
+ *
+ * ## 상태별 트리거 레이아웃
+ *
+ * **open:N (closed)**
+ * ```
+ * [profile pic] | col(이름, 종합점수) | chevron →
+ * ```
+ *
+ * **open:Y (open)** — AccordionProfileSection 재활용
+ * ```
+ * [profile pic] | col(이름, 이메일, 시각) | chevron ↓
+ * ```
+ * → Accordion.Content: ReviewScoreDetail (종합평점 + 점수 바)
+ *
  * @example
  * ```tsx
  * <ReviewContent
@@ -82,43 +96,37 @@ const ReviewContent = ({
     >
       <Accordion type="single" collapsible defaultValue={defaultOpen ? itemValue : undefined}>
         <Accordion.Item value={itemValue} className="mb-0 rounded-xl border-0 bg-white">
-          <AccordionPrimitive.Header className="group flex items-center justify-between px-5 py-4">
-            <AccordionPrimitive.Trigger className="focus-visible:ring-primary-500 flex flex-1 text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
-              {/* open:N — 프로필 이미지 + col(이름, 종합점수) */}
-              <div className="flex flex-1 items-start gap-5 group-data-[state=open]:hidden">
-                <div className="mt-0.5 shrink-0" aria-hidden="true">
-                  <SvgProfile width={38} height={38} />
-                </div>
-                <div className="flex flex-1 flex-col gap-0.5">
-                  <span className="body-xsmall font-medium text-gray-800">{userName}</span>
-                  <span
-                    className="heading-medium text-gray-800"
-                    aria-label={`종합점수 ${totalScore}점 만점 ${maxTotalScore}점`}
-                  >
-                    {totalScore}
-                    <span className="body-xsmall text-gray-400">/{maxTotalScore}</span>
-                  </span>
-                </div>
+          <Accordion.Trigger className="items-start">
+            {/* open:N — 프로필 이미지 + col(이름, 종합점수) */}
+            <div className="flex gap-5 group-data-[state=open]:hidden">
+              <div
+                className="flex h-[65px] w-[38px] shrink-0 flex-col items-center justify-center"
+                aria-hidden="true"
+              >
+                <SvgProfile width={38} height={38} />
               </div>
-
-              {/* open:Y — AccordionProfileSection 재활용 */}
-              <div className="hidden flex-1 group-data-[state=open]:block">
-                <AccordionProfileSection
-                  userName={userName}
-                  userEmail={userEmail}
-                  timestamp={timestamp}
-                />
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="body-xsmall font-medium text-gray-800">{userName}</span>
+                <span
+                  className="heading-medium text-gray-800"
+                  aria-label={`종합점수 ${totalScore}점 만점 ${maxTotalScore}점`}
+                >
+                  {totalScore}
+                  <span className="body-xsmall text-gray-400">/{maxTotalScore}</span>
+                </span>
               </div>
-            </AccordionPrimitive.Trigger>
+            </div>
 
-            {/* 화살표 */}
-            <ChevronRight
-              className="h-2 w-2 shrink-0 text-gray-800 transition-transform duration-200 group-data-[state=open]:rotate-90"
-              aria-hidden="true"
-            />
-          </AccordionPrimitive.Header>
+            {/* open:Y — AccordionProfileSection 재활용 */}
+            <div className="hidden group-data-[state=open]:block">
+              <AccordionProfileSection
+                userName={userName}
+                userEmail={userEmail}
+                timestamp={timestamp}
+              />
+            </div>
+          </Accordion.Trigger>
 
-          {/* 펼침 콘텐츠 — ReviewScoreDetail 컴포넌트 */}
           <Accordion.Content className="px-5 pb-5">
             <ReviewScoreDetail
               totalScore={totalScore}
