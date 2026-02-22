@@ -7,7 +7,7 @@ interface ScoreBarProps {
 }
 
 const ScoreBar = ({ label, score, maxScore }: ScoreBarProps) => {
-  const percentage = Math.min(100, Math.max(0, (score / maxScore) * 100));
+  const percentage = maxScore > 0 ? Math.min(100, Math.max(0, (score / maxScore) * 100)) : 0;
 
   return (
     <div className="flex flex-col gap-1.5">
