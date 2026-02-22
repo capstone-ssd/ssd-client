@@ -48,7 +48,7 @@ const AccordionSection = ({
       <Accordion type="single" collapsible defaultValue={defaultOpen ? itemValue : undefined}>
         <Accordion.Item value={itemValue} className="mb-0 rounded-xl border-0 bg-white">
           <Accordion.Trigger showRefreshIcon={showRefreshIcon} onRefresh={onRefresh}>
-            {title}
+            <span className="heading-medium">{title}</span>
           </Accordion.Trigger>
           <Accordion.Content className="px-5 pb-5">{children}</Accordion.Content>
         </Accordion.Item>

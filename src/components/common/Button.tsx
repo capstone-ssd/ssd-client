@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/cn';
 
 const buttonVariants = cva(
   'w-[130px] h-[40px] min-h-[40px] body-small inline-flex items-center justify-center text-center transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 hover:brightness-95 active:scale-[0.98] active:brightness-90',
@@ -67,7 +68,7 @@ const Button = ({
       {...props}
       disabled={disabled}
       type={type}
-      className={combinedClassName}
+      className={cn(combinedClassName, className)}
       aria-disabled={disabled}
     >
       {children}

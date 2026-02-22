@@ -26,7 +26,7 @@ const AccordionProfileSection = ({
     </div>
 
     <div className="flex flex-1 flex-col gap-2.5">
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col items-start gap-0.5">
         <span className="body-xsmall text-gray-800">{userName}</span>
         <span className="body-xxsmall text-gray-400">{userEmail}</span>
         <span className="body-tiny text-gray-400">{timestamp}</span>
