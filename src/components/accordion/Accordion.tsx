@@ -66,7 +66,7 @@ export const AccordionTrigger = React.forwardRef<
       className={`focus-visible:ring-primary-500 flex flex-1 items-center text-gray-800 transition-all hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none ${className || ''}`}
       {...props}
     >
-      <span className="heading-medium">{children}</span>
+      {typeof children === 'string' ? <span className="heading-medium">{children}</span> : children}
     </AccordionPrimitive.Trigger>
     <div className="flex items-center gap-2.5">
       {trailing}
