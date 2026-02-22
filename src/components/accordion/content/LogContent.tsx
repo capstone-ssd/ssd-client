@@ -41,7 +41,7 @@ const LogContent = ({ date, entries, defaultOpen = false, className }: LogConten
           <Accordion.Trigger
             trailing={<span className="body-xsmall text-gray-700">{entries.length}건</span>}
           >
-            {date}
+            <span className="heading-medium">{date}</span>
           </Accordion.Trigger>
 
           <Accordion.Content className="px-5 pb-5">
