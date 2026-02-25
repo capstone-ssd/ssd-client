@@ -28,11 +28,11 @@ const actionButtonVariants = cva(
 export function ExtractHeader() {
   // 임시값 -추후 api 호출
   const isFavorite = false
-  const onToggleFavorite = (next: boolean) => {
+  const onToggleFavorite = () => {
   }
 
   //버튼 클릭 이벤트 핸들러
-  const handleToggleFavorite = () => onToggleFavorite(!isFavorite)
+  const handleToggleFavorite = () => onToggleFavorite()
 
   return (
     <header
@@ -76,7 +76,7 @@ export function ExtractHeader() {
         </button>
         
         {/* 공유 버튼 */}
-        <button type="button" className={actionButtonVariants()}>
+        <button type="button"className={actionButtonVariants()}>
           <IconShare className="w-5 h-5" />
           <span className="body-xxsmall">공유</span>
         </button>
