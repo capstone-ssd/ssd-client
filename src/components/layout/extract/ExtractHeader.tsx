@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+// components/layout/extract/ExtractHeader.tsx
 import { cva } from 'class-variance-authority';
 import IconSave from '@/components/icons/IconSave';
 import IconStarN from '@/components/icons/IconStarN';
@@ -24,30 +24,15 @@ const actionButtonVariants = cva(
   }
 );
 
-export interface ExtractHeaderProps {
-  isFavorite?: boolean;
-  onToggleFavorite?: (next: boolean) => void;
-}
 
-export function ExtractHeader({
-  isFavorite = false,
-  onToggleFavorite,
-}: ExtractHeaderProps) {
-  // 내부 UI state (Optimistic UI)
-  const [starred, setStarred] = useState<boolean>(isFavorite);
+export function ExtractHeader() {
+  // 임시값 -추후 api 호출
+  const isFavorite = false
+  const onToggleFavorite = (next: boolean) => {
+  }
 
-  // 외부 상태 변경(서버/상위 store 반영 등) 시 내부 state 동기화
-  useEffect(() => {
-    setStarred(isFavorite);
-  }, [isFavorite]);
-
-  const handleToggleStar = () => {
-    setStarred((prev) => {
-      const next = !prev;
-      onToggleFavorite?.(next);
-      return next;
-    });
-  };
+  //버튼 클릭 이벤트 핸들러
+  const handleToggleFavorite = () => onToggleFavorite(!isFavorite)
 
   return (
     <header
@@ -64,34 +49,33 @@ export function ExtractHeader({
       </div>
 
       <div className="flex items-center gap-[20px]">
+        {/* 저장 버튼 */}
         <button className={actionButtonVariants()}>
           <IconSave className="w-5 h-5" />
           <span className="body-xxsmall">저장</span>
         </button>
 
-        {/* <button className={actionButtonVariants({ active: false })}>
-          <IconStar className="w-5 h-5" />
-          <span className="body-xxsmall">즐겨찾기</span>
-        </button> */}
+        {/* 즐겨찾기 버튼 */}
          <button
           type="button"
-          onClick={handleToggleStar}
-          aria-label={starred ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          aria-pressed={starred}
-          className={actionButtonVariants({ active: starred })}
+          onClick={handleToggleFavorite}
+          aria-label={isFavorite  ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          aria-pressed={isFavorite }
+          className={actionButtonVariants({ active: isFavorite  })}
         >
           <IconStarN
             className={[
               'w-5 h-5',
               'stroke-current',
               // active일 때만 fill을 채움
-              starred ? 'fill-current' : 'fill-white',
+              isFavorite  ? 'fill-current' : 'fill-white',
             ].join(' ')}
             aria-hidden="true"
           />
           <span className="body-xxsmall">즐겨찾기</span>
         </button>
-
+        
+        {/* 공유 버튼 */}
         <button className={actionButtonVariants()}>
           <IconShare className="w-5 h-5" />
           <span className="body-xxsmall">공유</span>
