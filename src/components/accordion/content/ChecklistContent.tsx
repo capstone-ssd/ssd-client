@@ -51,7 +51,7 @@ const ChecklistItemRow = ({ item, onLinkClick }: ChecklistItemRowProps) => {
       </span>
 
       <div className="flex items-center gap-1.5 px-0.75">
-        <span className="text-xsmall text-gray-900">{item.label}</span>
+        <span className="body-xsmall text-gray-900">{item.label}</span>
 
         {item.blockId !== undefined && (
           <button

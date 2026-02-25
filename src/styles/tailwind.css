@@ -153,14 +153,21 @@
 
   .body-xsmall {
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: normal;
     letter-spacing: 0;
   }
 
   .body-xxsmall {
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-tiny {
+    font-size: 0.875rem;
+    font-weight: 400;
     line-height: normal;
     letter-spacing: 0;
   }
