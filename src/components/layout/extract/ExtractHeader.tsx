@@ -50,7 +50,7 @@ export function ExtractHeader() {
 
       <div className="flex items-center gap-[20px]">
         {/* 저장 버튼 */}
-        <button className={actionButtonVariants()}>
+        <button type="button" className={actionButtonVariants()}>
           <IconSave className="w-5 h-5" />
           <span className="body-xxsmall">저장</span>
         </button>
@@ -76,7 +76,7 @@ export function ExtractHeader() {
         </button>
         
         {/* 공유 버튼 */}
-        <button className={actionButtonVariants()}>
+        <button type="button" className={actionButtonVariants()}>
           <IconShare className="w-5 h-5" />
           <span className="body-xxsmall">공유</span>
         </button>
