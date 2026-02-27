@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgBook05 = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.492 15.692H6.462a2.954 2.954 0 0 0-2.954 2.954m16.984-2.954v4.431c0 .816-.66 1.477-1.477 1.477H6.462a2.954 2.954 0 0 1-2.954-2.954m16.984-2.954V3.877c0-.816-.66-1.477-1.477-1.477H8.308m-4.8 16.246V5.354A2.954 2.954 0 0 1 6.462 2.4h1.846m0 13.2V2.4" /></svg>;
+export default SvgBook05;
