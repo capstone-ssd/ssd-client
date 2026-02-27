@@ -11,14 +11,16 @@ export const sidebarSchema = z
 
 export type SidebarSearch = z.infer<typeof sidebarSchema>;
 
-export const rightSidebarSchema = z.object({
+export const documentSchema = z.object({
   documentId: z.coerce.number().int().positive().optional(),
 });
 
+export type DocumentSearch = z.infer<typeof documentSchema>;
+
 export const workspaceSearchSchema = z
   .object({})
-  .merge(rightSidebarSchema)
-  .merge(rightSidebarSchema)
+  .merge(sidebarSchema)
+  .merge(documentSchema)
   .merge(roleSchema);
 
 export type WorkspaceSearch = z.infer<typeof workspaceSearchSchema>;
