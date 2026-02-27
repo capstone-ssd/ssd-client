@@ -28,7 +28,7 @@ function RouteComponent() {
     }));
   return (
     <>
-      <ExtractHeader />
+      <ExtractHeader role='writer' />
       <div className="min-h-screen bg-gray-50 px-13">
         <MarkdownViewer
           markdown={sampleMarkdownText}

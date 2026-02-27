@@ -4,6 +4,8 @@ import IconSave from '@/components/icons/IconSave';
 import IconStarN from '@/components/icons/IconStarN';
 import IconShare from '@/components/icons/IconShare';
 
+type ExtractRole = 'writer' | 'evaluator'
+
 const actionButtonVariants = cva(
   [
     'flex flex-col items-center',
@@ -24,8 +26,12 @@ const actionButtonVariants = cva(
   }
 );
 
+interface ExtractHeaderProps{
+  role: ExtractRole
+}
 
-export function ExtractHeader() {
+
+export function ExtractHeader({role}:ExtractHeaderProps) {
   // 임시값 -추후 api 호출
   const isFavorite = false
   const onToggleFavorite = () => {
@@ -33,6 +39,9 @@ export function ExtractHeader() {
 
   //버튼 클릭 이벤트 핸들러
   const handleToggleFavorite = () => onToggleFavorite()
+
+  // 현재 role이 작성자인 경우만 저장버튼 활성화
+  const canSave = role === 'writer'
 
   return (
     <header
@@ -49,11 +58,14 @@ export function ExtractHeader() {
       </div>
 
       <div className="flex items-center gap-[20px]">
-        {/* 저장 버튼 */}
-        <button type="button" className={actionButtonVariants()}>
-          <IconSave className="w-5 h-5" />
-          <span className="body-xxsmall">저장</span>
-        </button>
+        {/* 저장 버튼: 작성자만 노출*/}
+        {canSave && (
+          <button type="button" className={actionButtonVariants()}>
+            <IconSave className="w-5 h-5" />
+            <span className="body-xxsmall">저장</span>
+          </button>
+        )}
+        
 
         {/* 즐겨찾기 버튼 */}
          <button
@@ -76,7 +88,7 @@ export function ExtractHeader() {
         </button>
         
         {/* 공유 버튼 */}
-        <button type="button"className={actionButtonVariants()}>
+        <button type="button" className={actionButtonVariants()}>
           <IconShare className="w-5 h-5" />
           <span className="body-xxsmall">공유</span>
         </button>
