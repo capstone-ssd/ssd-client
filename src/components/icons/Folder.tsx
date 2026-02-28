@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgFolder = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.401 8.417v9.524a2 2 0 0 0 2 2h15.2a2 2 0 0 0 2-2V8.013a1 1 0 0 0-1-1h-8.517L9.32 4.058H3.401a1 1 0 0 0-1 1z" /></svg>;
+export default SvgFolder;

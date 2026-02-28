@@ -1,12 +1,12 @@
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { sidebarSchema } from '@/schemas/searchSchemas';
+import { workspaceSearchSchema } from '@/schemas/searchSchemas';
 import { createRootRoute, Outlet, useSearch } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 export const Route = createRootRoute({
   component: RootComponent,
-  validateSearch: (search) => sidebarSchema.parse(search),
+  validateSearch: (search) => workspaceSearchSchema.parse(search),
 });
 
 function RootComponent() {

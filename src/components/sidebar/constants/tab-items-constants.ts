@@ -1,4 +1,4 @@
-import { File, AiEvaluation, ClockForward, Bookmark, Review } from '@/components/icons';
+import { File, AiEvaluation, ClockForward, Bookmark, MessageText } from '@/components/icons';
 import type { TabItem } from '../types/tab-item-types';
 
 export const WRITER_TABS: TabItem[] = [
@@ -38,7 +38,7 @@ export const EVALUATOR_TABS: TabItem[] = [
   {
     id: 'review',
     label: '리뷰',
-    icon: Review,
+    icon: MessageText,
   },
   {
     id: 'comments',
