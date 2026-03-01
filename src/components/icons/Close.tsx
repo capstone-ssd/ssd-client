@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgClose = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 26 26" role="img" {...props}><path fill="#33363D" d="M18.63 5.235a.8.8 0 1 1 1.132 1.13L13.129 13l6.637 6.636a.8.8 0 0 1-1.131 1.132l-6.637-6.638-6.637 6.638a.8.8 0 1 1-1.13-1.132l6.635-6.637-6.632-6.632a.8.8 0 1 1 1.131-1.131l6.633 6.633z" /></svg>;
+export default SvgClose;
