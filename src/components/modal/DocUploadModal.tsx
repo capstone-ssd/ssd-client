@@ -6,8 +6,7 @@ import FileTree, { type LibraryData } from '@/components/docs-upload/FileTree';
 import Dropzone from './Dropzone';
 import FilePickerButton from './FilePickerButton';
 import SelectedFileCard, { type SelectedFile } from './SelectedFileCard';
-
-const ACCEPTED_MIME = 'application/pdf';
+import { ACCEPTED_MIME } from '@/constants/accepted-mime';
 
 export interface DocUploadModalProps {
   isOpen: boolean;

@@ -1,8 +1,7 @@
 import { useRef, type ChangeEvent, type DragEvent } from 'react';
 import { cn } from '@/utils/cn';
 import { Upload } from '@/components/icons';
-
-const ACCEPTED_MIME = 'application/pdf';
+import { ACCEPTED_MIME } from '@/constants/accepted-mime';
 
 interface Props {
   isDragOver: boolean;
@@ -12,7 +11,13 @@ interface Props {
   onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function Dropzone({ isDragOver, onDragOver, onDragLeave, onDrop, onFileSelect }: Props) {
+export default function Dropzone({
+  isDragOver,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onFileSelect,
+}: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
@@ -27,7 +32,7 @@ export default function Dropzone({ isDragOver, onDragOver, onDragLeave, onDrop, 
         'flex w-full flex-col items-center justify-center gap-2 px-2.5',
         'cursor-pointer select-none',
         'transition-colors duration-150',
-        isDragOver ? 'bg-primary-50' : '',
+        isDragOver ? 'bg-primary-50' : ''
       )}
     >
       <Upload className="text-gray-400" style={{ width: 60, height: 60 }} aria-hidden="true" />

@@ -1,8 +1,7 @@
 import { type ChangeEvent } from 'react';
 import { cn } from '@/utils/cn';
 import { FilePdf } from '@/components/icons';
-
-const ACCEPTED_MIME = 'application/pdf';
+import { ACCEPTED_MIME } from '@/constants/accepted-mime';
 
 interface Props {
   onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -13,10 +12,10 @@ export default function FilePickerButton({ onFileSelect }: Props) {
     <label
       className={cn(
         'flex h-15 w-45 cursor-pointer items-center justify-center gap-2',
-        'rounded-xl bg-primary-400',
+        'bg-primary-400 rounded-xl',
         'body-small font-medium text-gray-900',
         'transition-all duration-150 hover:brightness-95 active:scale-[0.98]',
-        'focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2',
+        'focus-within:ring-primary-500 focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none'
       )}
       aria-label="PDF 파일 선택하여 업로드"
     >
