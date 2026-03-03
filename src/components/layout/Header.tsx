@@ -1,19 +1,12 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import Svglogo from '@/components/icons/logo';
 import Svgmenu from '@/components/icons/menu';
+import { menuItems } from '@/constants/navigation';
 
 export const Header = () => {
   const location = useLocation();
   const userName = 'user'; // 서버 데이터 user명 갖고오기
   const isLoggedIn = true; // 임시, 로그인 상태일 때 true로
-
-  const menuItems = [
-    { name: '작성하기', path: '/editor' },
-    { name: '평가하기', path: '/extract' },
-    { name: '라이브러리', path: '/library' },
-    { name: '일정관리', path: '/schedule' },
-    { name: '커뮤니티', path: '/community' },
-  ];
 
   return (
     <>
