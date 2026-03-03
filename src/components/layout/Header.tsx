@@ -13,6 +13,7 @@ export const Header = () => {
 
   // 로그아웃 처리 함수, 임시
   // 로그아웃 상태에서 각종 탭에 들어갈 때 로그인 화면으로 넘어가게 하고 싶은데 AI는 헤더에서 탭을 버튼으로 만들어서 Onclick으로 조정하거나 각 페이지에서 하는걸 추천해주는데 다른 분들 의견은 어떤지 궁금합니다.
+  // 아니면 로그아웃 상태에선 각종 탭을 안 보이게 하는 방법으로 자연스럽게 로그인으로 유도하는건 별로겟죠
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate({ to: '/' });
@@ -29,6 +30,7 @@ export const Header = () => {
           ) : (
             <span className="text-xs font-medium text-gray-500">로그인이 필요한 서비스입니다.</span>
           )}
+          {/* 환영 메시지를 레퍼런스 더 찾아서 개선할 필요가 있겠죠..? 너무 옛날 네이버스러운거같아요 */}
         </div>
       </div>
       <header className="grid h-[100px] w-full grid-cols-[1fr_3fr_1fr] items-center border-b border-gray-200 bg-white whitespace-nowrap">
@@ -60,12 +62,11 @@ export const Header = () => {
           {isLoggedIn ? (
             <div className="flex items-center gap-3 text-sm font-medium text-gray-600">
               {AUTH_TABS.LOGGED_IN.map((item) => (
+                /*로그아웃 버튼 이후 수정 필요*/
                 <Button
-                  key={item.path}
                   variant="sub2"
-                  // 메인 헤더에 sub2를 넣으면 배경색이 너무 튀는데 따로 색상을 설정하거나 버튼 컴포넌트 외에 <button>을 써야 하는걸까요?
                   onClick={handleLogout}
-                  className="transition-colors duration-200 hover:text-gray-900"
+                  className="body-xxsmall min-w-0 bg-white px-2 py-1 text-sm"
                 >
                   {item.name}
                 </Button>
