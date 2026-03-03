@@ -11,14 +11,7 @@ export const Header = () => {
   const userName = 'user'; // 서버 데이터 user명 갖고오기
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  // 로그인 처리 함수
-  const handleLogin = () => {
-    setIsLoggedIn(true); // 이제 '함수'를 호출해서 상태를 바꿉니다.
-    navigate({ to: '/' });
-    console.log('로그인');
-  };
-
-  // 로그아웃 처리 함수,
+  // 로그아웃 처리 함수, 임시
   // 로그아웃 상태에서 각종 탭에 들어갈 때 로그인 화면으로 넘어가게 하고 싶은데 AI는 헤더에서 탭을 버튼으로 만들어서 Onclick으로 조정하거나 각 페이지에서 하는걸 추천해주는데 다른 분들 의견은 어떤지 궁금합니다.
   const handleLogout = () => {
     setIsLoggedIn(false);
