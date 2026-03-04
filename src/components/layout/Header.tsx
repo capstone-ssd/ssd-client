@@ -3,13 +3,12 @@ import { useState } from 'react';
 import Svglogo from '@/components/icons/logo';
 import Svgmenu from '@/components/icons/menu';
 import { MENU_TABS, AUTH_TABS } from '@/constants/navigation';
-import Button from '@/components/common/Button';
 
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const userName = 'user';
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -57,13 +56,12 @@ export const Header = () => {
         <div className="flex items-center justify-center gap-6">
           {isLoggedIn ? (
             <div className="flex items-center gap-3 text-sm font-medium text-gray-600">
-              <Button
-                variant="sub2"
+              <button
                 onClick={handleLogout}
-                className="body-xxsmall min-w-0 bg-white px-2 py-1 text-sm"
+                className="body-xxsmall min-w-0 bg-white px-2 py-1 text-sm hover:text-gray-900"
               >
                 로그아웃
-              </Button>
+              </button>
             </div>
           ) : (
             <div className="body-xxsmall flex items-center gap-3 font-medium text-gray-600">
