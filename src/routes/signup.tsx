@@ -1,11 +1,6 @@
-import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
-import { dummyComments } from '@/mock/sampleComments';
-import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { sidebarSchema } from '@/schemas/searchSchemas';
-import { createInitialParagraphs, syncParagraphsWithTracking } from '@/utils/markdownParagraphs';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
-import { useState } from 'react';
 import Svglogo from '@/components/icons/logo';
 import Button from '@/components/common/Button';
 import Svgkakaologo from '@/components/icons/Kakaologo';
