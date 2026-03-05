@@ -7,7 +7,6 @@ export const MENU_TABS = [
 ];
 
 export const AUTH_TABS = {
-  LOGGED_IN: [{ name: '로그아웃', path: '/logout' }],
   LOGGED_OUT: [
     { name: '로그인', path: '/login' },
     { name: '회원가입', path: '/signup' },
