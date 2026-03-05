@@ -1,13 +1,15 @@
-import { sidebarSchema } from '@/schemas/searchSchemas';
-import { createFileRoute } from '@tanstack/react-router';
-import { zodValidator } from '@tanstack/zod-adapter';
 import Svglogo from '@/components/icons/logo';
+import { createFileRoute } from '@tanstack/react-router';
 import Button from '@/components/common/Button';
 import Svgkakaologo from '@/components/icons/Kakaologo';
 export const Route = createFileRoute('/signup')({
   component: RouteComponent,
-  validateSearch: zodValidator(sidebarSchema),
 });
+
+const kakaologin = () => {
+  // 이후 카카오 로그인 로직 추가 예정
+  console.log('로그인 되었습니다');
+};
 
 function RouteComponent() {
   return (
@@ -24,6 +26,7 @@ function RouteComponent() {
             <Button
               variant="main"
               rounded="small"
+              onClick={kakaologin}
               className="bg-kakao relative mt-20 flex h-[90px] w-[600px] items-center justify-center"
             >
               <div className="absolute left-8">
