@@ -1,5 +1,6 @@
-const Svglogo = () => (
+const Svglogo = ({ className }: { className?: string }) => (
   <svg
+    className={className}
     width="356"
     height="55"
     viewBox="0 0 364 100"
