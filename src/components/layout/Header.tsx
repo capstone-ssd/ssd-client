@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { MENU_TABS, AUTH_TABS } from '@/constants/navigation';
-import { Logo, Menu } from '../icons';
+import { MainLogo, Menu } from '../icons';
 
 export const Header = () => {
   const location = useLocation();
@@ -30,7 +30,7 @@ export const Header = () => {
       <header className="grid h-[100px] w-full grid-cols-[1fr_3fr_1fr] items-center border-b border-gray-200 bg-white whitespace-nowrap">
         <div className="flex justify-start">
           <Link to="/">
-            <Logo />
+            <MainLogo />
           </Link>
         </div>
         <nav className="flex justify-center">
