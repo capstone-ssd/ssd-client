@@ -117,7 +117,7 @@ export default function DocUploadModal({
             )}
             aria-label="모달 닫기"
           >
-            <Close className="h-4 w-4" aria-hidden="true" />
+            <Close className="h-6 w-6" aria-hidden="true" />
           </button>
         </header>
 
