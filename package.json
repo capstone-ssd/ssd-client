@@ -11,7 +11,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "svg:generate": "svgr --out-dir src/components/icons --ext tsx src/assets/icons",
-    "svg:watch": "svgr --out-dir src/components/icons --ext tsx src/assets/icons --watch"
+    "svg:watch": "svgr --out-dir src/components/icons --ext tsx src/assets/icons --watch",
+    "api:generate": "swagger-typescript-api generate -p https://dev-api.simsaimdang.shop/v3/api-docs -o src/api -n api.ts --no-client"
   },
   "dependencies": {
     "@azure-rest/ai-document-intelligence": "^1.1.0",
@@ -59,6 +60,7 @@
     "globals": "^16.4.0",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "swagger-typescript-api": "^13.3.0",
     "tailwindcss": "4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
