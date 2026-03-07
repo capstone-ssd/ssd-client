@@ -1,7 +1,3 @@
-const Svgmenu = () => (
-  <svg width="30" height="24" viewBox="4 5 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 18H4M20 12H4M20 6H4" stroke="black" stroke-width="1.5" stroke-linecap="round" />
-  </svg>
-);
-
-export default Svgmenu;
+import type { SVGProps } from 'react';
+const SvgMenu = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeWidth={2} d="M20 18H4m16-6H4m16-6H4" /></svg>;
+export default SvgMenu;
