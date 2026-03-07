@@ -1,5 +1,5 @@
 import type { SVGProps } from 'react';
-import { ChevronRight } from '../icons';
+import SvgChevronRight from '../icons/ChevronRight';
 
 export interface DashboardCardProps {
   title: string;
@@ -39,7 +39,7 @@ export function DashboardCard({
     >
       <header className="flex w-full items-center justify-between">
         <h2 className="heading-large text-gray-900">{title}</h2>
-        <ChevronRight className="h-6 w-12 shrink-0 text-gray-900" aria-hidden="true" />
+        <SvgChevronRight className="h-6 w-12 shrink-0 text-gray-900" aria-hidden="true" />
       </header>
 
       {/* 카드 아이콘 영역 */}
