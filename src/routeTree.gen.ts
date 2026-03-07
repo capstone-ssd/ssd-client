@@ -12,10 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as ExtractRouteImport } from './routes/extract'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WriteIdRouteImport } from './routes/write.$id'
+import { Route as ExtractIdRouteImport } from './routes/extract.$id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -30,6 +33,11 @@ const LogoutRoute = LogoutRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExtractRoute = ExtractRouteImport.update({
@@ -52,34 +60,53 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WriteIdRoute = WriteIdRouteImport.update({
+  id: '/write/$id',
+  path: '/write/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExtractIdRoute = ExtractIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ExtractRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
-  '/extract': typeof ExtractRoute
+  '/extract': typeof ExtractRouteWithChildren
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
-  '/extract': typeof ExtractRoute
+  '/extract': typeof ExtractRouteWithChildren
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
-  '/extract': typeof ExtractRoute
+  '/extract': typeof ExtractRouteWithChildren
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,30 +115,48 @@ export interface FileRouteTypes {
     | '/about'
     | '/editor'
     | '/extract'
+    | '/library'
     | '/login'
     | '/logout'
     | '/signup'
+    | '/extract/$id'
+    | '/write/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/editor' | '/extract' | '/login' | '/logout' | '/signup'
+  to:
+    | '/'
+    | '/about'
+    | '/editor'
+    | '/extract'
+    | '/library'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/extract/$id'
+    | '/write/$id'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/editor'
     | '/extract'
+    | '/library'
     | '/login'
     | '/logout'
     | '/signup'
+    | '/extract/$id'
+    | '/write/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   EditorRoute: typeof EditorRoute
-  ExtractRoute: typeof ExtractRoute
+  ExtractRoute: typeof ExtractRouteWithChildren
+  LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
   SignupRoute: typeof SignupRoute
+  WriteIdRoute: typeof WriteIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/extract': {
@@ -165,17 +217,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/write/$id': {
+      id: '/write/$id'
+      path: '/write/$id'
+      fullPath: '/write/$id'
+      preLoaderRoute: typeof WriteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/extract/$id': {
+      id: '/extract/$id'
+      path: '/$id'
+      fullPath: '/extract/$id'
+      preLoaderRoute: typeof ExtractIdRouteImport
+      parentRoute: typeof ExtractRoute
+    }
   }
 }
+
+interface ExtractRouteChildren {
+  ExtractIdRoute: typeof ExtractIdRoute
+}
+
+const ExtractRouteChildren: ExtractRouteChildren = {
+  ExtractIdRoute: ExtractIdRoute,
+}
+
+const ExtractRouteWithChildren =
+  ExtractRoute._addFileChildren(ExtractRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   EditorRoute: EditorRoute,
-  ExtractRoute: ExtractRoute,
+  ExtractRoute: ExtractRouteWithChildren,
+  LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
   SignupRoute: SignupRoute,
+  WriteIdRoute: WriteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
