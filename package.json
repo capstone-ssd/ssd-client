@@ -28,6 +28,7 @@
     "@tanstack/zod-adapter": "^1.157.18",
     "@uiw/codemirror-theme-github": "^4.25.4",
     "@uiw/react-codemirror": "^4.25.4",
+    "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "pdfjs-dist": "^5.4.394",
