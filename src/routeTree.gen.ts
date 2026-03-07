@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as ExtractRouteImport } from './routes/extract'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AboutRouteImport } from './routes/about'
@@ -30,6 +31,11 @@ const LogoutRoute = LogoutRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExtractRoute = ExtractRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
   '/extract': typeof ExtractRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
   '/extract': typeof ExtractRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
   '/extract': typeof ExtractRoute
+  '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
@@ -88,17 +97,27 @@ export interface FileRouteTypes {
     | '/about'
     | '/editor'
     | '/extract'
+    | '/library'
     | '/login'
     | '/logout'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/editor' | '/extract' | '/login' | '/logout' | '/signup'
+  to:
+    | '/'
+    | '/about'
+    | '/editor'
+    | '/extract'
+    | '/library'
+    | '/login'
+    | '/logout'
+    | '/signup'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/editor'
     | '/extract'
+    | '/library'
     | '/login'
     | '/logout'
     | '/signup'
@@ -109,6 +128,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   EditorRoute: typeof EditorRoute
   ExtractRoute: typeof ExtractRoute
+  LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
   SignupRoute: typeof SignupRoute
@@ -135,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/extract': {
@@ -173,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   EditorRoute: EditorRoute,
   ExtractRoute: ExtractRoute,
+  LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
   SignupRoute: SignupRoute,
