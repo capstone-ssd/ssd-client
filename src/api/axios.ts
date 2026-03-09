@@ -79,11 +79,9 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await axios.post<ApiResponseString>(
-        `${BASE_URL}reissue`,
-        null,
-        { withCredentials: true },
-      );
+      const { data } = await axios.post<ApiResponseString>(`${BASE_URL}reissue`, null, {
+        withCredentials: true,
+      });
 
       const newToken = data.data;
       if (!newToken) throw new Error('reissue 응답에 토큰이 없습니다');
@@ -101,7 +99,7 @@ apiClient.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  },
+  }
 );
 
 // ── apiRequest ────────────────────────────────────────────────────────────────
