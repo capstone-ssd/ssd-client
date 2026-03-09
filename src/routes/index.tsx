@@ -5,6 +5,7 @@ import DocUploadModal from '@/components/modal/DocUploadModal';
 import { DashboardCard, type CardVariant } from '@/components/dashboard-card/DashboardCard';
 import { CARD_META } from '@/components/dashboard-card/dashboard';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { useFolderQuery } from '@/hooks/useFolderQuery';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -14,7 +15,8 @@ type UploadMode = 'writing' | 'evaluate';
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { upload, isPending } = useDocumentUpload();
+  const { mutate: upload, isPending } = useDocumentUpload();
+  const { data: folderData, isLoading: isFolderLoading } = useFolderQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<UploadMode>('writing');
@@ -24,10 +26,9 @@ function RouteComponent() {
     setIsModalOpen(true);
   }
 
-  async function handleConfirm(file: File | null, folderId: number | null) {
+  function handleConfirm(file: File | null, folderId: number | null) {
     if (!file) return;
-    await upload(file, folderId, activeMode);
-    setIsModalOpen(false);
+    upload({ file, folderId, mode: activeMode }, { onSuccess: () => setIsModalOpen(false) });
   }
 
   const handlers: Record<CardVariant, (() => void) | undefined> = {
@@ -55,8 +56,8 @@ function RouteComponent() {
 
       <DocUploadModal
         isOpen={isModalOpen}
-        data={null}
-        isLoading={isPending}
+        data={folderData ?? null}
+        isLoading={isFolderLoading || isPending}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirm}
       />
