@@ -1,4 +1,4 @@
-import CodeMirror, { keymap, Prec } from '@uiw/react-codemirror';
+import CodeMirror, { keymap, Prec, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { markdownEditorTheme } from './editorTheme';
@@ -37,6 +37,7 @@ export default function MarkdownEditor({ text, onChange, className }: MarkdownEd
           }),
           markdownEditorTheme,
           Prec.highest(doubleEnterKeymap),
+          EditorView.lineWrapping,
         ]}
         basicSetup={{
           lineNumbers: false,
