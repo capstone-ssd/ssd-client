@@ -1,13 +1,10 @@
-// src/components/common/LibraryDocument.tsx
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { cva } from 'class-variance-authority'
 
-
-// generated icons 
 import DotVertical from '@/components/icons/DotVertical'
 import IconStar from '@/components/icons/IconStar'
-import Folder from '@/components/icons/Folder'
+import FolderFilled from '@/components/icons/FolderFilled'
 
 import { cn } from '@/utils/cn'
 
@@ -24,8 +21,8 @@ export interface LibraryDocumentProps {
   onToggleFavorite?: (documentId: string) => void
   className?: string
 }
-
-const thumbnailButtonVariants = cva(  // 문서 썸네일
+// 문서 썸네일
+const thumbnailButtonVariants = cva(  
   [
     'relative h-[232px] w-[170px]',
     'overflow-hidden',
@@ -57,6 +54,7 @@ export default function LibraryDocument({
   onToggleFavorite,
   className,
 }: LibraryDocumentProps) {    
+  
   // 링크 주소 생성
   const to = '/extract'
   const search = { documentId }
@@ -68,6 +66,9 @@ export default function LibraryDocument({
   e.stopPropagation()
   onToggleFavorite?.(documentId)
 }
+  // 폴더&썸네일 판단
+  const isFolder = itemType === 'folder'
+  const hasThumbnail = !!thumbnailUrl
 
   return (
     <article className={cn(
@@ -82,7 +83,7 @@ export default function LibraryDocument({
         className
     )}>
       {/* 썸네일*/}
-       <div className={cn('relative z-10', 'relative flex w-full justify-center')}>
+       <div className={cn('relative z-10', 'flex w-full justify-center')}>
         {/* 썸네일 클릭 시 extract 이동 */}
         <Link
           to={to}
@@ -90,26 +91,26 @@ export default function LibraryDocument({
           aria-label={`문서 열기: ${title}`}
           className={thumbnailButtonVariants({ itemType })}
         >
-          {itemType === 'folder' ? (
-            <Folder
+          {isFolder && (
+            <FolderFilled
               className={cn('w-[150px] h-auto', folderColor)}
               role="img"
               aria-label="폴더 썸네일"
             />
-          ) : thumbnailUrl ? (
+          )}
+          {!isFolder && hasThumbnail && (
             <img
               src={thumbnailUrl}
               alt=""
               className="h-full w-full object-cover"
               draggable={false}
             />
-          ) : (
+          )}
+          {!isFolder && !hasThumbnail && (
             <div className="h-full w-full" aria-hidden="true" />
           )}
         </Link>
-
-       
-
+        
         {/* 즐겨찾기 */}
         <button
           type="button"
@@ -159,7 +160,7 @@ export default function LibraryDocument({
           <div className="text-[16px] text-gray-700">{date}</div>
           {/*더보기 아이콘만(기능 없음)*/}
           <button type="button" aria-label="더보기"
-            className="rounded-full h-10 w-5 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+            className="rounded-full h-10 w-10 flex items-center justify-center text-gray-600 hover:bg-gray-200"
           >
             <DotVertical className="h-10 w-5" aria-hidden="true"/>
           </button>
