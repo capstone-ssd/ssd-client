@@ -5,8 +5,6 @@ export const sidebarSchema = z
   .object({
     sidebar: z.enum(['summary', 'ai-evaluation', 'history', 'comments', 'review']).optional(),
     blockId: z.coerce.number().int().positive().optional(),
-    // 추가
-    documentId: z.string().min(1).optional(),
   })
   .strip()
   .merge(roleSchema);
