@@ -11,14 +11,14 @@ import { cn } from '@/utils/cn'
 type LibraryItemType = 'document' | 'folder'
 
 export interface LibraryDocumentProps {
-  documentId: string
+  documentId: number
   itemType?: LibraryItemType
   title: string
   date: string
   thumbnailUrl?: string
   folderColor?: string
   isFavorite?: boolean
-  onToggleFavorite?: (documentId: string) => void
+  onToggleFavorite?: (documentId: number) => void
   className?: string
 }
 // 문서 썸네일
