@@ -13,7 +13,7 @@ export function MarkdownComponent({
 }: MarkdownComponentProps): Components {
   return {
     h1: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
@@ -34,7 +34,7 @@ export function MarkdownComponent({
     },
 
     h2: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
       if (!blockId) {
         return (
@@ -54,7 +54,7 @@ export function MarkdownComponent({
     },
 
     h3: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
@@ -75,7 +75,7 @@ export function MarkdownComponent({
     },
 
     h4: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
@@ -96,7 +96,7 @@ export function MarkdownComponent({
     },
 
     h5: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
