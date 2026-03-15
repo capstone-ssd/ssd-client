@@ -79,7 +79,7 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await axios.post<ApiResponseString>(`${BASE_URL}reissue`, null, {
+      const { data } = await axios.post<ApiResponseString>(`${BASE_URL}/reissue`, null, {
         withCredentials: true,
       });
 
@@ -94,7 +94,6 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       removeAccessToken();
-      window.location.href = '/login';
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
