@@ -129,5 +129,8 @@ export async function apiRequest<T = unknown>(config: AxiosRequestConfig): Promi
     method: 'GET',
     ...config,
   });
+  if (data.data === undefined) {
+    throw new Error('API 응답에 data가 없습니다');
+  }
   return data.data as T;
 }
