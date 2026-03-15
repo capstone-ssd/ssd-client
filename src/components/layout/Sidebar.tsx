@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useParams } from '@tanstack/react-router';
 import SidebarTab from '@/components/sidebar/SidebarTab';
 import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
+import { useDocumentCommentsQuery } from '@/hooks/useDocumentCommentsQuery';
+import { useCreateCommentMutation } from '@/hooks/useCreateCommentMutation';
 import {
   KeywordContent,
   TextContent,
@@ -53,22 +56,6 @@ const SAMPLE_LOG_ENTRIES: LogEntry[] = [
   },
 ];
 
-const SAMPLE_BOOKMARKS = [
-  {
-    userName: '홍길동',
-    userEmail: 'honggildong@hanyang.ac.kr',
-    timestamp: '오후 14:30:00',
-    quotedText: '신체화 AI는 물리적 신체와 센서를 갖추어 실제 환경과 직접 상호작용하는 차세대 AI 기술입니다.',
-    comment: '시장 분석 부분에서 신체화 AI의 성장 가능성을 좀 더 구체적인 수치로 뒷받침했으면 좋겠습니다.',
-  },
-  {
-    userName: '김철수',
-    userEmail: 'kimcs@hanyang.ac.kr',
-    timestamp: '오전 10:00:00',
-    quotedText: '재무 계획에서 연간 매출 목표를 제시합니다.',
-    comment: '매출 근거 데이터가 부족합니다. 구체적인 시장 점유율 예측이 필요합니다.',
-  },
-];
 
 const SAMPLE_REVIEW_SCORE_ITEMS: ReviewScoreItem[] = [
   { label: '사업타당성', score: 70 },
@@ -102,8 +89,20 @@ const SAMPLE_SCORE_FIELDS: ReviewWritingScoreField[] = [
 ];
 
 export function Sidebar() {
-  const { currentSidebar } = useSidebarNavigation();
+  const { currentSidebar, currentBlockId } = useSidebarNavigation();
+  const { id: documentId } = useParams({ strict: false });
+  const { data: comments, isLoading: isCommentsLoading } = useDocumentCommentsQuery(documentId);
+  const { mutate: createComment, isPending: isSubmitting } = useCreateCommentMutation(documentId);
+  const [commentText, setCommentText] = useState('');
   const [isWritingOpen, setIsWritingOpen] = useState(false);
+
+  function handleCommentSubmit() {
+    if (!currentBlockId || !commentText.trim()) return;
+    createComment(
+      { blockId: currentBlockId, comment: commentText.trim() },
+      { onSuccess: () => setCommentText('') },
+    );
+  }
 
   function handleReviewSubmit(data: ReviewWritingFormData) {
     console.log('review submitted:', data);
@@ -135,8 +134,44 @@ export function Sidebar() {
 
         {currentSidebar === 'comments' && (
           <div className="flex flex-col gap-4">
-            {SAMPLE_BOOKMARKS.map((bookmark, index) => (
-              <BookmarkItem key={index} {...bookmark} />
+            {currentBlockId && (
+              <div className="flex flex-col gap-2.5 rounded-xl border border-gray-100 bg-white p-5">
+                <p className="body-xsmall font-semibold text-gray-800">
+                  블록 {currentBlockId} 주석 작성
+                </p>
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="주석을 입력하세요"
+                  rows={3}
+                  className="body-xsmall w-full resize-none rounded-[10px] border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleCommentSubmit}
+                  disabled={isSubmitting || !commentText.trim()}
+                  className="body-xsmall w-full rounded-[10px] bg-gray-700 py-2.5 text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSubmitting ? '등록 중...' : '등록하기'}
+                </button>
+              </div>
+            )}
+
+            {isCommentsLoading && (
+              <p className="body-xsmall text-gray-400">불러오는 중...</p>
+            )}
+            {!isCommentsLoading && comments?.length === 0 && (
+              <p className="body-xsmall text-gray-400">등록된 주석이 없습니다.</p>
+            )}
+            {comments?.map((comment, index) => (
+              <BookmarkItem
+                key={index}
+                userName={comment.username ?? ''}
+                userEmail={comment.email ?? ''}
+                timestamp={comment.createdAt ?? ''}
+                quotedText={comment.content ?? ''}
+                comment={comment.comment ?? ''}
+              />
             ))}
           </div>
         )}
