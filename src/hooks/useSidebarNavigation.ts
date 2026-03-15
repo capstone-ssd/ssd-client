@@ -1,10 +1,10 @@
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate, useSearch, useRouterState } from '@tanstack/react-router';
 import type { SidebarSearch } from '@/schemas/searchSchemas';
 
 export function useSidebarNavigation() {
   const navigate = useNavigate();
-
   const search = useSearch({ strict: false });
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const openSidebar = (sidebar: SidebarSearch['sidebar'], blockId: SidebarSearch['blockId']) => {
     navigate({
@@ -36,12 +36,18 @@ export function useSidebarNavigation() {
     openSidebar(tabId, search.blockId);
   };
 
+  const currentRole = pathname.includes('/extract')
+    ? ('evaluator' as const)
+    : pathname.includes('/write')
+      ? ('writer' as const)
+      : undefined;
+
   return {
     openSidebar,
     closeSidebar,
     currentSidebar: search.sidebar,
     currentBlockId: search.blockId,
-    currentRole: search.role,
+    currentRole,
     isBlockSelected: (id: number) => search.blockId === id,
     handleTabClick,
   };
