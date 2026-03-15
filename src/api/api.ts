@@ -11,9 +11,14 @@
  */
 
 export interface DocumentParagraphDto {
-  content?: string;
-  role?: string;
-  /** @format int32 */
+  /** @minLength 1 */
+  content: string;
+  /** @pattern ^#{0,6}$ */
+  role: string;
+  /**
+   * @format int32
+   * @min 1
+   */
   pageNumber?: number;
   /** @format int32 */
   blockId?: number;
@@ -73,82 +78,91 @@ export interface CreateFolderResponse {
 }
 
 export interface ExternalDocumentIdRequest {
-  /** @minLength 1 */
+  /**
+   * @minLength 1
+   * @pattern ^[1-9]\d*$
+   */
   docId: string;
 }
 
-export interface ApiResponseExternalSummarizationKeywordResponse {
+export interface ApiResponseExternalAiKeywordResponse {
   code?: string;
   msg?: string;
-  data?: ExternalSummarizationKeywordResponse;
+  data?: ExternalAiKeywordResponse;
 }
 
-export interface ExternalSummarizationKeywordResponse {
-  doc_id?: string;
+export interface ExternalAiKeywordResponse {
+  /** @format int64 */
+  documentId?: number;
   keyword?: string;
 }
 
-export interface ApiResponseExternalSummarizationBasicResponse {
+export interface ApiResponseExternalAiSummaryResponse {
   code?: string;
   msg?: string;
-  data?: ExternalSummarizationBasicResponse;
+  data?: ExternalAiSummaryResponse;
 }
 
-export interface ExternalSummarizationBasicResponse {
-  doc_id?: string;
+export interface ExternalAiSummaryResponse {
+  /** @format int64 */
+  documentId?: number;
   summary?: string;
-  small?: string;
+  shortSummary?: string;
 }
 
-export interface ApiResponseExternalEvaluationResponse {
+export interface ApiResponseExternalAiEvaluationCardResponse {
   code?: string;
   msg?: string;
-  data?: ExternalEvaluationResponse;
+  data?: ExternalAiEvaluationCardResponse;
 }
 
-export interface ExternalEvaluationReportResponse {
-  TeamEvaluator?: ExternalEvaluatorMetricResponse;
-  SolEvaluator?: ExternalEvaluatorMetricResponse;
-  ProblemEvaluator?: ExternalEvaluatorMetricResponse;
-  BusinessModelEvaluator?: ExternalEvaluatorMetricResponse;
-  ScaleUpEvaluator?: ExternalEvaluatorMetricResponse;
+export interface ExternalAiEvaluationCardResponse {
+  /** @format int64 */
+  documentId?: number;
+  /** @format int32 */
+  totalScore?: number;
+  problemRecognition?: ExternalAiEvaluationMetricResponse;
+  feasibility?: ExternalAiEvaluationMetricResponse;
+  growthStrategy?: ExternalAiEvaluationMetricResponse;
+  businessModel?: ExternalAiEvaluationMetricResponse;
+  teamComposition?: ExternalAiEvaluationMetricResponse;
+  checkList?: Record<string, boolean>;
 }
 
-export interface ExternalEvaluationResponse {
-  doc_id?: string;
-  evaluation_report?: ExternalEvaluationReportResponse;
-  check_list?: Record<string, boolean>;
+export interface ExternalAiEvaluationMetricResponse {
+  label?: string;
+  /** @format int32 */
+  score?: number;
+  review?: string;
 }
 
-export interface ExternalEvaluatorMetricResponse {
-  /** @format double */
-  average_score?: number;
-  final_review?: string;
-}
-
-export interface ExternalCheckNewTextRequest {
-  /** @minLength 1 */
-  block_id: string;
-  /** @minLength 1 */
-  block: string;
-}
-
-export interface ApiResponseExternalCheckNewTextResponse {
+export interface ApiResponseExternalAiDocumentCheckResponse {
   code?: string;
   msg?: string;
-  data?: ExternalCheckNewTextResponse;
+  data?: ExternalAiDocumentCheckResponse;
 }
 
-export interface ExternalCheckNewTextResponse {
-  block_id?: string;
-  check_list?: Record<string, boolean>;
+export interface ExternalAiDocumentCheckResponse {
+  /** @format int64 */
+  documentId?: number;
+  changedBlockIds?: number[];
+  checkList?: Record<string, boolean>;
+}
+
+export interface CreateDocumentParagraphRequest {
+  /** @minLength 1 */
+  content: string;
+  /** @pattern ^#{0,6}$ */
+  role: string;
+  /** @format int32 */
+  blockId?: number;
 }
 
 export interface CreateDocumentRequest {
   title?: string;
   /** @minLength 1 */
   text: string;
-  paragraphs?: DocumentParagraphDto[];
+  paragraphs?: CreateDocumentParagraphRequest[];
   /** @format int64 */
   folderId?: number;
 }
@@ -162,126 +176,6 @@ export interface ApiResponseCreateDocumentResponse {
 export interface CreateDocumentResponse {
   /** @format int64 */
   id?: number;
-}
-
-export interface ApiResponseThreeLineSummaryResponse {
-  code?: string;
-  msg?: string;
-  data?: ThreeLineSummaryResponse;
-}
-
-export interface ThreeLineSummaryResponse {
-  /** @format int64 */
-  documentId?: number;
-  lines?: string[];
-}
-
-export interface EvaluatorReviewRequest {
-  /**
-   * @format int32
-   * @min 0
-   * @max 100
-   */
-  feasibility: number;
-  /**
-   * @format int32
-   * @min 0
-   * @max 100
-   */
-  differentiation: number;
-  /**
-   * @format int32
-   * @min 0
-   * @max 100
-   */
-  financial: number;
-  comment?: string;
-}
-
-export interface ApiResponseEvaluatorReviewResponse {
-  code?: string;
-  msg?: string;
-  data?: EvaluatorReviewResponse;
-}
-
-export interface EvaluatorReviewItemResponse {
-  /** @format int64 */
-  reviewId?: number;
-  /** @format int64 */
-  reviewerId?: number;
-  reviewerName?: string;
-  /** @format int32 */
-  feasibility?: number;
-  /** @format int32 */
-  differentiation?: number;
-  /** @format int32 */
-  financial?: number;
-  /** @format double */
-  total?: number;
-  comment?: string;
-}
-
-export interface EvaluatorReviewResponse {
-  summary?: EvaluatorReviewSummaryResponse;
-  reviews?: EvaluatorReviewItemResponse[];
-}
-
-export interface EvaluatorReviewSummaryResponse {
-  /** @format int64 */
-  documentId?: number;
-  /** @format double */
-  feasibilityAvg?: number;
-  /** @format double */
-  differentiationAvg?: number;
-  /** @format double */
-  financialAvg?: number;
-  /** @format double */
-  totalAvg?: number;
-  /** @format int32 */
-  reviewCount?: number;
-}
-
-export interface ApiResponseEvaluatorCheckListResponse {
-  code?: string;
-  msg?: string;
-  data?: EvaluatorCheckListResponse;
-}
-
-export interface EvaluatorCheckListItemResponse {
-  /** @format int64 */
-  id?: number;
-  content?: string;
-  checked?: boolean;
-}
-
-export interface EvaluatorCheckListResponse {
-  /** @format int64 */
-  documentId?: number;
-  items?: EvaluatorCheckListItemResponse[];
-}
-
-export interface ApiResponseDocumentEvaluationResponse {
-  code?: string;
-  msg?: string;
-  data?: DocumentEvaluationResponse;
-}
-
-export interface DocumentEvaluationResponse {
-  /** @format int64 */
-  documentId?: number;
-  evaluation?: string;
-}
-
-export interface ApiResponseDocumentDetailsResponse {
-  code?: string;
-  msg?: string;
-  data?: DocumentDetailsResponse;
-}
-
-export interface DocumentDetailsResponse {
-  /** @format int64 */
-  documentId?: number;
-  details?: string;
 }
 
 export interface DocumentCommentRequest {
@@ -303,25 +197,6 @@ export interface ApiResponseDocumentCommentResponse {
 export interface DocumentCommentResponse {
   /** @format int64 */
   id?: number;
-}
-
-export interface ApiResponseGenerateChecklistResponse {
-  code?: string;
-  msg?: string;
-  data?: GenerateChecklistResponse;
-}
-
-export interface CheckListItemResponse {
-  /** @format int64 */
-  id?: number;
-  content?: string;
-  checked?: boolean;
-}
-
-export interface GenerateChecklistResponse {
-  /** @format int64 */
-  documentId?: number;
-  items?: CheckListItemResponse[];
 }
 
 export interface UpdateFolderRequest {
@@ -357,12 +232,6 @@ export interface DocumentBookmarkResponse {
 export interface DocumentCommentUpdateRequest {
   /** @minLength 1 */
   comment: string;
-}
-
-export interface ApiResponseCheckListItemResponse {
-  code?: string;
-  msg?: string;
-  data?: CheckListItemResponse;
 }
 
 export interface ApiResponseFolderContentResponse {
@@ -430,23 +299,6 @@ export interface GetDocumentResponse {
   authorName?: string;
 }
 
-export interface ApiResponseDocumentLogResponse {
-  code?: string;
-  msg?: string;
-  data?: DocumentLogResponse;
-}
-
-export interface DocumentLogItemResponse {
-  editorName?: string;
-  time?: string;
-}
-
-export interface DocumentLogResponse {
-  /** @format int64 */
-  documentId?: number;
-  logs?: DocumentLogItemResponse[];
-}
-
 export interface ApiResponseListDocumentCommentItemResponse {
   code?: string;
   msg?: string;
@@ -460,10 +312,4 @@ export interface DocumentCommentItemResponse {
   createdAt?: string;
   content?: string;
   comment?: string;
-}
-
-export interface ApiResponseListCheckListItemResponse {
-  code?: string;
-  msg?: string;
-  data?: CheckListItemResponse[];
 }
