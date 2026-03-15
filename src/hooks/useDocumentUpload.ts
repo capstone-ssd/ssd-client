@@ -1,58 +1,57 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { extractPDFCompound } from '@/utils/extractPDFCompound';
 import { convertToMarkdown } from '@/utils/convertToMarkdown';
-import { createInitialParagraphs } from '@/utils/markdownParagraphs';
-import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
+import { apiRequest } from '@/api/axios';
+import type {
+  CreateDocumentRequest,
+  CreateDocumentResponse,
+  DocumentParagraphDto,
+} from '@/api/api';
 
 type UploadMode = 'writing' | 'evaluate';
 
-interface CreateDocumentRequest {
-  markdown: string;
-  paragraphs: Paragraph[];
+interface UploadVariables {
+  file: File;
   folderId: number | null;
+  mode: UploadMode;
 }
 
-interface CreateDocumentResponse {
-  id: number;
-}
+async function uploadDocument({ file, folderId, mode }: UploadVariables) {
+  const pdfContent = await extractPDFCompound(file);
+  const markdown = convertToMarkdown(pdfContent);
 
-async function createDocument(body: CreateDocumentRequest): Promise<CreateDocumentResponse> {
-  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}api/v1/documents`, {
+  const paragraphs: DocumentParagraphDto[] = pdfContent.paragraphs.map((p, index) => ({
+    blockId: index + 1,
+    content: p.content,
+    role: p.role,
+    pageNumber: 1,
+  }));
+
+  const body: CreateDocumentRequest = {
+    text: markdown,
+    paragraphs,
+    folderId: folderId ?? 0,
+  };
+
+  const res = await apiRequest<CreateDocumentResponse>({
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    url: 'api/v1/documents',
+    data: body,
   });
-  if (!res.ok) throw new Error(`문서 저장 실패: ${res.status}`);
-  return res.json() as Promise<CreateDocumentResponse>;
+  if (res.id == null) throw new Error('응답에 document id가 없습니다');
+
+  return { id: res.id, mode };
 }
 
 export function useDocumentUpload() {
   const navigate = useNavigate();
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
-  async function upload(file: File, folderId: number | null, mode: UploadMode) {
-    setIsPending(true);
-    setError(null);
-    try {
-      const pdfContent = await extractPDFCompound(file);
-      const markdown = convertToMarkdown(pdfContent);
-      const paragraphs = createInitialParagraphs(markdown);
-
-      const { id } = await createDocument({ markdown, paragraphs, folderId });
-
-      if (mode === 'evaluate') {
-        navigate({ to: '/extract/$id', params: { id: String(id) } });
-      } else {
-        navigate({ to: '/write/$id', params: { id: String(id) } });
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e : new Error('알 수 없는 오류'));
-    } finally {
-      setIsPending(false);
-    }
-  }
-
-  return { upload, isPending, error };
+  return useMutation({
+    mutationFn: uploadDocument,
+    onSuccess: ({ id, mode }) => {
+      if (mode === 'evaluate') navigate({ to: '/extract/$id', params: { id: String(id) } });
+      if (mode === 'writing') navigate({ to: '/write/$id', params: { id: String(id) } });
+    },
+  });
 }

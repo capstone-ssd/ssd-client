@@ -13,7 +13,7 @@ export function MarkdownComponent({
 }: MarkdownComponentProps): Components {
   return {
     h1: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
@@ -34,7 +34,7 @@ export function MarkdownComponent({
     },
 
     h2: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
       if (!blockId) {
         return (
@@ -54,7 +54,7 @@ export function MarkdownComponent({
     },
 
     h3: ({ children, ...props }) => {
-      const content = String(children).trim();
+      const content = extractTextFromChildren(children).trim();
       const blockId = getBlockIdForContent(content);
 
       if (!blockId) {
@@ -70,6 +70,69 @@ export function MarkdownComponent({
           <h3 className="text-xl font-semibold text-gray-800" {...props}>
             {children}
           </h3>
+        </BlockWrapper>
+      );
+    },
+
+    h4: ({ children, ...props }) => {
+      const content = extractTextFromChildren(children).trim();
+      const blockId = getBlockIdForContent(content);
+
+      if (!blockId) {
+        return (
+          <h4 className="mt-4 mb-2 text-lg font-semibold text-gray-800" {...props}>
+            {children}
+          </h4>
+        );
+      }
+
+      return (
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
+          <h4 className="text-lg font-semibold text-gray-800" {...props}>
+            {children}
+          </h4>
+        </BlockWrapper>
+      );
+    },
+
+    h5: ({ children, ...props }) => {
+      const content = extractTextFromChildren(children).trim();
+      const blockId = getBlockIdForContent(content);
+
+      if (!blockId) {
+        return (
+          <h5 className="mt-3 mb-2 text-base font-semibold text-gray-800" {...props}>
+            {children}
+          </h5>
+        );
+      }
+
+      return (
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
+          <h5 className="text-base font-semibold text-gray-800" {...props}>
+            {children}
+          </h5>
+        </BlockWrapper>
+      );
+    },
+
+    h6: ({ children, ...props }) => {
+      const content = extractTextFromChildren(children).trim();
+      const blockId = getBlockIdForContent(content);
+
+      if (!blockId) {
+        return (
+          <h6 className="mt-3 mb-2 text-sm font-semibold text-gray-700" {...props}>
+            {children}
+          </h6>
+        );
+      }
+
+      return (
+        <BlockWrapper blockId={blockId} hasComments={getCommentCount(blockId) > 0}>
+          <h6 className="text-sm font-semibold text-gray-700" {...props}>
+            {children}
+          </h6>
         </BlockWrapper>
       );
     },
