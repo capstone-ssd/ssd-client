@@ -5,7 +5,7 @@ import { ExtractHeader } from '@/components/layout/extract/ExtractHeader';
 import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import { useGetDocument } from '@/hooks/useGetDocument';
 
-export const Route = createFileRoute('/extract/$id')({
+export const Route = createFileRoute('/evaluate/$id')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
 });

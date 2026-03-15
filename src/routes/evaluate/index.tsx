@@ -7,7 +7,7 @@ import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 
-export const Route = createFileRoute('/extract/')({
+export const Route = createFileRoute('/evaluate/')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
 });

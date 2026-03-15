@@ -50,7 +50,7 @@ export function useDocumentUpload() {
   return useMutation({
     mutationFn: uploadDocument,
     onSuccess: ({ id, mode }) => {
-      if (mode === 'evaluate') navigate({ to: '/extract/$id', params: { id: String(id) } });
+      if (mode === 'evaluate') navigate({ to: '/evaluate/$id', params: { id: String(id) } });
       if (mode === 'writing') navigate({ to: '/write/$id', params: { id: String(id) } });
     },
   });

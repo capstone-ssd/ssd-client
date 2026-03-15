@@ -36,7 +36,7 @@ export function useSidebarNavigation() {
     openSidebar(tabId, search.blockId);
   };
 
-  const currentRole = pathname.includes('/extract')
+  const currentRole = pathname.includes('/evaluate')
     ? ('evaluator' as const)
     : pathname.includes('/write')
       ? ('writer' as const)
