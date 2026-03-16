@@ -7,7 +7,7 @@ import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 
-export const Route = createFileRoute('/extract')({
+export const Route = createFileRoute('/extract/')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
 });
@@ -28,7 +28,7 @@ function RouteComponent() {
     }));
   return (
     <>
-      <ExtractHeader />
+      <ExtractHeader role='writer' />
       <div className="min-h-screen bg-gray-50 px-13">
         <MarkdownViewer
           markdown={sampleMarkdownText}
