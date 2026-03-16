@@ -27,12 +27,12 @@ function RouteComponent() {
               variant="main"
               rounded="small"
               onClick={kakaologin}
-              className="bg-kakao relative mt-20 flex h-[90px] w-[600px] items-center justify-center"
+              className="bg-kakao relative mt-20 flex h-[90px] w-[600px] items-center justify-center rounded-[12px]"
             >
               <div className="absolute left-8">
                 <Svgkakaologo />
               </div>
-              <div className="body-large font-bold">카카오 로그인</div>
+              <div className="body-large font-bold text-gray-900">카카오 로그인</div>
             </Button>
           </div>
         </div>
