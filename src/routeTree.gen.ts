@@ -8,102 +8,120 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as SignupRouteImport } from './routes/signup';
-import { Route as LoginRouteImport } from './routes/login';
-import { Route as LibraryRouteImport } from './routes/library';
-import { Route as EditorRouteImport } from './routes/editor';
-import { Route as AboutRouteImport } from './routes/about';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as ExtractIndexRouteImport } from './routes/extract/index';
-import { Route as WriteIdRouteImport } from './routes/write/$id';
-import { Route as ExtractIdRouteImport } from './routes/extract/$id';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LibraryRouteImport } from './routes/library'
+import { Route as EditorRouteImport } from './routes/editor'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExtractIndexRouteImport } from './routes/extract/index'
+import { Route as WriteIdRouteImport } from './routes/write/$id'
+import { Route as ExtractIdRouteImport } from './routes/extract/$id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EditorRoute = EditorRouteImport.update({
   id: '/editor',
   path: '/editor',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ExtractIndexRoute = ExtractIndexRouteImport.update({
   id: '/extract/',
   path: '/extract/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const WriteIdRoute = WriteIdRouteImport.update({
   id: '/write/$id',
   path: '/write/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ExtractIdRoute = ExtractIdRouteImport.update({
   id: '/extract/$id',
   path: '/extract/$id',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/editor': typeof EditorRoute;
-  '/library': typeof LibraryRoute;
-  '/login': typeof LoginRoute;
-  '/signup': typeof SignupRoute;
-  '/extract/$id': typeof ExtractIdRoute;
-  '/write/$id': typeof WriteIdRoute;
-  '/extract/': typeof ExtractIndexRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/editor': typeof EditorRoute
+  '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
+  '/extract/': typeof ExtractIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/editor': typeof EditorRoute;
-  '/library': typeof LibraryRoute;
-  '/login': typeof LoginRoute;
-  '/signup': typeof SignupRoute;
-  '/extract/$id': typeof ExtractIdRoute;
-  '/write/$id': typeof WriteIdRoute;
-  '/extract': typeof ExtractIndexRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/editor': typeof EditorRoute
+  '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
+  '/extract': typeof ExtractIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
-  '/editor': typeof EditorRoute;
-  '/library': typeof LibraryRoute;
-  '/login': typeof LoginRoute;
-  '/signup': typeof SignupRoute;
-  '/extract/$id': typeof ExtractIdRoute;
-  '/write/$id': typeof WriteIdRoute;
-  '/extract/': typeof ExtractIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/editor': typeof EditorRoute
+  '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/extract/$id': typeof ExtractIdRoute
+  '/write/$id': typeof WriteIdRoute
+  '/extract/': typeof ExtractIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/about' | '/editor' | '/extract' | '/login' | '/logout' | '/signup';
-  fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/about' | '/editor' | '/extract' | '/login' | '/logout' | '/signup';
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/editor'
+    | '/library'
+    | '/login'
+    | '/signup'
+    | '/extract/$id'
+    | '/write/$id'
+    | '/extract/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/about'
+    | '/editor'
+    | '/library'
+    | '/login'
+    | '/signup'
+    | '/extract/$id'
+    | '/write/$id'
+    | '/extract'
   id:
     | '__root__'
     | '/'
@@ -114,86 +132,86 @@ export interface FileRouteTypes {
     | '/signup'
     | '/extract/$id'
     | '/write/$id'
-    | '/extract/';
-  fileRoutesById: FileRoutesById;
+    | '/extract/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AboutRoute: typeof AboutRoute;
-  EditorRoute: typeof EditorRoute;
-  LibraryRoute: typeof LibraryRoute;
-  LoginRoute: typeof LoginRoute;
-  SignupRoute: typeof SignupRoute;
-  ExtractIdRoute: typeof ExtractIdRoute;
-  WriteIdRoute: typeof WriteIdRoute;
-  ExtractIndexRoute: typeof ExtractIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  EditorRoute: typeof EditorRoute
+  LibraryRoute: typeof LibraryRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  ExtractIdRoute: typeof ExtractIdRoute
+  WriteIdRoute: typeof WriteIdRoute
+  ExtractIndexRoute: typeof ExtractIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/signup': {
-      id: '/signup';
-      path: '/signup';
-      fullPath: '/signup';
-      preLoaderRoute: typeof SignupRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
-      id: '/login';
-      path: '/login';
-      fullPath: '/login';
-      preLoaderRoute: typeof LoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library': {
-      id: '/library';
-      path: '/library';
-      fullPath: '/library';
-      preLoaderRoute: typeof LibraryRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor': {
-      id: '/editor';
-      path: '/editor';
-      fullPath: '/editor';
-      preLoaderRoute: typeof EditorRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/editor'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof EditorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
-      id: '/about';
-      path: '/about';
-      fullPath: '/about';
-      preLoaderRoute: typeof AboutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extract/': {
-      id: '/extract/';
-      path: '/extract';
-      fullPath: '/extract/';
-      preLoaderRoute: typeof ExtractIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/extract/'
+      path: '/extract'
+      fullPath: '/extract/'
+      preLoaderRoute: typeof ExtractIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/write/$id': {
-      id: '/write/$id';
-      path: '/write/$id';
-      fullPath: '/write/$id';
-      preLoaderRoute: typeof WriteIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/write/$id'
+      path: '/write/$id'
+      fullPath: '/write/$id'
+      preLoaderRoute: typeof WriteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extract/$id': {
-      id: '/extract/$id';
-      path: '/extract/$id';
-      fullPath: '/extract/$id';
-      preLoaderRoute: typeof ExtractIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/extract/$id'
+      path: '/extract/$id'
+      fullPath: '/extract/$id'
+      preLoaderRoute: typeof ExtractIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -207,7 +225,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExtractIdRoute: ExtractIdRoute,
   WriteIdRoute: WriteIdRoute,
   ExtractIndexRoute: ExtractIndexRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
