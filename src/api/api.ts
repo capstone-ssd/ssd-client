@@ -10,29 +10,22 @@
  * ---------------------------------------------------------------
  */
 
-export interface DocumentParagraphDto {
+export interface CreateDocumentParagraphRequest {
   /** @minLength 1 */
   content: string;
   /** @pattern ^#{0,6}$ */
   role: string;
-  /**
-   * @format int32
-   * @min 1
-   */
-  pageNumber?: number;
   /** @format int32 */
   blockId?: number;
 }
 
-export interface UpdateDocumentRequest {
+export interface CreateDocumentRequest {
   title?: string;
-  text?: string;
-  summary?: string;
-  details?: string;
+  /** @minLength 1 */
+  text: string;
+  paragraphs?: CreateDocumentParagraphRequest[];
   /** @format int64 */
   folderId?: number;
-  bookmark?: boolean;
-  paragraphs?: DocumentParagraphDto[];
 }
 
 export interface ApiResponseUpdateDocumentResponse {
@@ -46,6 +39,53 @@ export interface UpdateDocumentResponse {
   id?: number;
 }
 
+export interface EvaluatorReviewUpdateRequest {
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  feasibility: number;
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  differentiation: number;
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  financial: number;
+  /** @minLength 1 */
+  comment: string;
+}
+
+export interface ApiResponseEvaluatorReviewDetailResponse {
+  code?: string;
+  msg?: string;
+  data?: EvaluatorReviewDetailResponse;
+}
+
+export interface EvaluatorReviewDetailResponse {
+  /** @format int64 */
+  reviewId?: number;
+  reviewerName?: string;
+  reviewerEmail?: string;
+  /** @format date-time */
+  changedAt?: string;
+  /** @format int32 */
+  feasibility?: number;
+  /** @format int32 */
+  differentiation?: number;
+  /** @format int32 */
+  financial?: number;
+  /** @format double */
+  totalScore?: number;
+  comment?: string;
+}
+
 export interface ApiResponseString {
   code?: string;
   msg?: string;
@@ -56,25 +96,6 @@ export interface ApiResponseBoolean {
   code?: string;
   msg?: string;
   data?: boolean;
-}
-
-export interface CreateFolderRequest {
-  /** @minLength 1 */
-  name: string;
-  color?: string;
-  /** @format int64 */
-  parentId?: number;
-}
-
-export interface ApiResponseCreateFolderResponse {
-  code?: string;
-  msg?: string;
-  data?: CreateFolderResponse;
-}
-
-export interface CreateFolderResponse {
-  /** @format int64 */
-  id?: number;
 }
 
 export interface ExternalDocumentIdRequest {
@@ -110,10 +131,18 @@ export interface ExternalAiSummaryResponse {
   shortSummary?: string;
 }
 
-export interface ApiResponseExternalAiEvaluationCardResponse {
+export interface ApiResponseExternalAiBatchResponse {
   code?: string;
   msg?: string;
-  data?: ExternalAiEvaluationCardResponse;
+  data?: ExternalAiBatchResponse;
+}
+
+export interface ExternalAiBatchResponse {
+  /** @format int64 */
+  documentId?: number;
+  evaluation?: ExternalAiEvaluationCardResponse;
+  summary?: ExternalAiSummaryResponse;
+  keyword?: ExternalAiKeywordResponse;
 }
 
 export interface ExternalAiEvaluationCardResponse {
@@ -136,6 +165,12 @@ export interface ExternalAiEvaluationMetricResponse {
   review?: string;
 }
 
+export interface ApiResponseExternalAiEvaluationCardResponse {
+  code?: string;
+  msg?: string;
+  data?: ExternalAiEvaluationCardResponse;
+}
+
 export interface ApiResponseExternalAiDocumentCheckResponse {
   code?: string;
   msg?: string;
@@ -149,22 +184,23 @@ export interface ExternalAiDocumentCheckResponse {
   checkList?: Record<string, boolean>;
 }
 
-export interface CreateDocumentParagraphRequest {
+export interface CreateFolderRequest {
   /** @minLength 1 */
-  content: string;
-  /** @pattern ^#{0,6}$ */
-  role: string;
-  /** @format int32 */
-  blockId?: number;
+  name: string;
+  color?: string;
+  /** @format int64 */
+  parentId?: number;
 }
 
-export interface CreateDocumentRequest {
-  title?: string;
-  /** @minLength 1 */
-  text: string;
-  paragraphs?: CreateDocumentParagraphRequest[];
+export interface ApiResponseCreateFolderResponse {
+  code?: string;
+  msg?: string;
+  data?: CreateFolderResponse;
+}
+
+export interface CreateFolderResponse {
   /** @format int64 */
-  folderId?: number;
+  id?: number;
 }
 
 export interface ApiResponseCreateDocumentResponse {
@@ -174,6 +210,40 @@ export interface ApiResponseCreateDocumentResponse {
 }
 
 export interface CreateDocumentResponse {
+  /** @format int64 */
+  id?: number;
+}
+
+export interface EvaluatorReviewCreateRequest {
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  feasibility: number;
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  differentiation: number;
+  /**
+   * @format int32
+   * @min 0
+   * @max 100
+   */
+  financial: number;
+  /** @minLength 1 */
+  comment: string;
+}
+
+export interface ApiResponseEvaluatorReviewIdResponse {
+  code?: string;
+  msg?: string;
+  data?: EvaluatorReviewIdResponse;
+}
+
+export interface EvaluatorReviewIdResponse {
   /** @format int64 */
   id?: number;
 }
@@ -234,6 +304,18 @@ export interface DocumentCommentUpdateRequest {
   comment: string;
 }
 
+export interface ApiResponseExternalAiChecklistResponse {
+  code?: string;
+  msg?: string;
+  data?: ExternalAiChecklistResponse;
+}
+
+export interface ExternalAiChecklistResponse {
+  /** @format int64 */
+  documentId?: number;
+  checkList?: Record<string, boolean>;
+}
+
 export interface ApiResponseFolderContentResponse {
   code?: string;
   msg?: string;
@@ -283,6 +365,20 @@ export interface ApiResponseGetDocumentResponse {
   data?: GetDocumentResponse;
 }
 
+export interface DocumentParagraphDto {
+  /** @minLength 1 */
+  content: string;
+  /** @pattern ^#{0,6}$ */
+  role: string;
+  /**
+   * @format int32
+   * @min 1
+   */
+  pageNumber?: number;
+  /** @format int32 */
+  blockId?: number;
+}
+
 export interface GetDocumentResponse {
   /** @format int64 */
   id?: number;
@@ -297,6 +393,55 @@ export interface GetDocumentResponse {
   /** @format int64 */
   authorId?: number;
   authorName?: string;
+}
+
+export interface ApiResponseEvaluatorReviewListResponse {
+  code?: string;
+  msg?: string;
+  data?: EvaluatorReviewListResponse;
+}
+
+export interface EvaluatorReviewListItemResponse {
+  reviewerName?: string;
+  /** @format double */
+  totalScore?: number;
+}
+
+export interface EvaluatorReviewListResponse {
+  /** @format int64 */
+  documentId?: number;
+  /** @format double */
+  averageTotalScore?: number;
+  /** @format int32 */
+  reviewCount?: number;
+  reviews?: EvaluatorReviewListItemResponse[];
+}
+
+export interface ApiResponseDocumentLogResponse {
+  code?: string;
+  msg?: string;
+  data?: DocumentLogResponse;
+}
+
+export interface DocumentLogDateGroupResponse {
+  savedDate?: string;
+  logs?: DocumentLogItemResponse[];
+}
+
+export interface DocumentLogItemResponse {
+  savedTime?: string;
+  editorName?: string;
+  editorEmail?: string;
+  /** @format int32 */
+  deletedBlockCount?: number;
+  /** @format int32 */
+  createdBlockCount?: number;
+}
+
+export interface DocumentLogResponse {
+  /** @format int64 */
+  documentId?: number;
+  records?: DocumentLogDateGroupResponse[];
 }
 
 export interface ApiResponseListDocumentCommentItemResponse {

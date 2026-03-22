@@ -34,6 +34,7 @@ export interface ReviewWritingFormData {
  */
 export interface ReviewWritingContentProps {
   scoreFields: ReviewWritingScoreField[];
+  defaultValues?: ReviewWritingFormData;
   maxCommentLength?: number;
   onSubmit?: (data: ReviewWritingFormData) => void;
   className?: string;
@@ -117,6 +118,7 @@ const ScoreInputField = ({ label, fieldKey, value, maxScore, onChange }: ScoreIn
  */
 const ReviewWritingContent = ({
   scoreFields,
+  defaultValues,
   maxCommentLength = 200,
   onSubmit,
   className,
@@ -124,12 +126,12 @@ const ReviewWritingContent = ({
   const [scores, setScores] = useState<Record<string, number | ''>>(() => {
     const initial: Record<string, number | ''> = {};
     scoreFields.forEach((field) => {
-      initial[field.key] = '';
+      initial[field.key] = defaultValues?.scores[field.key] ?? '';
     });
     return initial;
   });
 
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState(defaultValues?.comment ?? '');
 
   const handleScoreChange = (key: string, value: number | '') => {
     setScores((prev) => ({ ...prev, [key]: value }));

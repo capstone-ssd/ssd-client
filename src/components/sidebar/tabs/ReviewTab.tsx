@@ -1,68 +1,96 @@
 import { useState } from 'react';
+import { useParams } from '@tanstack/react-router';
 import {
   ReviewContent,
   ReviewWritingContent,
-  type ReviewScoreItem,
   type ReviewWritingScoreField,
   type ReviewWritingFormData,
 } from '@/components/accordion';
 import Button from '@/components/common/Button';
+import { useDocumentReviewsQuery } from '@/hooks/useDocumentReviewsQuery';
+import { useMyReviewQuery } from '@/hooks/useMyReviewQuery';
+import { useCreateReviewMutation } from '@/hooks/useCreateReviewMutation';
+import { useUpdateReviewMutation } from '@/hooks/useUpdateReviewMutation';
 
-const SAMPLE_REVIEW_SCORE_ITEMS: ReviewScoreItem[] = [
-  { label: '사업타당성', score: 70 },
-  { label: '사업차별성', score: 85 },
-  { label: '재무적정성', score: 60 },
-];
-
-const SAMPLE_REVIEWS = [
-  {
-    reviewId: 'review-1',
-    userName: '홍길동',
-    userEmail: 'honggildong@hanyang.ac.kr',
-    timestamp: '오후 14:30:00',
-    totalScore: 72,
-    scoreItems: SAMPLE_REVIEW_SCORE_ITEMS,
-  },
-  {
-    reviewId: 'review-2',
-    userName: '김철수',
-    userEmail: 'kimcs@hanyang.ac.kr',
-    timestamp: '오전 10:00:00',
-    totalScore: 58,
-    scoreItems: SAMPLE_REVIEW_SCORE_ITEMS,
-  },
-];
-
-const SAMPLE_SCORE_FIELDS: ReviewWritingScoreField[] = [
+const SCORE_FIELDS: ReviewWritingScoreField[] = [
   { key: 'feasibility', label: '사업타당성' },
   { key: 'differentiation', label: '사업차별성' },
   { key: 'finance', label: '재무적정성' },
 ];
 
 export function ReviewTab() {
+  const { id: documentId } = useParams({ strict: false });
   const [isWritingOpen, setIsWritingOpen] = useState(false);
 
+  const { data: reviewList, isLoading } = useDocumentReviewsQuery(documentId);
+  const { data: myReview } = useMyReviewQuery(documentId);
+  const { mutate: createReview, isPending: isCreating } = useCreateReviewMutation(documentId);
+  const { mutate: updateReview, isPending: isUpdating } = useUpdateReviewMutation(documentId);
+
+  const hasMyReview = !!myReview?.reviewId;
+  const isPending = isCreating || isUpdating;
+
+  const defaultValues: ReviewWritingFormData | undefined = hasMyReview
+    ? {
+        scores: {
+          feasibility: myReview.feasibility ?? '',
+          differentiation: myReview.differentiation ?? '',
+          finance: myReview.financial ?? '',
+        },
+        comment: myReview.comment ?? '',
+      }
+    : undefined;
+
   function handleSubmit(data: ReviewWritingFormData) {
-    console.log('review submitted:', data);
-    setIsWritingOpen(false);
+    const body = {
+      feasibility: Number(data.scores['feasibility'] || 0),
+      differentiation: Number(data.scores['differentiation'] || 0),
+      financial: Number(data.scores['finance'] || 0),
+      comment: data.comment,
+    };
+
+    if (hasMyReview) {
+      updateReview(body, { onSuccess: () => setIsWritingOpen(false) });
+    } else {
+      createReview(body, { onSuccess: () => setIsWritingOpen(false) });
+    }
   }
+
+  const reviews = reviewList?.reviews ?? [];
 
   return (
     <div className="flex flex-col gap-4">
       {isWritingOpen ? (
         <>
-          <Button onClick={() => setIsWritingOpen(false)} variant="normal">
+          <Button onClick={() => setIsWritingOpen(false)} variant="normal" disabled={isPending}>
             뒤로가기
           </Button>
-          <ReviewWritingContent scoreFields={SAMPLE_SCORE_FIELDS} onSubmit={handleSubmit} />
+          <ReviewWritingContent
+            scoreFields={SCORE_FIELDS}
+            defaultValues={defaultValues}
+            onSubmit={handleSubmit}
+          />
         </>
       ) : (
         <>
           <Button onClick={() => setIsWritingOpen(true)} variant="normal">
-            리뷰 쓰기
+            {hasMyReview ? '리뷰 수정' : '리뷰 쓰기'}
           </Button>
-          {SAMPLE_REVIEWS.map((review) => (
-            <ReviewContent key={review.reviewId} {...review} />
+
+          {isLoading && <p className="body-xsmall text-gray-400">불러오는 중...</p>}
+          {!isLoading && reviews.length === 0 && (
+            <p className="body-xsmall text-gray-400">등록된 리뷰가 없습니다.</p>
+          )}
+          {reviews.map((review, index) => (
+            <ReviewContent
+              key={index}
+              reviewId={String(index)}
+              userName={review.reviewerName ?? ''}
+              userEmail=""
+              timestamp=""
+              totalScore={review.totalScore ?? 0}
+              scoreItems={[]}
+            />
           ))}
         </>
       )}
