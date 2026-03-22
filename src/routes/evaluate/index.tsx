@@ -1,5 +1,4 @@
 import { sidebarSchema } from '@/schemas/searchSchemas';
-import { ExtractHeader } from '@/components/layout/extract/ExtractHeader';
 import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 import { dummyComments } from '@/mock/sampleComments';
@@ -27,15 +26,12 @@ function RouteComponent() {
         .replace(/\*/g, ''),
     }));
   return (
-    <>
-      <ExtractHeader role='writer' />
-      <div className="min-h-screen bg-gray-50 px-13">
-        <MarkdownViewer
-          markdown={sampleMarkdownText}
-          paragraph={paragraphs}
-          comments={sampleComments}
-        />
-      </div>
-    </>
+    <div className="min-h-screen bg-gray-50 px-13">
+      <MarkdownViewer
+        markdown={sampleMarkdownText}
+        paragraph={paragraphs}
+        comments={sampleComments}
+      />
+    </div>
   );
 }
