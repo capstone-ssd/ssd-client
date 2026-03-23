@@ -36,11 +36,9 @@ export function useSidebarNavigation() {
     openSidebar(tabId, search.blockId);
   };
 
-  const currentRole = pathname.includes('/evaluate')
-    ? ('evaluator' as const)
-    : pathname.includes('/write')
-      ? ('writer' as const)
-      : undefined;
+  const firstSegment = pathname.split('/')[1];
+  const currentRole =
+    firstSegment === 'evaluate' ? 'evaluator' : firstSegment === 'write' ? 'writer' : undefined;
 
   return {
     openSidebar,
