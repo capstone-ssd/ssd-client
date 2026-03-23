@@ -10,8 +10,7 @@ import { EVALUATOR_TABS, WRITER_TABS } from '../constants/tab-items-constants';
  * @returns
  */
 export function getTabsByRole(role: UserRole): readonly TabItem[] {
-  if (role === 'evaluator') {
-    return EVALUATOR_TABS;
-  }
-  return WRITER_TABS;
+  if (role === 'evaluator') return EVALUATOR_TABS;
+  if (role === 'writer') return WRITER_TABS;
+  return [];
 }

@@ -24,8 +24,7 @@ async function uploadDocument({ file, folderId, mode }: UploadVariables) {
   const paragraphs: DocumentParagraphDto[] = pdfContent.paragraphs.map((p, index) => ({
     blockId: index + 1,
     content: p.content,
-    role: p.role,
-    pageNumber: 1,
+    role: p.role ?? '',
   }));
 
   const body: CreateDocumentRequest = {
@@ -50,7 +49,7 @@ export function useDocumentUpload() {
   return useMutation({
     mutationFn: uploadDocument,
     onSuccess: ({ id, mode }) => {
-      if (mode === 'evaluate') navigate({ to: '/extract/$id', params: { id: String(id) } });
+      if (mode === 'evaluate') navigate({ to: '/evaluate/$id', params: { id: String(id) } });
       if (mode === 'writing') navigate({ to: '/write/$id', params: { id: String(id) } });
     },
   });

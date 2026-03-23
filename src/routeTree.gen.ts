@@ -15,9 +15,9 @@ import { Route as LibraryRouteImport } from './routes/library'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ExtractIndexRouteImport } from './routes/extract/index'
+import { Route as EvaluateIndexRouteImport } from './routes/evaluate/index'
 import { Route as WriteIdRouteImport } from './routes/write/$id'
-import { Route as ExtractIdRouteImport } from './routes/extract/$id'
+import { Route as EvaluateIdRouteImport } from './routes/evaluate/$id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -49,9 +49,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExtractIndexRoute = ExtractIndexRouteImport.update({
-  id: '/extract/',
-  path: '/extract/',
+const EvaluateIndexRoute = EvaluateIndexRouteImport.update({
+  id: '/evaluate/',
+  path: '/evaluate/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WriteIdRoute = WriteIdRouteImport.update({
@@ -59,9 +59,9 @@ const WriteIdRoute = WriteIdRouteImport.update({
   path: '/write/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExtractIdRoute = ExtractIdRouteImport.update({
-  id: '/extract/$id',
-  path: '/extract/$id',
+const EvaluateIdRoute = EvaluateIdRouteImport.update({
+  id: '/evaluate/$id',
+  path: '/evaluate/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -72,9 +72,9 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/extract/$id': typeof ExtractIdRoute
+  '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
-  '/extract/': typeof ExtractIndexRoute
+  '/evaluate/': typeof EvaluateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +83,9 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/extract/$id': typeof ExtractIdRoute
+  '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
-  '/extract': typeof ExtractIndexRoute
+  '/evaluate': typeof EvaluateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,9 +95,9 @@ export interface FileRoutesById {
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/extract/$id': typeof ExtractIdRoute
+  '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
-  '/extract/': typeof ExtractIndexRoute
+  '/evaluate/': typeof EvaluateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,9 +108,9 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/signup'
-    | '/extract/$id'
+    | '/evaluate/$id'
     | '/write/$id'
-    | '/extract/'
+    | '/evaluate/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,9 +119,9 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/signup'
-    | '/extract/$id'
+    | '/evaluate/$id'
     | '/write/$id'
-    | '/extract'
+    | '/evaluate'
   id:
     | '__root__'
     | '/'
@@ -130,9 +130,9 @@ export interface FileRouteTypes {
     | '/library'
     | '/login'
     | '/signup'
-    | '/extract/$id'
+    | '/evaluate/$id'
     | '/write/$id'
-    | '/extract/'
+    | '/evaluate/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,9 +142,9 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  ExtractIdRoute: typeof ExtractIdRoute
+  EvaluateIdRoute: typeof EvaluateIdRoute
   WriteIdRoute: typeof WriteIdRoute
-  ExtractIndexRoute: typeof ExtractIndexRoute
+  EvaluateIndexRoute: typeof EvaluateIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -191,11 +191,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/extract/': {
-      id: '/extract/'
-      path: '/extract'
-      fullPath: '/extract/'
-      preLoaderRoute: typeof ExtractIndexRouteImport
+    '/evaluate/': {
+      id: '/evaluate/'
+      path: '/evaluate'
+      fullPath: '/evaluate/'
+      preLoaderRoute: typeof EvaluateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/write/$id': {
@@ -205,11 +205,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WriteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/extract/$id': {
-      id: '/extract/$id'
-      path: '/extract/$id'
-      fullPath: '/extract/$id'
-      preLoaderRoute: typeof ExtractIdRouteImport
+    '/evaluate/$id': {
+      id: '/evaluate/$id'
+      path: '/evaluate/$id'
+      fullPath: '/evaluate/$id'
+      preLoaderRoute: typeof EvaluateIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -222,9 +222,9 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  ExtractIdRoute: ExtractIdRoute,
+  EvaluateIdRoute: EvaluateIdRoute,
   WriteIdRoute: WriteIdRoute,
-  ExtractIndexRoute: ExtractIndexRoute,
+  EvaluateIndexRoute: EvaluateIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
