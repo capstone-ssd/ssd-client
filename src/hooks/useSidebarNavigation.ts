@@ -37,7 +37,7 @@ export function useSidebarNavigation() {
   };
 
   const firstSegment = pathname.split('/')[1];
-  const currentRole =
+  const currentRole: 'writer' | 'evaluator' | undefined =
     firstSegment === 'evaluate' ? 'evaluator' : firstSegment === 'write' ? 'writer' : undefined;
 
   return {
