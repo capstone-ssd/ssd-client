@@ -13,10 +13,10 @@ export function CommentsTab() {
   const [commentText, setCommentText] = useState('');
 
   function handleSubmit() {
-    if (!currentBlockId || !commentText.trim()) return;
+    if (!documentId || !currentBlockId || !commentText.trim()) return;
     createComment(
       { blockId: currentBlockId, comment: commentText.trim() },
-      { onSuccess: () => setCommentText('') },
+      { onSuccess: () => setCommentText('') }
     );
   }
 
@@ -24,9 +24,7 @@ export function CommentsTab() {
     <div className="flex flex-col gap-4">
       {currentBlockId && (
         <div className="flex flex-col gap-2.5 rounded-xl border border-gray-100 bg-white p-5">
-          <p className="body-xsmall font-semibold text-gray-800">
-            블록 {currentBlockId} 주석 작성
-          </p>
+          <p className="body-xsmall font-semibold text-gray-800">블록 {currentBlockId} 주석 작성</p>
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}

@@ -84,7 +84,6 @@ export default function LibraryDocument({
     >
       {/* 썸네일*/}
       <div className={cn('relative z-10', 'flex w-full justify-center')}>
-        {/* 썸네일 클릭 시 extract 이동 */}
         <Link
           to={to}
           search={search}
