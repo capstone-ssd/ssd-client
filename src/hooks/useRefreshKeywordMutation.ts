@@ -10,7 +10,7 @@ export function useRefreshKeywordMutation(documentId: string | undefined) {
       apiRequest<void>({
         method: 'POST',
         url: 'api/v1/mock/external-ai/summarization/keyword',
-        data: { docId: documentId } satisfies ExternalDocumentIdRequest,
+        data: { docId: documentId! } satisfies ExternalDocumentIdRequest,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents', documentId, 'keyword'] });
