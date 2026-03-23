@@ -66,6 +66,7 @@ export function ReviewTab() {
             뒤로가기
           </Button>
           <ReviewWritingContent
+            key={myReview?.reviewId ?? 'new'}
             scoreFields={SCORE_FIELDS}
             defaultValues={defaultValues}
             onSubmit={handleSubmit}
