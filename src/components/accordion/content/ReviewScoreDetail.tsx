@@ -4,15 +4,18 @@ interface ScoreBarProps {
   label: string;
   score: number;
   maxScore: number;
+  barColor?: string;
 }
 
-const ScoreBar = ({ label, score, maxScore }: ScoreBarProps) => {
+const ScoreBar = ({ label, score, maxScore, barColor = '#1f2937' }: ScoreBarProps) => {
   const percentage = maxScore > 0 ? Math.min(100, Math.max(0, (score / maxScore) * 100)) : 0;
 
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2.5">
-        <span className="body-xxsmall w-[70px] shrink-0 font-medium text-gray-800">{label}</span>
+        <span className="body-xxsmall min-w-[70px] shrink-0 font-medium text-gray-800">
+          {label}
+        </span>
         <span className="body-xxsmall font-medium text-gray-800">{score}</span>
       </div>
       <div
@@ -24,8 +27,8 @@ const ScoreBar = ({ label, score, maxScore }: ScoreBarProps) => {
         aria-label={`${label} 점수`}
       >
         <div
-          className="h-3 rounded-lg bg-gray-800 transition-all duration-300"
-          style={{ width: `${percentage}%` }}
+          className="h-3 rounded-lg transition-all duration-300"
+          style={{ width: `${percentage}%`, backgroundColor: barColor }}
         />
       </div>
     </div>
@@ -43,6 +46,8 @@ export interface ReviewScoreDetailProps {
   totalScore: number;
   maxTotalScore: number;
   scoreItems: ReviewScoreItem[];
+  comment?: string;
+  barColor?: string;
 }
 
 /**
@@ -58,7 +63,13 @@ export interface ReviewScoreDetailProps {
  * />
  * ```
  */
-const ReviewScoreDetail = ({ totalScore, maxTotalScore, scoreItems }: ReviewScoreDetailProps) => (
+const ReviewScoreDetail = ({
+  totalScore,
+  maxTotalScore,
+  scoreItems,
+  comment,
+  barColor,
+}: ReviewScoreDetailProps) => (
   <div className="flex flex-col gap-2.5">
     {/* 종합평점 레이블 + 대형 점수 */}
     <div className="flex flex-col gap-2.5">
@@ -76,10 +87,23 @@ const ReviewScoreDetail = ({ totalScore, maxTotalScore, scoreItems }: ReviewScor
       <ul className="flex flex-col gap-2.5" aria-label="카테고리별 점수">
         {scoreItems.map((item) => (
           <li key={item.label}>
-            <ScoreBar label={item.label} score={item.score} maxScore={item.maxScore ?? 100} />
+            <ScoreBar
+              label={item.label}
+              score={item.score}
+              maxScore={item.maxScore ?? 100}
+              barColor={barColor}
+            />
           </li>
         ))}
       </ul>
+    )}
+
+    {/* 상세의견 */}
+    {comment && (
+      <div className="flex flex-col gap-1">
+        <span className="body-xxsmall font-medium text-gray-800">상세의견</span>
+        <p className="body-xxsmall text-gray-600">{comment}</p>
+      </div>
     )}
   </div>
 );
