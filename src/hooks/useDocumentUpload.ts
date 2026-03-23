@@ -24,8 +24,7 @@ async function uploadDocument({ file, folderId, mode }: UploadVariables) {
   const paragraphs: DocumentParagraphDto[] = pdfContent.paragraphs.map((p, index) => ({
     blockId: index + 1,
     content: p.content,
-    role: p.role,
-    pageNumber: 1,
+    role: p.role ?? '',
   }));
 
   const body: CreateDocumentRequest = {
