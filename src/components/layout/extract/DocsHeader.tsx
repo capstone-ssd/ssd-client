@@ -1,4 +1,3 @@
-// components/layout/extract/ExtractHeader.tsx
 import { cva } from 'class-variance-authority';
 import IconSave from '@/components/icons/IconSave';
 import IconStarN from '@/components/icons/IconStarN';
@@ -29,16 +28,19 @@ interface ExtractHeaderProps {
   onTitleChange?: (title: string) => void;
   onSave?: () => void;
   isSaving?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
-export function WriterHeader({ role, title = '', onTitleChange, onSave, isSaving }: ExtractHeaderProps) {
-  // 임시값 -추후 api 호출
-  const isFavorite = false;
-  const onToggleFavorite = () => {};
-
-  //버튼 클릭 이벤트 핸들러
-  const handleToggleFavorite = () => onToggleFavorite();
-
+export function DocsHeader({
+  role,
+  title = '',
+  onTitleChange,
+  onSave,
+  isSaving,
+  isFavorite = false,
+  onToggleFavorite,
+}: ExtractHeaderProps) {
   // 현재 role이 작성자인 경우만 저장버튼 활성화
   const canSave = role === 'writer';
 
@@ -69,7 +71,7 @@ export function WriterHeader({ role, title = '', onTitleChange, onSave, isSaving
         {/* 즐겨찾기 버튼 */}
         <button
           type="button"
-          onClick={handleToggleFavorite}
+          onClick={onToggleFavorite}
           aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
           aria-pressed={isFavorite}
           className={actionButtonVariants({ active: isFavorite })}

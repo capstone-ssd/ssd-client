@@ -8,7 +8,8 @@ import type { Paragraph } from '@/components/markdown/types/markdown-view.types'
 import { syncParagraphsWithTracking } from '@/utils/markdownParagraphs';
 import { useGetDocument } from '@/hooks/useGetDocument';
 import { useUpdateDocumentMutation } from '@/hooks/useUpdateDocumentMutation';
-import { WriterHeader } from '@/components/layout/extract/WirterHeader';
+import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
+import { DocsHeader } from '@/components/layout/extract/DocsHeader';
 
 export const Route = createFileRoute('/write/$id')({
   component: RouteComponent,
@@ -44,6 +45,8 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
   const [text, setText] = useState(initialText);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>(initialParagraphs);
   const { mutate: updateDocument, isPending: isSaving } = useUpdateDocumentMutation(id);
+  const { mutate: toggleBookmark } = useBookmarkToggleMutation(id);
+  const { data } = useGetDocument(id);
 
   function handleEditorChange(newText: string) {
     setText(newText);
@@ -65,7 +68,15 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
 
   return (
     <>
-      <WriterHeader role="writer" title={title} onTitleChange={setTitle} onSave={handleSave} isSaving={isSaving} />
+      <DocsHeader
+        role="writer"
+        title={title}
+        onTitleChange={setTitle}
+        onSave={handleSave}
+        isSaving={isSaving}
+        isFavorite={data?.bookmark ?? false}
+        onToggleFavorite={() => toggleBookmark()}
+      />
       <div className="flex">
         <MarkdownEditor text={text} onChange={handleEditorChange} />
         <MarkdownViewer markdown={text} comments={[]} paragraph={paragraphs} />
