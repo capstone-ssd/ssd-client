@@ -84,13 +84,18 @@ export function ReviewTab() {
           )}
           {reviews.map((review, index) => (
             <ReviewContent
-              key={index}
+              key={review.reviewerName ?? ''}
               reviewId={String(index)}
               userName={review.reviewerName ?? ''}
               userEmail=""
               timestamp=""
               totalScore={review.totalScore ?? 0}
-              scoreItems={[]}
+              scoreItems={[
+                { label: '사업타당성', score: review.feasibility ?? 0 },
+                { label: '사업차별성', score: review.differentiation ?? 0 },
+                { label: '재무적정성', score: review.financial ?? 0 },
+              ]}
+              comment={review.comment}
             />
           ))}
         </>
