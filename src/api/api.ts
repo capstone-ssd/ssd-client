@@ -19,13 +19,11 @@ export interface CreateDocumentParagraphRequest {
   blockId?: number;
 }
 
-export interface CreateDocumentRequest {
+export interface UpdateDocumentRequest {
   title?: string;
   /** @minLength 1 */
   text: string;
   paragraphs?: CreateDocumentParagraphRequest[];
-  /** @format int64 */
-  folderId?: number;
 }
 
 export interface ApiResponseUpdateDocumentResponse {
@@ -201,6 +199,15 @@ export interface ApiResponseCreateFolderResponse {
 export interface CreateFolderResponse {
   /** @format int64 */
   id?: number;
+}
+
+export interface CreateDocumentRequest {
+  title?: string;
+  /** @minLength 1 */
+  text: string;
+  paragraphs?: CreateDocumentParagraphRequest[];
+  /** @format int64 */
+  folderId?: number;
 }
 
 export interface ApiResponseCreateDocumentResponse {
@@ -402,9 +409,21 @@ export interface ApiResponseEvaluatorReviewListResponse {
 }
 
 export interface EvaluatorReviewListItemResponse {
+  /** @format int64 */
+  reviewId?: number;
   reviewerName?: string;
+  reviewerEmail?: string;
+  /** @format date-time */
+  changedAt?: string;
+  /** @format int32 */
+  feasibility?: number;
+  /** @format int32 */
+  differentiation?: number;
+  /** @format int32 */
+  financial?: number;
   /** @format double */
   totalScore?: number;
+  comment?: string;
 }
 
 export interface EvaluatorReviewListResponse {
