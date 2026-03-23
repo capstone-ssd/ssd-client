@@ -62,7 +62,6 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
         role: p.role ?? '',
         blockId: p.blockId ?? undefined,
       })),
-      folderId: 0,
     });
   }
 
