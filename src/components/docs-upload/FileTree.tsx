@@ -134,7 +134,7 @@ export default function FileTree({
             <DocumentRow
               key={doc.id}
               document={doc}
-              paddingLeft={0}
+              paddingLeft={26}
               isSelected={selectedDocumentId === doc.id}
               onSelect={onSelectDocument ? () => onSelectDocument(doc.id) : undefined}
             />
