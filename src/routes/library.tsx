@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as React from 'react';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
-import { useFolderQuery } from '@/hooks/useFolderQuery';
+// import { useFolderQuery } from '@/hooks/useFolderQuery';
 //TODO: 라이브러리 간격 조절 및 API 연동 코드 추가
 
 // 라우트 등록 (TanStack Router 사용 시)
