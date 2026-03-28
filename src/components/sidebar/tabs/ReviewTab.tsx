@@ -84,7 +84,7 @@ export function ReviewTab() {
           )}
           {reviews.map((review, index) => (
             <ReviewContent
-              key={review.reviewerName ?? ''}
+              key={review.reviewId ?? `review-${index}`}
               reviewId={String(index)}
               userName={review.reviewerName ?? ''}
               userEmail=""
