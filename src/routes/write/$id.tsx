@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { sidebarSchema } from '@/schemas/searchSchemas';
 import MarkdownEditor from '@/components/code-mirror/MarkdownEditor';
@@ -10,6 +10,7 @@ import { useGetDocument } from '@/hooks/useGetDocument';
 import { useUpdateDocumentMutation } from '@/hooks/useUpdateDocumentMutation';
 import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
 import { DocsHeader } from '@/components/layout/extract/DocsHeader';
+import { LeftSidebar } from '@/components/layout/LeftSidebar';
 
 export const Route = createFileRoute('/write/$id')({
   component: RouteComponent,
@@ -25,6 +26,7 @@ function RouteComponent() {
 
   return (
     <WriteEditor
+      key={id}
       id={id}
       initialTitle={data.title ?? ''}
       initialText={data.text ?? ''}
@@ -47,6 +49,7 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
   const { mutate: updateDocument, isPending: isSaving } = useUpdateDocumentMutation(id);
   const { mutate: toggleBookmark } = useBookmarkToggleMutation(id);
   const { data } = useGetDocument(id);
+  const navigate = useNavigate();
 
   function handleEditorChange(newText: string) {
     setText(newText);
@@ -66,20 +69,26 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
   }
 
   return (
-    <>
-      <DocsHeader
-        role="writer"
-        title={title}
-        onTitleChange={setTitle}
-        onSave={handleSave}
-        isSaving={isSaving}
-        isFavorite={data?.bookmark ?? false}
-        onToggleFavorite={() => toggleBookmark()}
+    <div className="flex h-screen">
+      <LeftSidebar
+        selectedDocumentId={Number(id)}
+        onSelectDocument={(docId) => navigate({ to: '/write/$id', params: { id: String(docId) } })}
       />
-      <div className="flex">
-        <MarkdownEditor text={text} onChange={handleEditorChange} />
-        <MarkdownViewer markdown={text} comments={[]} paragraph={paragraphs} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <DocsHeader
+          role="writer"
+          title={title}
+          onTitleChange={setTitle}
+          onSave={handleSave}
+          isSaving={isSaving}
+          isFavorite={data?.bookmark ?? false}
+          onToggleFavorite={() => toggleBookmark()}
+        />
+        <div className="flex flex-1 overflow-hidden">
+          <MarkdownEditor text={text} onChange={handleEditorChange} />
+          <MarkdownViewer markdown={text} comments={[]} paragraph={paragraphs} />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
