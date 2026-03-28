@@ -26,6 +26,7 @@ function RouteComponent() {
 
   return (
     <WriteEditor
+      key={id}
       id={id}
       initialTitle={data.title ?? ''}
       initialText={data.text ?? ''}
@@ -71,9 +72,7 @@ function WriteEditor({ id, initialTitle, initialText, initialParagraphs }: Write
     <div className="flex h-screen">
       <LeftSidebar
         selectedDocumentId={Number(id)}
-        onSelectDocument={(docId) =>
-          navigate({ to: '/write/$id', params: { id: String(docId) } })
-        }
+        onSelectDocument={(docId) => navigate({ to: '/write/$id', params: { id: String(docId) } })}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
         <DocsHeader
