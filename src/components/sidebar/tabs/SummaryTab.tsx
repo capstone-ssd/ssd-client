@@ -27,8 +27,8 @@ export function SummaryTab() {
     <>
       <KeywordContent
         keywords={keywords}
-        showRefreshIcon
-        onRefresh={() => refreshKeyword()}
+        showRefreshIcon={!!documentId}
+        onRefresh={documentId ? () => refreshKeyword() : undefined}
       />
       {(isKeywordLoading || isKeywordRefreshing) && keywords.length === 0 && (
         <p className="body-xsmall px-1 text-gray-400">키워드 불러오는 중...</p>
@@ -39,8 +39,8 @@ export function SummaryTab() {
         <TextContent
           title="요약"
           content={summary}
-          showRefreshIcon
-          onRefresh={() => refreshSummary()}
+          showRefreshIcon={!!documentId}
+          onRefresh={documentId ? () => refreshSummary() : undefined}
         />
       )}
       {isSummaryRefreshing && (
