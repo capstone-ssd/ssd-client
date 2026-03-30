@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { MENU_TABS } from '@/constants/navigation';
 import SvgMenu from '../icons/menu';
 import SvgMainLogo from '../icons/MainLogo';
@@ -8,11 +9,13 @@ import { removeAccessToken, getAccessToken } from '@/api/axios';
 
 export const Header = () => {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState(!!getAccessToken());
   const { data: me } = useMeQuery();
 
   const handleLogout = () => {
     removeAccessToken();
+    queryClient.removeQueries({ queryKey: ['me'] });
     setIsLoggedIn(false);
   };
 
