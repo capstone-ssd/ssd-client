@@ -23,10 +23,23 @@ export const Route = createFileRoute('/write/$id')({
 function RouteComponent() {
   const { id } = Route.useParams();
   const { data, isLoading, error } = useGetDocument(id);
+  const navigate = useNavigate();
 
   if (isLoading) return null;
-  if (error) return <DocumentErrorView error={error} />;
-  if (!data) return null;
+
+  if (error || !data) {
+    return (
+      <div className="flex h-screen">
+        <LeftSidebar
+          selectedDocumentId={Number(id)}
+          onSelectDocument={(docId) => navigate({ to: '/write/$id', params: { id: String(docId) } })}
+        />
+        <div className="flex flex-1 items-center justify-center">
+          {error && <DocumentErrorView error={error} />}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <WriteEditor

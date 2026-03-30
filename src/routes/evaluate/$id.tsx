@@ -19,8 +19,6 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   if (isLoading) return null;
-  if (error) return <DocumentErrorView error={error} />;
-  if (!data) return null;
 
   return (
     <div className="flex h-screen">
@@ -30,8 +28,12 @@ function RouteComponent() {
           navigate({ to: '/evaluate/$id', params: { id: String(docId) } })
         }
       />
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-13">
-        <MarkdownViewer markdown={data.text ?? ''} paragraph={data.paragraphs} comments={[]} />
+      <div className="flex flex-1 items-center justify-center overflow-y-auto bg-gray-50 px-13">
+        {error ? (
+          <DocumentErrorView error={error} />
+        ) : data ? (
+          <MarkdownViewer markdown={data.text ?? ''} paragraph={data.paragraphs} comments={[]} />
+        ) : null}
       </div>
     </div>
   );
