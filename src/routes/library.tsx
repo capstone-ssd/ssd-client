@@ -5,9 +5,11 @@ import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
+  beforeLoad: () => requireAuth(),
 });
 
 export default function RouteComponent() {
