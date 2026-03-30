@@ -12,6 +12,7 @@ import { useUpdateDocumentMutation } from '@/hooks/useUpdateDocumentMutation';
 import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
 import { DocsHeader } from '@/components/layout/extract/DocsHeader';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
+import { DocumentErrorView } from '@/components/common/DocumentErrorView';
 
 export const Route = createFileRoute('/write/$id')({
   component: RouteComponent,
@@ -21,9 +22,10 @@ export const Route = createFileRoute('/write/$id')({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading } = useGetDocument(id);
+  const { data, isLoading, error } = useGetDocument(id);
 
   if (isLoading) return null;
+  if (error) return <DocumentErrorView error={error} />;
   if (!data) return null;
 
   return (

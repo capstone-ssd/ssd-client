@@ -5,6 +5,7 @@ import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import { useGetDocument } from '@/hooks/useGetDocument';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { requireAuth } from '@/utils/authGuard';
+import { DocumentErrorView } from '@/components/common/DocumentErrorView';
 
 export const Route = createFileRoute('/evaluate/$id')({
   component: RouteComponent,
@@ -14,10 +15,11 @@ export const Route = createFileRoute('/evaluate/$id')({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading } = useGetDocument(id);
+  const { data, isLoading, error } = useGetDocument(id);
   const navigate = useNavigate();
 
   if (isLoading) return null;
+  if (error) return <DocumentErrorView error={error} />;
   if (!data) return null;
 
   return (
