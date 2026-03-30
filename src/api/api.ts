@@ -323,6 +323,21 @@ export interface ExternalAiChecklistResponse {
   checkList?: Record<string, boolean>;
 }
 
+export interface ApiResponseGetMyMemberResponse {
+  code?: string;
+  msg?: string;
+  data?: GetMyMemberResponse;
+}
+
+export interface GetMyMemberResponse {
+  /** @format int64 */
+  memberId?: number;
+  name?: string;
+  email?: string;
+  profileImageUrl?: string;
+  role?: string;
+}
+
 export interface ApiResponseFolderContentResponse {
   code?: string;
   msg?: string;
