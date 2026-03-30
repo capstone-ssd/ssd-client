@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from '@tanstack/react-router';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { MENU_TABS } from '@/constants/navigation';
 import SvgMenu from '../icons/menu';
@@ -15,6 +15,7 @@ const MODAL_PATHS = new Set(['/write', '/evaluate']);
 
 export const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState(!!getAccessToken());
   const { data: me } = useMeQuery();
@@ -31,6 +32,10 @@ export const Header = () => {
   };
 
   function openModal(mode: UploadMode) {
+    if (!isLoggedIn) {
+      navigate({ to: '/signup' });
+      return;
+    }
     setActiveMode(mode);
     setIsModalOpen(true);
   }
