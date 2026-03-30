@@ -6,6 +6,7 @@ import { DashboardCard, type CardVariant } from '@/components/dashboard-card/Das
 import { CARD_META } from '@/components/dashboard-card/dashboard';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import { useFolderQuery } from '@/hooks/useFolderQuery';
+import { getAccessToken } from '@/api/axios';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -22,6 +23,10 @@ function RouteComponent() {
   const [activeMode, setActiveMode] = useState<UploadMode>('writing');
 
   function openModal(mode: UploadMode) {
+    if (!getAccessToken()) {
+      navigate({ to: '/signup' });
+      return;
+    }
     setActiveMode(mode);
     setIsModalOpen(true);
   }

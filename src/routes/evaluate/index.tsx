@@ -1,15 +1,16 @@
 import { sidebarSchema } from '@/schemas/searchSchemas';
-import { ExtractHeader } from '@/components/layout/extract/ExtractHeader';
 import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 import { dummyComments } from '@/mock/sampleComments';
 import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
+import { requireAuth } from '@/utils/authGuard';
 
-export const Route = createFileRoute('/extract/')({
+export const Route = createFileRoute('/evaluate/')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
+  beforeLoad: () => requireAuth(),
 });
 
 function RouteComponent() {
@@ -27,15 +28,12 @@ function RouteComponent() {
         .replace(/\*/g, ''),
     }));
   return (
-    <>
-      <ExtractHeader role='writer' />
-      <div className="min-h-screen bg-gray-50 px-13">
-        <MarkdownViewer
-          markdown={sampleMarkdownText}
-          paragraph={paragraphs}
-          comments={sampleComments}
-        />
-      </div>
-    </>
+    <div className="min-h-screen bg-gray-50 px-13">
+      <MarkdownViewer
+        markdown={sampleMarkdownText}
+        paragraph={paragraphs}
+        comments={sampleComments}
+      />
+    </div>
   );
 }

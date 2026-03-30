@@ -37,6 +37,8 @@ export interface ReviewContentProps {
   totalScore: number;
   maxTotalScore?: number;
   scoreItems: ReviewScoreItem[];
+  comment?: string;
+  barColor?: string;
   defaultOpen?: boolean;
   className?: string;
 }
@@ -84,6 +86,8 @@ const ReviewContent = ({
   totalScore,
   maxTotalScore = 100,
   scoreItems,
+  comment,
+  barColor,
   defaultOpen = false,
   className,
 }: ReviewContentProps) => {
@@ -132,6 +136,8 @@ const ReviewContent = ({
               totalScore={totalScore}
               maxTotalScore={maxTotalScore}
               scoreItems={scoreItems}
+              comment={comment}
+              barColor={barColor}
             />
           </Accordion.Content>
         </Accordion.Item>

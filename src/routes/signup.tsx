@@ -7,8 +7,7 @@ export const Route = createFileRoute('/signup')({
 });
 
 const kakaologin = () => {
-  // 이후 카카오 로그인 로직 추가 예정
-  console.log('로그인 되었습니다');
+  window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth/kakao/login`;
 };
 
 function RouteComponent() {

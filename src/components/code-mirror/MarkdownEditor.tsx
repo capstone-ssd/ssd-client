@@ -24,11 +24,12 @@ const doubleEnterKeymap = keymap.of([
 
 export default function MarkdownEditor({ text, onChange, className }: MarkdownEditorProps) {
   return (
-    <div className={cn('min-w-0 flex-1 overflow-hidden', className)}>
+    <div className={cn('h-full min-w-0 flex-1', className)}>
       <CodeMirror
         value={text}
         height="100%"
         width="100%"
+        style={{ height: '100%' }}
         onChange={(value) => onChange(value)}
         extensions={[
           markdown({
