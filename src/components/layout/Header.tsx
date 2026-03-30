@@ -32,7 +32,7 @@ export const Header = () => {
   };
 
   function openModal(mode: UploadMode) {
-    if (!isLoggedIn) {
+    if (!getAccessToken()) {
       navigate({ to: '/signup' });
       return;
     }
