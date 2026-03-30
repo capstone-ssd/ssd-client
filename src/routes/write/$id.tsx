@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { requireAuth } from '@/utils/authGuard';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { sidebarSchema } from '@/schemas/searchSchemas';
 import MarkdownEditor from '@/components/code-mirror/MarkdownEditor';
@@ -15,6 +16,7 @@ import { LeftSidebar } from '@/components/layout/LeftSidebar';
 export const Route = createFileRoute('/write/$id')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
+  beforeLoad: () => requireAuth(),
 });
 
 function RouteComponent() {

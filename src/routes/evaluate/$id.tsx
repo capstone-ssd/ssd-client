@@ -4,10 +4,12 @@ import { sidebarSchema } from '@/schemas/searchSchemas';
 import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import { useGetDocument } from '@/hooks/useGetDocument';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/evaluate/$id')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
+  beforeLoad: () => requireAuth(),
 });
 
 function RouteComponent() {
