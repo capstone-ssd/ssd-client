@@ -7,7 +7,6 @@ export const Route = createFileRoute('/redirect')({
   beforeLoad: () => {
     const params = new URLSearchParams(window.location.hash.slice(1));
     const accessToken = params.get('accessToken');
-    console.log(accessToken);
     if (accessToken) {
       setAccessToken(accessToken);
     }
