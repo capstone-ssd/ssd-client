@@ -77,7 +77,6 @@ export default function LibraryDocument({
           'px-[40px] py-[20px]',
           'transition-colors hover:bg-gray-100',
           'relative flex flex-col',
-          'ring-1 ring-gray-200',
         ].join(' '),
         className
       )}

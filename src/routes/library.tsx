@@ -5,16 +5,15 @@ import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
-import { requireAuth } from '@/utils/authGuard';
+//import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
-  beforeLoad: () => requireAuth(),
+  //beforeLoad: () => requireAuth(),
 });
 
 export default function RouteComponent() {
   const navigate = useNavigate();
-
   const [currentSort, setCurrentSort] = useState<'LATEST' | 'OLDEST' | 'NAME' | 'MODIFIED'>(
     'LATEST'
   );
@@ -23,7 +22,7 @@ export default function RouteComponent() {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [selectedType, setSelectedType] = useState('문서 유형');
 
-  const { data: serverData, isLoading } = useFolderQuery(currentSort, currentFolderId);
+  const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
 
   const sortMap = {
     LATEST: '최신순',
@@ -34,7 +33,6 @@ export default function RouteComponent() {
 
   const folders = serverData?.folders ?? [];
   const documents = serverData?.documents ?? [];
-  const isDataEmpty = !isLoading && folders.length === 0 && documents.length === 0;
 
   const handleSort = (sortKey: keyof typeof sortMap) => {
     setCurrentSort(sortKey);
@@ -53,7 +51,7 @@ export default function RouteComponent() {
   };
 
   const handleBookmarkToggle = (id: number) => {
-    console.log(`${id}번 문서 즐겨찾기 토글 요청!`);
+    console.log(`${id}번 즐겨찾기 요청`); // api 추가 필요
   };
 
   return (
@@ -67,11 +65,7 @@ export default function RouteComponent() {
               setIsTypeOpen(!isTypeOpen);
               setIsSortOpen(false);
             }}
-            className={cn(
-              'flex h-[30px] w-[140px] items-center justify-between border px-3 text-[20px] transition-all duration-200',
-              // 디자인에 따라 버튼 배경은 선택 여부와 상관없이 유지할지 결정 가능 (현재는 흰색 유지)
-              'border-gray-200 bg-white text-gray-900'
-            )}
+            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
           >
             <span>{selectedType}</span>
             <ChevronRight
@@ -126,35 +120,38 @@ export default function RouteComponent() {
           </Button>
           {isSortOpen && (
             <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
-              {(Object.entries(sortMap) as [keyof typeof sortMap, string][]).map(([key, label]) => (
-                <button
-                  key={key}
-                  onClick={() => handleSort(key)}
-                  className="w-full px-4 py-2 text-left text-[16px] hover:bg-gray-100"
-                >
-                  {label}
-                </button>
-              ))}
+              {(Object.entries(sortMap) as [keyof typeof sortMap, string][]).map(([key, label]) => {
+                const isSelected = currentSort === key;
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleSort(key)}
+                    className={cn(
+                      'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
+                      isSelected
+                        ? 'bg-gray-300 text-gray-900'
+                        : 'bg-white text-gray-900 hover:bg-gray-100'
+                    )}
+                  >
+                    <span className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}>
+                      ✓
+                    </span>
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
-      <main className="mx-auto grid min-h-[500px] max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14">
-        {!isLoading && currentFolderId !== 0 && (
-          <button
-            onClick={() => setCurrentFolderId(serverData?.parentId || 0)}
-            className="col-span-6 mb-4 flex w-full items-center text-[18px] text-blue-500 hover:text-blue-700"
-          >
-            ← 상위 폴더로 이동
-          </button>
-        )}
-
+      <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4">
         {folders.map((folder) => (
           <div
             key={`folder-${folder.id}`}
             onClick={() => handleFolderClick(folder.id)}
-            className="cursor-pointer transition-transform hover:scale-105"
+            className="cursor-pointer"
           >
             <LibraryDocument
               documentId={folder.id}
@@ -171,7 +168,7 @@ export default function RouteComponent() {
           <div
             key={`doc-${doc.id}`}
             onClick={() => handleDocumentClick(doc.id)}
-            className="cursor-pointer transition-transform hover:scale-105"
+            className="cursor-pointer"
           >
             <LibraryDocument
               documentId={doc.id}
@@ -183,12 +180,6 @@ export default function RouteComponent() {
             />
           </div>
         ))}
-
-        {isDataEmpty && (
-          <div className="col-span-6 flex flex-col items-center py-40 text-gray-400">
-            <p className="text-[20px] font-medium">아직 등록된 폴더나 문서가 없습니다.</p>
-          </div>
-        )}
       </main>
     </div>
   );
