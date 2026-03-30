@@ -5,11 +5,11 @@ import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
-//import { requireAuth } from '@/utils/authGuard';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
-  //beforeLoad: () => requireAuth(),
+  beforeLoad: () => requireAuth(),
 });
 
 export default function RouteComponent() {
@@ -67,7 +67,6 @@ export default function RouteComponent() {
             }}
             className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
           >
-            {/* ✅ 버튼 텍스트 고정 */}
             <span>문서 유형</span>
             <ChevronRight
               className={cn('h-4 w-4 transition-transform', isTypeOpen ? 'rotate-90' : '')}
@@ -114,7 +113,6 @@ export default function RouteComponent() {
             }}
             className="flex h-[30px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px]"
           >
-            {/* ✅ 버튼 텍스트 고정 */}
             <span>정렬 순서</span>
             <ChevronRight
               className={cn('h-4 w-4 transition-transform', isSortOpen ? 'rotate-90' : '')}
