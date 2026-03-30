@@ -13,7 +13,7 @@ export const Route = createFileRoute('/library')({
 
 export default function RouteComponent() {
   const { data: serverData } = useFolderQuery();
-
+  //
   // 1. 전체 데이터를 상태로 관리 (정렬 반영용)
   const [libraryData, setLibraryData] = useState(serverData);
 
