@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgLinkAngled = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 22 23" role="img" {...props}><path stroke="#7D7D7D" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.332} d="m6.574 9.619-1.99 2.108a4.3 4.3 0 0 0-1.163 2.984c.008 1.126.426 2.204 1.205 3.003A3.86 3.86 0 0 0 7.46 18.99a3.78 3.78 0 0 0 2.817-1.206l1.99-2.108m2.542-2.642 1.99-2.108a4.3 4.3 0 0 0 1.163-2.984c-.008-1.126-.426-2.204-1.204-3.003a3.93 3.93 0 0 0-2.835-1.25 3.81 3.81 0 0 0-2.817 1.206l-1.99 2.108m-1.443 7.464 5.97-6.324" /></svg>;
+export default SvgLinkAngled;

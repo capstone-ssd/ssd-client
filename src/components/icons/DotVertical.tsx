@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgDotVertical = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" role="img" {...props}><path stroke="currentColor" strokeWidth={3} d="M12 18.3a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm0-7.2a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm0-7.2A.9.9 0 1 1 12 5.7a.9.9 0 0 1 .002-1.8Z" /></svg>;
+export default SvgDotVertical;

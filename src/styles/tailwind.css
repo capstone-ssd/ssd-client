@@ -1,0 +1,222 @@
+/* src/styles/tailwind.css */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+@import 'tailwindcss';
+
+@theme {
+  /* Colors */
+  --color-primary-900: #f76d00;
+  --color-primary-800: #f68d00;
+  --color-primary-700: #f69e00;
+  --color-primary-600: #f5b000;
+  --color-primary-500: #f4be00;
+  --color-primary-400: #f5c816;
+  --color-primary-300: #f6d347;
+  --color-primary-200: #f8df7d;
+  --color-primary-100: #fdebb0;
+  --color-primary-50: #fdf8e0;
+
+  --color-secondary-900: #0016b6;
+  --color-secondary-800: #002dcf;
+  --color-secondary-700: #0039d9;
+  --color-secondary-600: #0045e6;
+  --color-secondary-500: #004ef2;
+  --color-secondary-400: #476af6;
+  --color-secondary-300: #6f87f8;
+  --color-secondary-200: #9da9fa;
+  --color-secondary-100: #c5cbfc;
+  --color-secondary-50: #e8eafe;
+
+  --color-gray-900: #000000;
+  --color-gray-800: #262626;
+  --color-gray-700: #434343;
+  --color-gray-600: #555555;
+  --color-gray-500: #7b7b7b;
+  --color-gray-400: #9d9d9d;
+  --color-gray-300: #c4c4c4;
+  --color-gray-200: #d9d9d9;
+  --color-gray-100: #e9e9e9;
+  --color-gray-50: #f5f5f5;
+
+  --color-accent-900: #658000;
+  --color-accent-800: #7a9900;
+  --color-accent-700: #8fb300;
+  --color-accent-600: #a3cc00;
+  --color-accent-500: #b8e600;
+  --color-accent-400: #c3ed33;
+  --color-accent-300: #cef466;
+  --color-accent-200: #d9fb99;
+  --color-accent-100: #e5ffcc;
+  --color-accent-50: #f0ffe5;
+
+  --color-red-900: #d70000;
+  --color-red-800: #ee0202;
+  --color-red-700: #fc1808;
+  --color-red-600: #ff2410;
+  --color-red-500: #ff2c14;
+  --color-red-400: #ff593a;
+  --color-red-300: #ff7c5d;
+  --color-red-200: #ffa38c;
+  --color-red-100: #ffc8b9;
+  --color-red-50: #ffe7e6;
+
+  --color-kakao: #fee500;
+
+  /* Font */
+  --font-sans:
+    'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+@layer utilities {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+
+  .animate-accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .animate-accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+
+  .heading-xlarge {
+    font-size: 3.75rem;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .heading-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .heading-medium {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-xlarge {
+    font-size: 2.5rem;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-large {
+    font-size: 1.875rem;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-nav {
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-medium {
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-small-s {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-xsmall {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-xxsmall {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-tiny {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-xxsmall-r {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .body-tiny {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+
+  .container-custom {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@layer base {
+  body {
+    font-family:
+      'Pretendard Variable',
+      'Pretendard',
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
+}

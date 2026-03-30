@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgIconSave = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 25 25" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeWidth={2} d="M5.922 22.094v-6.328c0-.777.63-1.407 1.406-1.407h9.844c.776 0 1.406.63 1.406 1.407v7.03m0-20.39V5.22c0 .776-.63 1.406-1.406 1.406H7.328c-.777 0-1.406-.63-1.406-1.406V1m16.872 4.919L18.58 1.706A2.4 2.4 0 0 0 16.877 1H3.41A2.41 2.41 0 0 0 1 3.41v17.68a2.41 2.41 0 0 0 2.41 2.41h17.68a2.41 2.41 0 0 0 2.41-2.41V7.623a2.4 2.4 0 0 0-.706-1.705Z" /></svg>;
+export default SvgIconSave;

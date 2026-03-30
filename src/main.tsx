@@ -1,9 +1,15 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import { RouterProvider } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './styles/tailwind.css';
+import { router } from './router';
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-        <App />
-    </StrictMode>
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </StrictMode>
 );
