@@ -20,7 +20,7 @@ export default function RouteComponent() {
   const [currentFolderId, setCurrentFolderId] = useState<number>(0);
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState('문서 유형');
+  const [selectedType, setSelectedType] = useState('전체'); // 내부 로직용
 
   const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
 
@@ -51,7 +51,7 @@ export default function RouteComponent() {
   };
 
   const handleBookmarkToggle = (id: number) => {
-    console.log(`${id}번 즐겨찾기 요청`); // api 추가 필요
+    console.log(`${id}번 즐겨찾기 요청`);
   };
 
   return (
@@ -67,7 +67,8 @@ export default function RouteComponent() {
             }}
             className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
           >
-            <span>{selectedType}</span>
+            {/* ✅ 버튼 텍스트 고정 */}
+            <span>문서 유형</span>
             <ChevronRight
               className={cn('h-4 w-4 transition-transform', isTypeOpen ? 'rotate-90' : '')}
             />
@@ -113,7 +114,8 @@ export default function RouteComponent() {
             }}
             className="flex h-[30px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px]"
           >
-            <span>{sortMap[currentSort]}</span>
+            {/* ✅ 버튼 텍스트 고정 */}
+            <span>정렬 순서</span>
             <ChevronRight
               className={cn('h-4 w-4 transition-transform', isSortOpen ? 'rotate-90' : '')}
             />
