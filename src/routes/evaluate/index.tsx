@@ -5,10 +5,12 @@ import { dummyComments } from '@/mock/sampleComments';
 import { sampleMarkdown } from '@/mock/sampleMarkdown';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodValidator } from '@tanstack/zod-adapter';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/evaluate/')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
+  beforeLoad: () => requireAuth(),
 });
 
 function RouteComponent() {

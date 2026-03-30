@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RedirectRouteImport } from './routes/redirect'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as EditorRouteImport } from './routes/editor'
@@ -22,6 +23,11 @@ import { Route as EvaluateIdRouteImport } from './routes/evaluate/$id'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedirectRoute = RedirectRouteImport.update({
+  id: '/redirect',
+  path: '/redirect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/editor': typeof EditorRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
+  '/redirect': typeof RedirectRoute
   '/signup': typeof SignupRoute
   '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/editor': typeof EditorRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
+  '/redirect': typeof RedirectRoute
   '/signup': typeof SignupRoute
   '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/editor': typeof EditorRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
+  '/redirect': typeof RedirectRoute
   '/signup': typeof SignupRoute
   '/evaluate/$id': typeof EvaluateIdRoute
   '/write/$id': typeof WriteIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/library'
     | '/login'
+    | '/redirect'
     | '/signup'
     | '/evaluate/$id'
     | '/write/$id'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/library'
     | '/login'
+    | '/redirect'
     | '/signup'
     | '/evaluate/$id'
     | '/write/$id'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/library'
     | '/login'
+    | '/redirect'
     | '/signup'
     | '/evaluate/$id'
     | '/write/$id'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   EditorRoute: typeof EditorRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
+  RedirectRoute: typeof RedirectRoute
   SignupRoute: typeof SignupRoute
   EvaluateIdRoute: typeof EvaluateIdRoute
   WriteIdRoute: typeof WriteIdRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redirect': {
+      id: '/redirect'
+      path: '/redirect'
+      fullPath: '/redirect'
+      preLoaderRoute: typeof RedirectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   EditorRoute: EditorRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
+  RedirectRoute: RedirectRoute,
   SignupRoute: SignupRoute,
   EvaluateIdRoute: EvaluateIdRoute,
   WriteIdRoute: WriteIdRoute,

@@ -4,7 +4,6 @@ import { RouterProvider } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './styles/tailwind.css';
 import { router } from './router';
-
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(

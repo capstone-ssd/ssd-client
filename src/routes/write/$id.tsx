@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { requireAuth } from '@/utils/authGuard';
 import { zodValidator } from '@tanstack/zod-adapter';
 import { sidebarSchema } from '@/schemas/searchSchemas';
 import MarkdownEditor from '@/components/code-mirror/MarkdownEditor';
@@ -11,18 +12,34 @@ import { useUpdateDocumentMutation } from '@/hooks/useUpdateDocumentMutation';
 import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
 import { DocsHeader } from '@/components/layout/extract/DocsHeader';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
+import { DocumentErrorView } from '@/components/common/DocumentErrorView';
 
 export const Route = createFileRoute('/write/$id')({
   component: RouteComponent,
   validateSearch: zodValidator(sidebarSchema),
+  beforeLoad: () => requireAuth(),
 });
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const { data, isLoading } = useGetDocument(id);
+  const { data, isLoading, error } = useGetDocument(id);
+  const navigate = useNavigate();
 
   if (isLoading) return null;
-  if (!data) return null;
+
+  if (error || !data) {
+    return (
+      <div className="flex h-screen">
+        <LeftSidebar
+          selectedDocumentId={Number(id)}
+          onSelectDocument={(docId) => navigate({ to: '/write/$id', params: { id: String(docId) } })}
+        />
+        <div className="flex flex-1 items-center justify-center">
+          {error && <DocumentErrorView error={error} />}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <WriteEditor
