@@ -17,8 +17,8 @@ export interface LibraryDocumentProps {
   date: string;
   thumbnailUrl?: string;
   folderColor?: string;
-  isFavorite?: boolean;
-  onToggleFavorite?: (documentId: number) => void;
+  isBookmarked?: boolean;
+  onBookmarkClick?: (documentId: number) => void;
   className?: string;
 }
 // 문서 썸네일
@@ -50,8 +50,8 @@ export default function LibraryDocument({
   date,
   thumbnailUrl,
   folderColor = 'text-primary-400',
-  isFavorite = false,
-  onToggleFavorite,
+  isBookmarked = false,
+  onBookmarkClick,
   className,
 }: LibraryDocumentProps) {
   // 링크 주소 생성
@@ -62,7 +62,7 @@ export default function LibraryDocument({
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    onToggleFavorite?.(documentId);
+    onBookmarkClick?.(documentId);
   };
   // 폴더&썸네일 판단
   const isFolder = itemType === 'folder';
@@ -112,8 +112,8 @@ export default function LibraryDocument({
         <button
           type="button"
           onClick={handleToggleFavorite}
-          aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          aria-pressed={isFavorite}
+          aria-label={isBookmarked ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          aria-pressed={isBookmarked}
           className={cn(
             [
               'rounded-full',
@@ -126,7 +126,7 @@ export default function LibraryDocument({
           )}
         >
           <IconStar
-            className={cn('h-8 w-8', isFavorite ? 'text-primary-200' : 'text-gray-200')}
+            className={cn('h-8 w-8', isBookmarked ? 'text-primary-200' : 'text-gray-200')}
             aria-hidden="true"
           />
         </button>

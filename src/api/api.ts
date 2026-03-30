@@ -352,6 +352,7 @@ export interface DocumentListItemResponse {
   folderId?: number;
   /** @format date-time */
   updatedAt?: string;
+  bookmark: boolean;
 }
 
 export interface FolderContentResponse {

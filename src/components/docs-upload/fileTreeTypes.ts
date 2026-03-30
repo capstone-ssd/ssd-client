@@ -4,6 +4,7 @@ export interface FolderItem {
   color: string;
   parentId: number;
   updatedAt: string;
+  bookmark: boolean;
 }
 
 export interface DocumentItem {
@@ -11,6 +12,7 @@ export interface DocumentItem {
   title: string;
   folderId: number;
   updatedAt: string;
+  bookmark: boolean;
 }
 
 export interface LibraryData {

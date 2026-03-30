@@ -12,25 +12,28 @@ function toLibraryData(res: FolderContentResponse): LibraryData {
       color: f.color ?? '',
       parentId: f.parentId ?? 0,
       updatedAt: f.updatedAt ?? '',
+      bookmark: (f as any).bookmark ?? false,
     })),
     documents: (res.documents ?? []).map((d) => ({
       id: d.id ?? 0,
       title: d.title ?? '',
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
+      bookmark: (d as any).bookmark ?? false,
     })),
   };
 }
 
-// 1. sort 인자를 받도록 수정 (기본값 LATEST)
-export function useFolderQuery(sort: string = 'LATEST') {
+export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
-    // 2. queryKey에 sort를 추가해야 정렬이 바뀔 때마다 API를 새로 쏩니다!
-    queryKey: ['folders', sort],
-    // 3. url 뒤에 쿼리 스트링(?sort=...)을 붙여줍니다.
+    queryKey: ['folders', sort, folderId],
     queryFn: () =>
       apiRequest<FolderContentResponse>({
-        url: `api/v1/folders?sort=${sort}`,
+        url: 'api/v1/folders',
+        params: {
+          sort,
+          parentId: folderId,
+        },
       }),
     select: toLibraryData,
   });
