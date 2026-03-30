@@ -1,39 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery } from '@/hooks/useFolderQuery';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
-  component: LibraryPage,
+  component: RouteComponent,
+  beforeLoad: () => requireAuth(),
 });
 
-// 하드코딩 데이터
-/* const mockData = {
-  folders: [
-    {
-      id: 1,
-      name: '2026_심사임당_기획',
-      updatedAt: '2026-03-30T10:00:00',
-      color: 'text-yellow-400',
-    },
-    { id: 2, name: '참고문헌_모음', updatedAt: '2026-03-28T14:30:00', color: 'text-blue-400' },
-    { id: 3, name: '디자인_에셋', updatedAt: '2026-03-25T09:00:00', color: 'text-purple-400' },
-  ],
-  documents: [
-    { id: 101, title: '최종_발표_자료_수정_진짜최종.pdf', updatedAt: '2026-03-30T15:20:00' },
-    { id: 102, title: '중간보고서_초안', updatedAt: '2026-03-29T11:00:00' },
-    { id: 103, title: '회의록_260330', updatedAt: '2026-03-30T09:00:00' },
-    { id: 104, title: '비즈니스_모델_캔버스', updatedAt: '2026-03-27T16:00:00' },
-    { id: 105, title: '시장조사_결과보고서', updatedAt: '2026-03-26T13:00:00' },
-  ],
-};
-*/
-
-export default function LibraryPage() {
+export default function RouteComponent() {
   const { data: serverData } = useFolderQuery();
-  //const [libraryData, setLibraryData] = useState(mockData);
 
   // 1. 전체 데이터를 상태로 관리 (정렬 반영용)
   const [libraryData, setLibraryData] = useState(serverData);
@@ -48,10 +27,7 @@ export default function LibraryPage() {
   const typeOptions = ['일반문서', '공유문서'];
   const sortOptions = ['최신순', '오래된순', '이름순', '최근 수정일순'];
 
-  // 서버 데이터 로드 시 초기화
-  useEffect(() => {
-    if (serverData) setLibraryData(serverData);
-  }, [serverData]);
+  const toDisplayDate = (updatedAt: string) => updatedAt.split('T')[0] || '-';
 
   // 3. 정렬 로직
   const handleSort = (option: string) => {
@@ -181,8 +157,7 @@ export default function LibraryPage() {
             documentId={folder.id}
             itemType="folder"
             title={folder.name}
-            date={folder.updatedAt.split('T')[0] || '2026-03-30'}
-            folderColor={folder.color || 'text-yellow-400'}
+            date={toDisplayDate(folder.updatedAt)}
           />
         ))}
 
@@ -192,7 +167,7 @@ export default function LibraryPage() {
             documentId={doc.id}
             itemType="document"
             title={doc.title}
-            date={doc.updatedAt.split('T')[0] || '2026-03-30'}
+            date={toDisplayDate(doc.updatedAt)}
           />
         ))}
       </main>
