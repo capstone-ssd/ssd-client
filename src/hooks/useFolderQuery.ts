@@ -30,29 +30,6 @@ function toBookmarked(res: DocumentBookmarkResponse) {
   };
 }
 
-export function useFolderQuery(
-  sort: string = 'LATEST',
-  folderId?: number,
-  type: string = 'NORMAL', // '일반문서'(NORMAL), '공유문서'(SHARED) 등
-  status: string = 'ALL' // '전체'(ALL), '작성중'(WRITING) 등
-) {
-  return useQuery({
-    // ✅ 중요: queryKey에 모든 필터 조건을 넣어야 값이 바뀔 때마다 새로 불러옵니다!
-    queryKey: ['folders', sort, folderId, type, status],
-    queryFn: () =>
-      apiRequest<FolderContentResponse>({
-        url: 'api/v1/folders',
-        params: {
-          sort,
-          parentId: folderId,
-          type, // 서버 API 명세에 맞춰 키값 확인 필요
-          status, // 서버 API 명세에 맞춰 키값 확인 필요
-        },
-      }),
-    select: toLibraryData,
-    // ... 생략
-  });
-}
 export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
     queryKey: ['folders', sort, folderId],
