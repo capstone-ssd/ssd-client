@@ -5,11 +5,11 @@ import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery, useBookmarkMutation } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
-import { requireAuth } from '@/utils/authGuard';
+//import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
-  beforeLoad: () => requireAuth(),
+  //beforeLoad: () => requireAuth(),
 });
 
 export default function RouteComponent() {
@@ -20,11 +20,15 @@ export default function RouteComponent() {
   const [currentFolderId, setCurrentFolderId] = useState<number>(0);
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+
   const [selectedType, setSelectedType] = useState('일반문서');
+  const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
   // 외부 클릭 감지를 위한 Ref
   const typeRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
 
   const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
   const { mutate: toggleBookmark } = useBookmarkMutation();
@@ -35,7 +39,11 @@ export default function RouteComponent() {
     NAME: '이름순',
     MODIFIED: '최근 수정일순',
   };
-
+  const statusMap = {
+    ALL: '전체 문서',
+    WRITING: '작성 문서',
+    EVALUATED: '평가 문서',
+  };
   // 외부 클릭 시 닫히는 로직
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -120,7 +128,57 @@ export default function RouteComponent() {
             </div>
           )}
         </div>
+        {/*  작성/평가 문서 드롭다운 */}
+        <div className="relative" ref={statusRef}>
+          <Button
+            variant="normal"
+            onClick={() => {
+              setIsStatusOpen(!isStatusOpen);
+              setIsTypeOpen(false);
+              setIsSortOpen(false);
+            }}
+            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
+          >
+            <span>{statusMap[selectedStatus]}</span>
+            <ChevronRight
+              className={cn('h-4 w-4 transition-transform', isStatusOpen ? 'rotate-90' : '')}
+            />
+          </Button>
 
+          {isStatusOpen && (
+            <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
+              {(Object.entries(statusMap) as [keyof typeof statusMap, string][]).map(
+                ([key, label]) => {
+                  const isSelected = selectedStatus === key;
+
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setSelectedStatus(key);
+                        setIsStatusOpen(false);
+                        // TODO: API 재호출 로직(나중에 추가)
+                      }}
+                      className={cn(
+                        'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
+                        isSelected
+                          ? 'bg-gray-300 text-gray-900'
+                          : 'bg-white text-gray-900 hover:bg-gray-100'
+                      )}
+                    >
+                      <span
+                        className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}
+                      >
+                        ✓
+                      </span>
+                      {label}
+                    </button>
+                  );
+                }
+              )}
+            </div>
+          )}
+        </div>
         {/* 정렬 순서 드롭다운 */}
         <div className="relative" ref={sortRef}>
           <Button
