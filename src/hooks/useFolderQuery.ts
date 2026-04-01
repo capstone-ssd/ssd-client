@@ -50,12 +50,22 @@ export function useBookmarkMutation() {
   return useMutation({
     mutationFn: (documentId: number) =>
       apiRequest<DocumentBookmarkResponse>({
-        method: 'POST', // 서버 명세에 따라 PATCH 또는 POST 확인 필요
+        method: 'POST',
         url: `api/v1/documents/${documentId}/bookmark`,
       }),
     onSuccess: (data) => {
-      toBookmarked(data);
-      queryClient.invalidateQueries({ queryKey: ['folders'] });
+      const { documentId, isBookmarked } = toBookmarked(data);
+
+      queryClient.setQueriesData({ queryKey: ['folders'] }, (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          documents: oldData.documents.map((doc: any) =>
+            doc.id === documentId ? { ...doc, bookmark: isBookmarked } : doc
+          ),
+        };
+      });
     },
   });
 }
