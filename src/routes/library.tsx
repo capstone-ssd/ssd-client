@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react'; // Ref, Effect 추가
+import { useState, useEffect, useRef } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
-import { useFolderQuery } from '@/hooks/useFolderQuery';
+import { useFolderQuery, useBookmarkMutation } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
 
 export const Route = createFileRoute('/library')({
@@ -25,6 +25,7 @@ export default function RouteComponent() {
   const sortRef = useRef<HTMLDivElement>(null);
 
   const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
+  const { mutate: toggleBookmark } = useBookmarkMutation();
 
   const sortMap = {
     LATEST: '최신순',
@@ -49,7 +50,6 @@ export default function RouteComponent() {
 
   const folders = serverData?.folders ?? [];
   const documents = serverData?.documents ?? [];
-
   const handleSort = (sortKey: keyof typeof sortMap) => {
     setCurrentSort(sortKey);
     setIsSortOpen(false);
@@ -67,7 +67,7 @@ export default function RouteComponent() {
   };
 
   const handleBookmarkToggle = (id: number) => {
-    console.log(`${id}번 즐겨찾기 요청`);
+    toggleBookmark(id);
   };
 
   return (

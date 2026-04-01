@@ -18,7 +18,7 @@ function toLibraryData(res: FolderContentResponse): LibraryData {
       title: d.title ?? '',
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
-      bookmark: d.bookmark ?? false,
+      bookmark: false,
     })),
   };
 }
@@ -54,7 +54,7 @@ export function useBookmarkMutation() {
         url: `api/v1/documents/${documentId}/bookmark`,
       }),
     onSuccess: (data) => {
-      const processedData = toBookmarked(data);
+      toBookmarked(data);
       queryClient.invalidateQueries({ queryKey: ['folders'] });
     },
   });
