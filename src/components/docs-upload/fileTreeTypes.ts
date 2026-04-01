@@ -4,7 +4,6 @@ export interface FolderItem {
   color: string;
   parentId: number;
   updatedAt: string;
-  bookmark: boolean;
 }
 
 export interface DocumentItem {

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
-import type { FolderContentResponse } from '@/api/api';
+import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api';
 import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
 
 function toLibraryData(res: FolderContentResponse): LibraryData {
@@ -12,18 +12,23 @@ function toLibraryData(res: FolderContentResponse): LibraryData {
       color: f.color ?? '',
       parentId: f.parentId ?? 0,
       updatedAt: f.updatedAt ?? '',
-      bookmark: (f as any).bookmark ?? false,
     })),
     documents: (res.documents ?? []).map((d) => ({
       id: d.id ?? 0,
       title: d.title ?? '',
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
-      bookmark: (d as any).bookmark ?? false,
+      bookmark: d.bookmark ?? false,
     })),
   };
 }
 
+function toBookmarked(res: DocumentBookmarkResponse) {
+  return {
+    documentId: res.id ?? 0,
+    isBookmarked: res.bookmark ?? false,
+  };
+}
 export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
     queryKey: ['folders', sort, folderId],
@@ -36,5 +41,21 @@ export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
         },
       }),
     select: toLibraryData,
+  });
+}
+
+export function useBookmarkMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (documentId: number) =>
+      apiRequest<DocumentBookmarkResponse>({
+        method: 'POST', // 서버 명세에 따라 PATCH 또는 POST 확인 필요
+        url: `api/v1/documents/${documentId}/bookmark`,
+      }),
+    onSuccess: (data) => {
+      const processedData = toBookmarked(data);
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+    },
   });
 }
