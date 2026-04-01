@@ -5,11 +5,11 @@ import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
 import { useFolderQuery, useBookmarkMutation } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
-//import { requireAuth } from '@/utils/authGuard';
+import { requireAuth } from '@/utils/authGuard';
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
-  //beforeLoad: () => requireAuth(),
+  beforeLoad: () => requireAuth(),
 });
 
 export default function RouteComponent() {
@@ -52,6 +52,9 @@ export default function RouteComponent() {
       }
       if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
         setIsSortOpen(false);
+      }
+      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
+        setIsStatusOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
