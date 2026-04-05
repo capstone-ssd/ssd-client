@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
-import type { FolderContentResponse } from '@/api/api';
+import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api';
 import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
 
 function toLibraryData(res: FolderContentResponse): LibraryData {
@@ -18,14 +18,55 @@ function toLibraryData(res: FolderContentResponse): LibraryData {
       title: d.title ?? '',
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
+      bookmark: false,
     })),
   };
 }
 
-export function useFolderQuery() {
+function toBookmarked(res: DocumentBookmarkResponse) {
+  return {
+    documentId: res.id ?? 0,
+    isBookmarked: res.bookmark ?? false,
+  };
+}
+
+export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
-    queryKey: ['folders'],
-    queryFn: () => apiRequest<FolderContentResponse>({ url: 'api/v1/folders' }),
+    queryKey: ['folders', sort, folderId],
+    queryFn: () =>
+      apiRequest<FolderContentResponse>({
+        url: 'api/v1/folders',
+        params: {
+          sort,
+          parentId: folderId,
+        },
+      }),
     select: toLibraryData,
+  });
+}
+
+export function useBookmarkMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (documentId: number) =>
+      apiRequest<DocumentBookmarkResponse>({
+        method: 'POST',
+        url: `api/v1/documents/${documentId}/bookmark`,
+      }),
+    onSuccess: (data) => {
+      const { documentId, isBookmarked } = toBookmarked(data);
+
+      queryClient.setQueriesData({ queryKey: ['folders'] }, (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          documents: oldData.documents.map((doc: any) =>
+            doc.id === documentId ? { ...doc, bookmark: isBookmarked } : doc
+          ),
+        };
+      });
+    },
   });
 }
