@@ -11,6 +11,7 @@ export interface DocumentItem {
   title: string;
   folderId: number;
   updatedAt: string;
+  bookmark: boolean;
 }
 
 export interface LibraryData {
