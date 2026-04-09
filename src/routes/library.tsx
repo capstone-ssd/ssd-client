@@ -52,22 +52,33 @@ export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProp
   if (isLoading || !data) return <div className="h-6 animate-pulse rounded bg-gray-100" />;
 
   return (
-    <nav className="mb-4 flex items-center space-x-2 text-sm text-gray-600">
-      {data.breadcrumb.map((item, index) => (
-        <div key={item.id} className="flex items-center">
-          <span
-            className="cursor-pointer font-medium hover:text-blue-600 hover:underline"
-            onClick={() => onNavigate(item.id)}
-          >
-            {item.name}
-          </span>
-          {/* 마지막 항목이 아니면 화살표 표시 */}
-          {index < data.breadcrumb.length - 1 && (
-            <ChevronRight className="mx-1 h-4 w-4 text-gray-400" />
-          )}
-        </div>
-      ))}
-    </nav>
+    // 1. 레이아웃(좌우 여백)은 .body-xlarge로 유지해서 다른 요소들과 줄을 맞춥니다.
+    <div className="body-xlarge mb-6 pt-2 pl-5">
+      <div className="flex flex-wrap items-center gap-y-2">
+        {data.breadcrumb.map((item, index) => (
+          <div key={item.id} className="flex items-center">
+            <span
+              className={cn(
+                'cursor-pointer transition-colors hover:text-black',
+                // ✅ 핵심: 경로 텍스트에만 .text-xlarge를 적용합니다.
+                'text-large',
+                index === data.breadcrumb.length - 1
+                  ? 'font-bold text-gray-900'
+                  : 'font-medium text-gray-400'
+              )}
+              onClick={() => onNavigate(item.id)}
+            >
+              {item.name}
+            </span>
+
+            {/* 화살표도 글자 크기에 맞춰서 살짝 존재감 있게 조정 */}
+            {index < data.breadcrumb.length - 1 && (
+              <ChevronRight className="mx-2 h-5 w-5 text-gray-300" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -135,14 +146,14 @@ export default function RouteComponent() {
 
   return (
     <div className="relative flex min-h-screen w-full overflow-x-hidden bg-white">
+      <div className="text-xlarge mb-10 justify-start">
+        <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
+      </div>
+
       <div
         className={cn('flex-1 px-20 pt-16 transition-all duration-300', selectedId ? 'mr-80' : '')}
       >
         <div className="relative mb-12 flex justify-end gap-3">
-          <div className="mb-10 px-4">
-            <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
-          </div>
-
           {/* 필터 영역 생략 (기존과 동일) */}
           <div className="relative" ref={statusDropdown.ref}>
             <Button
@@ -213,7 +224,7 @@ export default function RouteComponent() {
             <Link
               to="/library"
               search={(prev: any) => ({ ...prev, folderId: undefined, selectedId: undefined })}
-              className="flex cursor-pointer flex-col items-center opacity-50 hover:opacity-100"
+              className="justift-start flex cursor-pointer flex-col items-center opacity-50 hover:opacity-100"
             >
               <div className="text-4xl">📂↑</div>
               <span className="mt-2 text-[14px] font-bold text-gray-500">홈으로</span>
