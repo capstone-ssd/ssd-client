@@ -49,7 +49,7 @@ export default function LibraryDocument({
   title,
   date,
   thumbnailUrl,
-  folderColor = 'text-primary-400',
+  folderColor = '',
   isBookmarked = false,
   onBookmarkClick,
   className,
@@ -86,7 +86,8 @@ export default function LibraryDocument({
         <Link to={to} search={search} className={thumbnailButtonVariants({ itemType })}>
           {isFolder && (
             <FolderFilled
-              className={cn('h-auto w-[150px]', folderColor)}
+              className={cn('h-auto w-[150px]')}
+              style={{ color: folderColor }}
               role="img"
               aria-label="폴더 썸네일"
             />
