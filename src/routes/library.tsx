@@ -18,6 +18,11 @@ export default function RouteComponent() {
     'LATEST'
   );
   const [currentFolderId, setCurrentFolderId] = useState<number>(0);
+
+  // ✅ 상세 정보 사이드바 및 클릭 제어 상태
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -25,13 +30,34 @@ export default function RouteComponent() {
   const [selectedType, setSelectedType] = useState('일반문서');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
-  // 외부 클릭 감지를 위한 Ref
   const typeRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
   const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
   const { mutate: toggleBookmark } = useBookmarkMutation();
+
+  // ✅ 클릭 로직: 단일 클릭은 사이드바, 더블 클릭은 진입
+  const handleItemClick = (item: any, isFolder: boolean) => {
+    if (clickTimer.current) {
+      // 더블 클릭 발생
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+
+      if (isFolder) {
+        setCurrentFolderId(item.id);
+        setSelectedItem(null); // 폴더 진입 시 사이드바 닫기
+      } else {
+        navigate({ to: '/evaluate/$id', params: { id: String(item.id) } });
+      }
+    } else {
+      // 단일 클릭 대기
+      clickTimer.current = setTimeout(() => {
+        setSelectedItem(item); // 사이드바에 정보 표시
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
 
   const sortMap = {
     LATEST: '최신순',
@@ -44,221 +70,148 @@ export default function RouteComponent() {
     WRITING: '작성 문서',
     EVALUATED: '평가 문서',
   };
-  // 외부 클릭 시 닫히는 로직
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (typeRef.current && !typeRef.current.contains(event.target as Node)) {
-        setIsTypeOpen(false);
-      }
-      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-        setIsSortOpen(false);
-      }
-      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
-        setIsStatusOpen(false);
-      }
+      const target = event.target as Node;
+      if (typeRef.current && !typeRef.current.contains(target)) setIsTypeOpen(false);
+      if (sortRef.current && !sortRef.current.contains(target)) setIsSortOpen(false);
+      if (statusRef.current && !statusRef.current.contains(target)) setIsStatusOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const folders = serverData?.folders ?? [];
-  const documents = serverData?.documents ?? [];
-  const handleSort = (sortKey: keyof typeof sortMap) => {
-    setCurrentSort(sortKey);
-    setIsSortOpen(false);
-  };
+  // ✅ 데이터 가공: 최상위(0)일 때는 기본 폴더 2개만 노출
+  const displayFolders =
+    currentFolderId === 0
+      ? [
+          { id: 1001, name: '작성 폴더', updatedAt: new Date().toISOString() },
+          { id: 1002, name: '평가 폴더', updatedAt: new Date().toISOString() },
+        ]
+      : (serverData?.folders ?? []);
 
-  const handleFolderClick = (id: number) => {
-    setCurrentFolderId(id);
-  };
-
-  const handleDocumentClick = (docId: number) => {
-    navigate({
-      to: '/evaluate/$id',
-      params: { id: String(docId) },
-    });
-  };
-
-  const handleBookmarkToggle = (id: number) => {
-    toggleBookmark(id);
-  };
+  const displayDocuments = currentFolderId === 0 ? [] : (serverData?.documents ?? []);
 
   return (
-    <div className="min-h-screen w-full bg-white px-20 pt-16">
-      <div className="relative mb-12 flex justify-end gap-3">
-        {/* 문서 유형 드롭다운 */}
-        <div className="relative" ref={typeRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsTypeOpen(!isTypeOpen);
-              setIsSortOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>문서 유형</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isTypeOpen ? 'rotate-90' : '')}
-            />
-          </Button>
-
-          {isTypeOpen && (
-            <div className="absolute left-0 z-50 mt-1 w-full overflow-hidden rounded-md border border-gray-100 bg-white shadow-lg">
-              {['일반문서', '공유문서'].map((opt) => {
-                const isSelected = selectedType === opt;
-
-                return (
-                  <button
-                    key={opt}
-                    onClick={() => {
-                      setSelectedType(opt);
-                      setIsTypeOpen(false);
-                    }}
-                    className={cn(
-                      'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                      isSelected
-                        ? 'bg-gray-300 text-gray-900'
-                        : 'bg-white text-gray-900 hover:bg-gray-100'
-                    )}
-                  >
-                    <span className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}>
-                      ✓
-                    </span>
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        {/*  작성/평가 문서 드롭다운 */}
-        <div className="relative" ref={statusRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsStatusOpen(!isStatusOpen);
-              setIsTypeOpen(false);
-              setIsSortOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>{statusMap[selectedStatus]}</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isStatusOpen ? 'rotate-90' : '')}
-            />
-          </Button>
-
-          {isStatusOpen && (
-            <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
-              {(Object.entries(statusMap) as [keyof typeof statusMap, string][]).map(
-                ([key, label]) => {
-                  const isSelected = selectedStatus === key;
-
-                  return (
+    <div className="flex min-h-screen w-full bg-white">
+      {/* 메인 영역 */}
+      <div className={cn('flex-1 px-20 pt-16 transition-all', selectedItem ? 'mr-80' : '')}>
+        <div className="relative mb-12 flex justify-end gap-3">
+          {/* 정렬 드롭다운 (최상위가 아닐 때만 의미 있음) */}
+          <div className="relative" ref={sortRef}>
+            <Button
+              variant="normal"
+              onClick={() => {
+                setIsSortOpen(!isSortOpen);
+                setIsTypeOpen(false);
+                setIsStatusOpen(false);
+              }}
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
+            >
+              <span>{sortMap[currentSort]}</span>
+              <ChevronRight
+                className={cn('h-4 w-4 transition-transform', isSortOpen ? 'rotate-90' : '')}
+              />
+            </Button>
+            {isSortOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
+                {(Object.entries(sortMap) as [keyof typeof sortMap, string][]).map(
+                  ([key, label]) => (
                     <button
                       key={key}
                       onClick={() => {
-                        setSelectedStatus(key);
-                        setIsStatusOpen(false);
-                        // TODO: API 재호출 로직(나중에 추가)
+                        setCurrentSort(key);
+                        setIsSortOpen(false);
                       }}
                       className={cn(
-                        'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                        isSelected
-                          ? 'bg-gray-300 text-gray-900'
-                          : 'bg-white text-gray-900 hover:bg-gray-100'
+                        'flex w-full items-center px-3 py-2 text-left text-[16px]',
+                        currentSort === key ? 'bg-gray-300' : 'hover:bg-gray-100'
                       )}
                     >
-                      <span
-                        className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}
-                      >
-                        ✓
-                      </span>
                       {label}
                     </button>
-                  );
-                }
-              )}
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4">
+          {/* 뒤로가기 (상위 폴더 이동) */}
+          {currentFolderId !== 0 && (
+            <div
+              onClick={() => setCurrentFolderId(0)}
+              className="flex cursor-pointer flex-col items-center opacity-50 hover:opacity-100"
+            >
+              <div className="text-4xl">📂↑</div>
+              <span className="mt-2 text-sm">상위 폴더</span>
             </div>
           )}
-        </div>
-        {/* 정렬 순서 드롭다운 */}
-        <div className="relative" ref={sortRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsSortOpen(!isSortOpen);
-              setIsTypeOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>정렬 순서</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isSortOpen ? 'rotate-90' : '')}
-            />
-          </Button>
 
-          {isSortOpen && (
-            <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
-              {(Object.entries(sortMap) as [keyof typeof sortMap, string][]).map(([key, label]) => {
-                const isSelected = currentSort === key;
-
-                return (
-                  <button
-                    key={key}
-                    onClick={() => handleSort(key)}
-                    className={cn(
-                      'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                      isSelected
-                        ? 'bg-gray-300 text-gray-900'
-                        : 'bg-white text-gray-900 hover:bg-gray-100'
-                    )}
-                  >
-                    <span className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}>
-                      ✓
-                    </span>
-                    {label}
-                  </button>
-                );
-              })}
+          {displayFolders.map((folder) => (
+            <div
+              key={`folder-${folder.id}`}
+              onClick={() => handleItemClick(folder, true)}
+              className="cursor-pointer"
+            >
+              <LibraryDocument
+                documentId={folder.id}
+                itemType="folder"
+                title={folder.name}
+                date={folder.updatedAt?.split('T')[0] || '-'}
+              />
             </div>
-          )}
-        </div>
+          ))}
+
+          {displayDocuments.map((doc) => (
+            <div
+              key={`doc-${doc.id}`}
+              onClick={() => handleItemClick(doc, false)}
+              className="cursor-pointer"
+            >
+              <LibraryDocument
+                documentId={doc.id}
+                itemType="document"
+                title={doc.title}
+                date={doc.updatedAt?.split('T')[0] || '-'}
+                isBookmarked={doc.bookmark}
+                onBookmarkClick={(id) => toggleBookmark(id)}
+              />
+            </div>
+          ))}
+        </main>
       </div>
 
-      <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4">
-        {folders.map((folder) => (
-          <div
-            key={`folder-${folder.id}`}
-            onClick={() => handleFolderClick(folder.id)}
-            className="cursor-pointer"
-          >
-            <LibraryDocument
-              documentId={folder.id}
-              itemType="folder"
-              title={folder.name}
-              date={folder.updatedAt?.split('T')[0] || '-'}
-            />
+      {/* ✅ 상세 정보 사이드바 */}
+      {selectedItem && (
+        <aside className="fixed top-0 right-0 h-full w-80 border-l border-gray-200 bg-gray-50 p-6 pt-24 shadow-xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-xl font-bold">상세 정보</h2>
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="text-gray-400 hover:text-black"
+            >
+              ✕
+            </button>
           </div>
-        ))}
-
-        {documents.map((doc) => (
-          <div
-            key={`doc-${doc.id}`}
-            onClick={() => handleDocumentClick(doc.id)}
-            className="cursor-pointer"
-          >
-            <LibraryDocument
-              documentId={doc.id}
-              itemType="document"
-              title={doc.title}
-              date={doc.updatedAt?.split('T')[0] || '-'}
-              isBookmarked={doc.bookmark}
-              onBookmarkClick={handleBookmarkToggle}
-            />
+          <div className="space-y-4">
+            <div className="flex h-40 items-center justify-center rounded-md border border-gray-200 bg-white">
+              {selectedItem.title ? '📄 문서 아이콘' : '📂 폴더 아이콘'}
+            </div>
+            <p>
+              <strong>이름:</strong> {selectedItem.name || selectedItem.title}
+            </p>
+            <p>
+              <strong>수정일:</strong> {selectedItem.updatedAt?.split('T')[0]}
+            </p>
+            <div className="mt-8 rounded-lg bg-blue-50 p-4 text-sm text-blue-600">
+              💡 항목을 <strong>더블 클릭</strong>하면 해당 위치로 이동하거나 파일을 엽니다.
+            </div>
           </div>
-        ))}
-      </main>
+        </aside>
+      )}
     </div>
   );
 }
