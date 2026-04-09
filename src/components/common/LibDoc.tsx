@@ -53,10 +53,6 @@ export default function LibraryDocument({
   onBookmarkClick,
   className,
 }: LibraryDocumentProps) {
-  // 링크 주소 생성
-  const to = itemType === 'folder' ? '/library' : '/evaluate';
-  const search = itemType === 'folder' ? { folderId: documentId } : { documentId: documentId };
-
   // 즐겨찾기 버튼 클릭 핸들러
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

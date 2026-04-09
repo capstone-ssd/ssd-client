@@ -7,6 +7,7 @@ import {
   useFolderQuery,
   useBookmarkMutation,
   useCreateFolderMutation,
+  useAllFolderQuery,
 } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
 import { requireAuth } from '@/utils/authGuard';
@@ -38,6 +39,37 @@ export const Route = createFileRoute('/library')({
     } as LibrarySearch;
   },
 });
+
+interface BreadcrumbProps {
+  currentFolderId: number;
+  onNavigate: (id: number) => void; // 클릭 시 폴더 이동 함수
+}
+
+export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProps) {
+  // 우리가 만든 'all' 쿼리 호출!
+  const { data, isLoading } = useAllFolderQuery(currentFolderId);
+
+  if (isLoading || !data) return <div className="h-6 animate-pulse rounded bg-gray-100" />;
+
+  return (
+    <nav className="mb-4 flex items-center space-x-2 text-sm text-gray-600">
+      {data.breadcrumb.map((item, index) => (
+        <div key={item.id} className="flex items-center">
+          <span
+            className="cursor-pointer font-medium hover:text-blue-600 hover:underline"
+            onClick={() => onNavigate(item.id)}
+          >
+            {item.name}
+          </span>
+          {/* 마지막 항목이 아니면 화살표 표시 */}
+          {index < data.breadcrumb.length - 1 && (
+            <ChevronRight className="mx-1 h-4 w-4 text-gray-400" />
+          )}
+        </div>
+      ))}
+    </nav>
+  );
+}
 
 export default function RouteComponent() {
   const navigate = useNavigate();
@@ -91,12 +123,26 @@ export default function RouteComponent() {
 
   const displayDocuments = serverData?.documents ?? [];
 
+  const handleNavigate = (id: number) => {
+    (navigate as any)({
+      search: (prev: any) => ({
+        ...prev,
+        folderId: id === 0 ? undefined : id,
+        selectedId: undefined,
+      }),
+    });
+  };
+
   return (
     <div className="relative flex min-h-screen w-full overflow-x-hidden bg-white">
       <div
         className={cn('flex-1 px-20 pt-16 transition-all duration-300', selectedId ? 'mr-80' : '')}
       >
         <div className="relative mb-12 flex justify-end gap-3">
+          <div className="mb-10 px-4">
+            <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
+          </div>
+
           {/* 필터 영역 생략 (기존과 동일) */}
           <div className="relative" ref={statusDropdown.ref}>
             <Button
@@ -192,17 +238,10 @@ export default function RouteComponent() {
             </Link>
           ))}
 
-          {/* 📄 문서 렌더링 */}
           {displayDocuments.map((doc) => (
             <div
               key={`doc-${doc.id}`}
-              onClick={(e) => {
-                // 💡 여기서 내부 버튼(북마크 등) 클릭은 무시
-                if ((e.target as HTMLElement).closest('button')) return;
-
-                e.preventDefault();
-                handleDocumentClick(doc.id);
-              }}
+              onClick={() => handleDocumentClick(doc.id)}
               className="cursor-pointer"
             >
               <LibraryDocument

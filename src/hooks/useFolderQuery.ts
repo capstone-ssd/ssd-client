@@ -1,35 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
 import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api';
-import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
 import type { CreateFolderRequest } from '@/api/api';
+import { toLibraryData, calculatePath } from '@/utils/folderUtils';
 
-function toLibraryData(res: FolderContentResponse): LibraryData {
-  return {
-    parentId: res.parentId ?? 0,
-    folders: (res.folders ?? []).map((f) => ({
-      id: f.id ?? 0,
-      name: f.name ?? '',
-      color: f.color ?? '',
-      parentId: f.parentId ?? 0,
-      updatedAt: f.updatedAt ?? '',
-    })),
-    documents: (res.documents ?? []).map((d) => ({
-      id: d.id ?? 0,
-      title: d.title ?? '',
-      folderId: d.folderId ?? 0,
-      updatedAt: d.updatedAt ?? '',
-      bookmark: false,
-    })),
-  };
-}
-
-function toBookmarked(res: DocumentBookmarkResponse) {
-  return {
-    documentId: res.id ?? 0,
-    isBookmarked: res.bookmark ?? false,
-  };
-}
+const toBookmarked = (data: DocumentBookmarkResponse) => ({
+  documentId: data.id ?? 0, 
+  isBookmarked: data.bookmark ?? false,
+});
 
 export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
@@ -86,5 +64,21 @@ export function useCreateFolderMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['folders'] });
     },
+  });
+}
+
+// 2. 신규: 전체 구조 조회 (경로 추적용)
+export function useAllFolderQuery(currentFolderId?: number) {
+  return useQuery({
+    queryKey: ['folders', 'all'],
+    queryFn: () =>
+      apiRequest<FolderContentResponse>({
+        url: 'api/v1/folders/all', // 새로 발견한 API!
+      }),
+    // select를 활용해 데이터가 오자마자 현재 위치의 경로를 계산해버립니다.
+    select: (data) => ({
+      fullData: toLibraryData(data),
+      breadcrumb: calculatePath(data.folders || [], currentFolderId ?? 0),
+    }),
   });
 }
