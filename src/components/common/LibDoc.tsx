@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from '@tanstack/react-router';
 import { cva } from 'class-variance-authority';
 
 import DotVertical from '@/components/icons/DotVertical';
@@ -83,7 +82,7 @@ export default function LibraryDocument({
     >
       {/* 썸네일*/}
       <div className={cn('relative z-10', 'flex w-full justify-center')}>
-        <Link to={to} search={search} className={thumbnailButtonVariants({ itemType })}>
+        <div className={thumbnailButtonVariants({ itemType })}>
           {isFolder && (
             <FolderFilled
               className={cn('h-auto w-[150px]')}
@@ -101,7 +100,7 @@ export default function LibraryDocument({
             />
           )}
           {!isFolder && !hasThumbnail && <div className="h-full w-full" aria-hidden="true" />}
-        </Link>
+        </div>
 
         {/* 즐겨찾기 */}
         <button
@@ -130,11 +129,7 @@ export default function LibraryDocument({
       {/* 본문 */}
       <div className={cn('relative z-10', 'mt-[10px] flex flex-1 flex-col')}>
         {/* 타이틀 클릭 시 extract 이동 */}
-        <Link
-          to={to}
-          search={search}
-          title={title}
-          aria-label={`문서 열기: ${title}`}
+        <div
           className={cn(
             [
               'body-medium leading-snug text-gray-900',
@@ -146,7 +141,7 @@ export default function LibraryDocument({
           )}
         >
           {title}
-        </Link>
+        </div>
 
         <div className="mt-[10px] flex items-center justify-between">
           <div className="text-[16px] text-gray-700">{date}</div>

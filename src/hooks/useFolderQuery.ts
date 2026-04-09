@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
 import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api';
 import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
+import type { CreateFolderRequest } from '@/api/api';
 
 function toLibraryData(res: FolderContentResponse): LibraryData {
   return {
@@ -51,7 +52,7 @@ export function useBookmarkMutation() {
   return useMutation({
     mutationFn: (documentId: number) =>
       apiRequest<DocumentBookmarkResponse>({
-        method: 'POST',
+        method: 'PATCH',
         url: `api/v1/documents/${documentId}/bookmark`,
       }),
     onSuccess: (data) => {
@@ -67,6 +68,23 @@ export function useBookmarkMutation() {
           ),
         };
       });
+    },
+  });
+}
+
+export function useCreateFolderMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateFolderRequest) =>
+      apiRequest({
+        method: 'POST',
+        url: 'api/v1/folders',
+        data: data, // 이제 color가 포함되어도 에러가 안 납니다.
+      }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
     },
   });
 }
