@@ -55,8 +55,8 @@ export default function LibraryDocument({
   className,
 }: LibraryDocumentProps) {
   // 링크 주소 생성
-  const to = '/evaluate';
-  const search = { documentId };
+  const to = itemType === 'folder' ? '/library' : '/evaluate';
+  const search = itemType === 'folder' ? { folderId: documentId } : { documentId: documentId };
 
   // 즐겨찾기 버튼 클릭 핸들러
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,12 +83,7 @@ export default function LibraryDocument({
     >
       {/* 썸네일*/}
       <div className={cn('relative z-10', 'flex w-full justify-center')}>
-        <Link
-          to={to}
-          search={search}
-          aria-label={`문서 열기: ${title}`}
-          className={thumbnailButtonVariants({ itemType })}
-        >
+        <Link to={to} search={search} className={thumbnailButtonVariants({ itemType })}>
           {isFolder && (
             <FolderFilled
               className={cn('h-auto w-[150px]', folderColor)}
