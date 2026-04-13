@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from '@tanstack/react-router';
 import { cva } from 'class-variance-authority';
 
 import DotVertical from '@/components/icons/DotVertical';
@@ -49,18 +48,12 @@ export default function LibraryDocument({
   title,
   date,
   thumbnailUrl,
-  folderColor = 'text-primary-400',
+  folderColor = '',
   isBookmarked = false,
   onBookmarkClick,
   className,
 }: LibraryDocumentProps) {
-  // 링크 주소 생성
-  const to = '/evaluate';
-  const search = { documentId };
-
-  // 즐겨찾기 버튼 클릭 핸들러
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
     e.stopPropagation();
     onBookmarkClick?.(documentId);
   };
@@ -83,15 +76,11 @@ export default function LibraryDocument({
     >
       {/* 썸네일*/}
       <div className={cn('relative z-10', 'flex w-full justify-center')}>
-        <Link
-          to={to}
-          search={search}
-          aria-label={`문서 열기: ${title}`}
-          className={thumbnailButtonVariants({ itemType })}
-        >
+        <div className={thumbnailButtonVariants({ itemType })}>
           {isFolder && (
             <FolderFilled
-              className={cn('h-auto w-[150px]', folderColor)}
+              className={cn('h-auto w-[150px]')}
+              style={{ color: folderColor }}
               role="img"
               aria-label="폴더 썸네일"
             />
@@ -105,7 +94,7 @@ export default function LibraryDocument({
             />
           )}
           {!isFolder && !hasThumbnail && <div className="h-full w-full" aria-hidden="true" />}
-        </Link>
+        </div>
 
         {/* 즐겨찾기 */}
         <button
@@ -125,7 +114,15 @@ export default function LibraryDocument({
           )}
         >
           <IconStar
-            className={cn('h-8 w-8', isBookmarked ? 'text-primary-200' : 'text-gray-200')}
+            key={isBookmarked ? 'active' : 'inactive'}
+            className={cn(
+              'h-8 w-8 transition-colors duration-200',
+              isBookmarked ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-gray-300'
+            )}
+            style={{
+              strokeWidth: isBookmarked ? '0' : '2px',
+              outline: 'none',
+            }}
             aria-hidden="true"
           />
         </button>
@@ -134,11 +131,7 @@ export default function LibraryDocument({
       {/* 본문 */}
       <div className={cn('relative z-10', 'mt-[10px] flex flex-1 flex-col')}>
         {/* 타이틀 클릭 시 extract 이동 */}
-        <Link
-          to={to}
-          search={search}
-          title={title}
-          aria-label={`문서 열기: ${title}`}
+        <div
           className={cn(
             [
               'body-medium leading-snug text-gray-900',
@@ -150,7 +143,7 @@ export default function LibraryDocument({
           )}
         >
           {title}
-        </Link>
+        </div>
 
         <div className="mt-[10px] flex items-center justify-between">
           <div className="text-[16px] text-gray-700">{date}</div>

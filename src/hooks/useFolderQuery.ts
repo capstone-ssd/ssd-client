@@ -1,34 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
 import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api';
-import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
-
-function toLibraryData(res: FolderContentResponse): LibraryData {
-  return {
-    parentId: res.parentId ?? 0,
-    folders: (res.folders ?? []).map((f) => ({
-      id: f.id ?? 0,
-      name: f.name ?? '',
-      color: f.color ?? '',
-      parentId: f.parentId ?? 0,
-      updatedAt: f.updatedAt ?? '',
-    })),
-    documents: (res.documents ?? []).map((d) => ({
-      id: d.id ?? 0,
-      title: d.title ?? '',
-      folderId: d.folderId ?? 0,
-      updatedAt: d.updatedAt ?? '',
-      bookmark: false,
-    })),
-  };
-}
-
-function toBookmarked(res: DocumentBookmarkResponse) {
-  return {
-    documentId: res.id ?? 0,
-    isBookmarked: res.bookmark ?? false,
-  };
-}
+import type { CreateFolderRequest } from '@/api/api';
+import { toLibraryData, calculatePath } from '@/utils/folderUtils';
 
 export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
@@ -45,28 +19,57 @@ export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   });
 }
 
-export function useBookmarkMutation() {
+export function useBookmarkMutation(sort: string = 'LATEST', folderId: number = 0) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (documentId: number) =>
       apiRequest<DocumentBookmarkResponse>({
-        method: 'POST',
-        url: `api/v1/documents/${documentId}/bookmark`,
+        method: 'PATCH',
+        url: `/api/v1/documents/${documentId}/bookmark`,
       }),
-    onSuccess: (data) => {
-      const { documentId, isBookmarked } = toBookmarked(data);
-
-      queryClient.setQueriesData({ queryKey: ['folders'] }, (oldData: any) => {
+    onSuccess: (res, documentId) => {
+      const updatedStatus = res.bookmark;
+      queryClient.setQueryData(['folders', sort, folderId], (oldData: any) => {
         if (!oldData) return oldData;
 
         return {
           ...oldData,
-          documents: oldData.documents.map((doc: any) =>
-            doc.id === documentId ? { ...doc, bookmark: isBookmarked } : doc
+          documents: oldData.documents.map((d: any) =>
+            d.id === documentId ? { ...d, bookmark: updatedStatus } : d
           ),
         };
       });
     },
+  });
+}
+export function useCreateFolderMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateFolderRequest) =>
+      apiRequest({
+        method: 'POST',
+        url: 'api/v1/folders',
+        data: data,
+      }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+    },
+  });
+}
+
+export function useAllFolderQuery(currentFolderId?: number) {
+  return useQuery({
+    queryKey: ['folders', 'all'],
+    queryFn: () =>
+      apiRequest<FolderContentResponse>({
+        url: 'api/v1/folders/all',
+      }),
+    select: (data) => ({
+      fullData: toLibraryData(data),
+      breadcrumb: calculatePath(data.folders || [], currentFolderId ?? 0),
+    }),
   });
 }
