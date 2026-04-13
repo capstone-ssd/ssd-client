@@ -1,7 +1,6 @@
 import type { FolderContentResponse } from '@/api/api';
 import type { LibraryData } from '@/components/docs-upload/fileTreeTypes';
 
-// 기존에 있던 변환 로직
 export function toLibraryData(res: FolderContentResponse): LibraryData {
   return {
     parentId: res.parentId ?? 0,
@@ -22,7 +21,6 @@ export function toLibraryData(res: FolderContentResponse): LibraryData {
   };
 }
 
-// [추가] 경로(Breadcrumb) 계산 로직
 export function calculatePath(folders: any[], targetId: number) {
   if (!targetId || targetId === 0) return [{ id: 0, name: '라이브러리' }];
 

@@ -284,7 +284,6 @@ export default function RouteComponent() {
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
                 onBookmarkClick={(id) => {
-                  // 이제 호출만 하면 훅 내부에서 캐시까지 알아서 다 고쳐줍니다.
                   toggleBookmark(id);
                 }}
               />
@@ -314,7 +313,6 @@ export default function RouteComponent() {
         isLoading={isUploading}
         onClose={() => setIsUploadModalOpen(false)}
         onConfirm={(file, fId) => {
-          // 사용자가 모달 트리에서 위치를 변경하지 않았다면 현재 folderId를 기본값으로 사용
           if (file) {
             uploadDoc({
               file,

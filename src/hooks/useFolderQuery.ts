@@ -29,10 +29,7 @@ export function useBookmarkMutation(sort: string = 'LATEST', folderId: number = 
         url: `/api/v1/documents/${documentId}/bookmark`,
       }),
     onSuccess: (res, documentId) => {
-      // 서버 응답에서 실제 북마크 상태 추출 (res 구조에 맞춰 확인 필요)
       const updatedStatus = res.bookmark;
-
-      // ✅ 훅 내부에서 직접 캐시를 업데이트하여 'queryClient'를 사용함
       queryClient.setQueryData(['folders', sort, folderId], (oldData: any) => {
         if (!oldData) return oldData;
 
@@ -43,9 +40,6 @@ export function useBookmarkMutation(sort: string = 'LATEST', folderId: number = 
           ),
         };
       });
-
-      // (선택사항) 'folders' 전체 무효화는 지우거나, exact: false 없이 구체적인 키만 무효화
-      // queryClient.invalidateQueries({ queryKey: ['folders', sort, folderId] });
     },
   });
 }
@@ -57,7 +51,7 @@ export function useCreateFolderMutation() {
       apiRequest({
         method: 'POST',
         url: 'api/v1/folders',
-        data: data, // 이제 color가 포함되어도 에러가 안 납니다.
+        data: data,
       }),
 
     onSuccess: () => {
@@ -66,15 +60,13 @@ export function useCreateFolderMutation() {
   });
 }
 
-// 2. 신규: 전체 구조 조회 (경로 추적용)
 export function useAllFolderQuery(currentFolderId?: number) {
   return useQuery({
     queryKey: ['folders', 'all'],
     queryFn: () =>
       apiRequest<FolderContentResponse>({
-        url: 'api/v1/folders/all', // 새로 발견한 API!
+        url: 'api/v1/folders/all',
       }),
-    // select를 활용해 데이터가 오자마자 현재 위치의 경로를 계산해버립니다.
     select: (data) => ({
       fullData: toLibraryData(data),
       breadcrumb: calculatePath(data.folders || [], currentFolderId ?? 0),

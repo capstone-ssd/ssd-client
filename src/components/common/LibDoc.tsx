@@ -55,8 +55,6 @@ export default function LibraryDocument({
 }: LibraryDocumentProps) {
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    //console.log(`[${title}] 별 클릭됨! ID:`, documentId);
-    //console.log('타입 확인:', typeof isBookmarked, isBookmarked);
     onBookmarkClick?.(documentId);
   };
   // 폴더&썸네일 판단
@@ -116,13 +114,12 @@ export default function LibraryDocument({
           )}
         >
           <IconStar
-            key={isBookmarked ? 'active' : 'inactive'} // 상태 변경 시 아이콘 강제 업데이트
+            key={isBookmarked ? 'active' : 'inactive'}
             className={cn(
               'h-8 w-8 transition-colors duration-200',
               isBookmarked ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-gray-300'
             )}
             style={{
-              // style은 유지하되 className이 우선 적용되도록 조정
               strokeWidth: isBookmarked ? '0' : '2px',
               outline: 'none',
             }}
