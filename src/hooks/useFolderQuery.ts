@@ -4,11 +4,6 @@ import type { FolderContentResponse, DocumentBookmarkResponse } from '@/api/api'
 import type { CreateFolderRequest } from '@/api/api';
 import { toLibraryData, calculatePath } from '@/utils/folderUtils';
 
-const toBookmarked = (data: DocumentBookmarkResponse) => ({
-  documentId: data.id ?? 0, 
-  isBookmarked: data.bookmark ?? false,
-});
-
 export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   return useQuery({
     queryKey: ['folders', sort, folderId],
@@ -31,25 +26,17 @@ export function useBookmarkMutation() {
     mutationFn: (documentId: number) =>
       apiRequest<DocumentBookmarkResponse>({
         method: 'PATCH',
-        url: `api/v1/documents/${documentId}/bookmark`,
+        // ✅ url 맨 앞에 '/'를 붙여보세요. (상대경로 vs 절대경로 문제)
+        url: `/api/v1/documents/${documentId}/bookmark`,
       }),
-    onSuccess: (data) => {
-      const { documentId, isBookmarked } = toBookmarked(data);
-
-      queryClient.setQueriesData({ queryKey: ['folders'] }, (oldData: any) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          documents: oldData.documents.map((doc: any) =>
-            doc.id === documentId ? { ...doc, bookmark: isBookmarked } : doc
-          ),
-        };
+    onSuccess: (res) => {
+      console.log('진짜 북마크 상태:', res.bookmark);
+      queryClient.invalidateQueries({
+        queryKey: ['folders'],
       });
     },
   });
 }
-
 export function useCreateFolderMutation() {
   const queryClient = useQueryClient();
 

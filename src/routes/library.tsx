@@ -13,6 +13,9 @@ import { cn } from '@/utils/cn';
 import { requireAuth } from '@/utils/authGuard';
 import { useDropdown } from '@/hooks/useDropdown';
 import FolderCreateModal from '@/components/modal/FolderCreateModal';
+import DocUploadModal from '@/components/modal/DocUploadModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 
 type LibrarySearch = {
   selectedId?: number;
@@ -42,26 +45,21 @@ export const Route = createFileRoute('/library')({
 
 interface BreadcrumbProps {
   currentFolderId: number;
-  onNavigate: (id: number) => void; // 클릭 시 폴더 이동 함수
+  onNavigate: (id: number) => void;
 }
 
 export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProps) {
-  // 우리가 만든 'all' 쿼리 호출!
   const { data, isLoading } = useAllFolderQuery(currentFolderId);
-
   if (isLoading || !data) return <div className="h-6 animate-pulse rounded bg-gray-100" />;
 
   return (
-    // 1. 레이아웃(좌우 여백)은 .body-xlarge로 유지해서 다른 요소들과 줄을 맞춥니다.
-    <div className="body-xlarge mb-6 pt-2 pl-5">
+    <div className="body-xlarge pl-5">
       <div className="flex flex-wrap items-center gap-y-2">
         {data.breadcrumb.map((item, index) => (
           <div key={item.id} className="flex items-center">
             <span
               className={cn(
-                'cursor-pointer transition-colors hover:text-black',
-                // ✅ 핵심: 경로 텍스트에만 .text-xlarge를 적용합니다.
-                'text-large',
+                'text-large cursor-pointer transition-colors hover:text-black',
                 index === data.breadcrumb.length - 1
                   ? 'font-bold text-gray-900'
                   : 'font-medium text-gray-400'
@@ -70,8 +68,6 @@ export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProp
             >
               {item.name}
             </span>
-
-            {/* 화살표도 글자 크기에 맞춰서 살짝 존재감 있게 조정 */}
             {index < data.breadcrumb.length - 1 && (
               <ChevronRight className="mx-2 h-5 w-5 text-gray-300" />
             )}
@@ -84,10 +80,12 @@ export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProp
 
 export default function RouteComponent() {
   const navigate = useNavigate();
-  const allSearch = Route.useSearch(); // ✅ 상단에서 한 번만 선언
+  const allSearch = Route.useSearch();
   const { selectedId, folderId, sort = 'LATEST' } = allSearch;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'evaluate' | 'writing'>('evaluate');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -95,9 +93,12 @@ export default function RouteComponent() {
   const { data: serverData } = useFolderQuery(sort, folderId || 0);
   const { mutate: toggleBookmark } = useBookmarkMutation();
   const { mutate: createFolder } = useCreateFolderMutation();
+  const { mutate: uploadDoc, isPending: isUploading } = useDocumentUpload();
 
+  const addDropdown = useDropdown();
   const statusDropdown = useDropdown();
   const sortDropdown = useDropdown();
+  const queryClient = useQueryClient();
 
   const statusMap = { ALL: '전체 문서', WRITING: '작성 문서', EVALUATED: '평가 문서' };
   const sortMap = {
@@ -117,19 +118,23 @@ export default function RouteComponent() {
       navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
     } else {
       clickTimer.current = setTimeout(() => {
-        (navigate as any)({
-          search: (prev: any) => ({ ...prev, selectedId: docId }),
-        });
+        (navigate as any)({ search: (prev: any) => ({ ...prev, selectedId: docId }) });
         clickTimer.current = null;
       }, 250);
     }
   };
 
+  const hasDocumentType = (folder: any, targetType: 'WRITING' | 'EVALUATED'): boolean => {
+    const hasInDocs = folder.documents?.some((doc: any) =>
+      targetType === 'WRITING' ? doc.status !== 'DONE' : doc.status === 'DONE'
+    );
+    if (hasInDocs) return true;
+    return folder.childFolders?.some((child: any) => hasDocumentType(child, targetType)) ?? false;
+  };
+
   const displayFolders = (serverData?.folders ?? []).filter((folder) => {
     if (selectedStatus === 'ALL') return true;
-    if (selectedStatus === 'WRITING') return folder.color === '#EF4444';
-    if (selectedStatus === 'EVALUATED') return folder.color === '#3B82F6';
-    return true;
+    return hasDocumentType(folder, selectedStatus);
   });
 
   const displayDocuments = serverData?.documents ?? [];
@@ -145,16 +150,81 @@ export default function RouteComponent() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full overflow-x-hidden bg-white">
-      <div className="text-xlarge mb-10 justify-start">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-white">
+      {/* 내비게이션 영역 */}
+      <div className="flex flex-col items-start gap-4 pt-10 pl-20">
         <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
+        {folderId !== undefined && folderId !== 0 && (
+          <Link
+            to="/library"
+            search={(prev: any) => ({ ...prev, folderId: undefined, selectedId: undefined })}
+            className="flex w-fit items-center gap-2 pl-5 opacity-50 transition-opacity hover:opacity-100"
+          >
+            <span className="text-2xl">📂↑</span>
+            <span className="text-[14px] font-bold text-gray-500 underline underline-offset-4">
+              홈으로
+            </span>
+          </Link>
+        )}
       </div>
 
       <div
-        className={cn('flex-1 px-20 pt-16 transition-all duration-300', selectedId ? 'mr-80' : '')}
+        className={cn('flex-1 px-20 pt-8 transition-all duration-300', selectedId ? 'mr-80' : '')}
       >
+        {/* 필터 및 생성 영역 */}
         <div className="relative mb-12 flex justify-end gap-3">
-          {/* 필터 영역 생략 (기존과 동일) */}
+          {/* ✅ 추가 기능 드롭다운 (다른 필터들과 같은 스타일) */}
+          <div className="relative" ref={addDropdown.ref}>
+            <Button
+              variant="main" // 강조를 위해 색상을 다르게 할 수 있음
+              onClick={addDropdown.toggle}
+              className="flex h-[40px] w-[140px] items-center justify-between px-3"
+            >
+              <span className="font-bold">+ 추가하기</span>
+              <ChevronRight
+                className={cn(
+                  'h-4 w-4 transition-transform',
+                  addDropdown.isOpen ? 'rotate-90' : ''
+                )}
+              />
+            </Button>
+            {addDropdown.isOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[180px] rounded-md border bg-white py-1 shadow-lg">
+                <button
+                  onClick={() => {
+                    setIsFolderModalOpen(true);
+                    addDropdown.close();
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
+                >
+                  📁 새 폴더 생성
+                </button>
+                <div className="my-1 h-[1px] bg-gray-100" />
+                <button
+                  onClick={() => {
+                    setUploadMode('evaluate');
+                    setIsUploadModalOpen(true);
+                    addDropdown.close();
+                  }}
+                  className="text-primary-600 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium hover:bg-gray-100"
+                >
+                  🔍 문서 업로드 (평가)
+                </button>
+                <button
+                  onClick={() => {
+                    setUploadMode('writing');
+                    setIsUploadModalOpen(true);
+                    addDropdown.close();
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  ✍️ 문서 업로드 (작성)
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 기존 필터들 */}
           <div className="relative" ref={statusDropdown.ref}>
             <Button
               variant="normal"
@@ -186,6 +256,7 @@ export default function RouteComponent() {
               </div>
             )}
           </div>
+
           <div className="relative" ref={sortDropdown.ref}>
             <Button
               variant="normal"
@@ -219,19 +290,8 @@ export default function RouteComponent() {
           </div>
         </div>
 
+        {/* 메인 리스트 */}
         <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4 pb-20">
-          {folderId !== undefined && folderId !== 0 && (
-            <Link
-              to="/library"
-              search={(prev: any) => ({ ...prev, folderId: undefined, selectedId: undefined })}
-              className="justift-start flex cursor-pointer flex-col items-center opacity-50 hover:opacity-100"
-            >
-              <div className="text-4xl">📂↑</div>
-              <span className="mt-2 text-[14px] font-bold text-gray-500">홈으로</span>
-            </Link>
-          )}
-
-          {/* 📂 폴더 렌더링 */}
           {displayFolders.map((folder) => (
             <Link
               key={`folder-${folder.id}`}
@@ -248,7 +308,6 @@ export default function RouteComponent() {
               />
             </Link>
           ))}
-
           {displayDocuments.map((doc) => (
             <div
               key={`doc-${doc.id}`}
@@ -258,16 +317,30 @@ export default function RouteComponent() {
               <LibraryDocument
                 itemType="document"
                 title={doc.title}
+                isBookmarked={doc.bookmark}
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
-                isBookmarked={doc.bookmark}
-                onBookmarkClick={() => toggleBookmark(doc.id)}
+                onBookmarkClick={(id) => {
+                  toggleBookmark(id, {
+                    onSuccess: (res: any) => {
+                      const updatedStatus = res.data ? res.data.bookmark : res.bookmark;
+                      queryClient.setQueryData(['folders', sort, folderId || 0], (oldData: any) => {
+                        if (!oldData) return oldData;
+                        const newDocs = oldData.documents.map((d: any) =>
+                          d.id === id ? { ...d, bookmark: updatedStatus } : d
+                        );
+                        return { ...oldData, documents: newDocs };
+                      });
+                    },
+                  });
+                }}
               />
             </div>
           ))}
         </main>
       </div>
 
+      {/* 우측 상세 정보창 (기존 코드와 동일) */}
       {hasSelectedId && (
         <aside className="fixed top-0 right-0 z-[9999] flex h-full w-80 flex-col border-l border-gray-200 bg-white p-6 pt-24 shadow-2xl">
           <div className="mb-6 flex items-center justify-between">
@@ -281,26 +354,20 @@ export default function RouteComponent() {
             </Link>
           </div>
           {!selectedItem ? (
-            <div className="flex flex-1 items-center justify-center text-gray-400">
-              정보를 불러오는 중...
-            </div>
+            <div className="flex flex-1 items-center justify-center">정보를 불러오는 중...</div>
           ) : (
-            <div className="space-y-6 text-left">
-              <div className="flex h-48 w-full items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-6xl">
+            <div className="space-y-6">
+              <div className="flex h-48 w-full items-center justify-center rounded-xl bg-gray-50 text-6xl">
                 📄
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">이름</label>
-                  <p className="mt-1 text-lg font-semibold break-all text-gray-900">
-                    {selectedItem.title}
-                  </p>
+                  <label className="text-xs font-bold text-gray-400">이름</label>
+                  <p className="font-semibold text-gray-900">{selectedItem.title}</p>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">마지막 수정일</label>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {selectedItem.updatedAt?.split('T')[0]}
-                  </p>
+                  <label className="text-xs font-bold text-gray-400">마지막 수정일</label>
+                  <p className="text-sm text-gray-600">{selectedItem.updatedAt?.split('T')[0]}</p>
                 </div>
               </div>
             </div>
@@ -308,22 +375,26 @@ export default function RouteComponent() {
         </aside>
       )}
 
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed right-10 bottom-10 z-40 h-16 w-16 rounded-full bg-gray-900 text-3xl text-white shadow-2xl hover:scale-110 active:scale-95"
-      >
-        +
-      </button>
+      {/* 모달들 */}
       <FolderCreateModal
-        isOpen={isModalOpen}
+        isOpen={isFolderModalOpen}
         data={serverData ?? null}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => setIsFolderModalOpen(false)}
         onConfirm={(name, pId, color) =>
           createFolder(
             { name, parentId: pId || undefined, color },
-            { onSuccess: () => setIsModalOpen(false) }
+            { onSuccess: () => setIsFolderModalOpen(false) }
           )
         }
+      />
+      <DocUploadModal
+        isOpen={isUploadModalOpen}
+        data={serverData ?? null}
+        isLoading={isUploading}
+        onClose={() => setIsUploadModalOpen(false)}
+        onConfirm={(file, fId) => {
+          if (file) uploadDoc({ file, folderId: fId, mode: uploadMode });
+        }}
       />
     </div>
   );

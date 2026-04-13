@@ -12,12 +12,12 @@ export function toLibraryData(res: FolderContentResponse): LibraryData {
       parentId: f.parentId ?? 0,
       updatedAt: f.updatedAt ?? '',
     })),
-    documents: (res.documents ?? []).map((d) => ({
+    documents: (res.documents ?? []).map((d: any) => ({
       id: d.id ?? 0,
       title: d.title ?? '',
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
-      bookmark: false,
+      bookmark: d.bookmark ?? d.isBookmarked ?? d.isBookmark ?? false,
     })),
   };
 }

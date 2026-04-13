@@ -53,10 +53,10 @@ export default function LibraryDocument({
   onBookmarkClick,
   className,
 }: LibraryDocumentProps) {
-  // 즐겨찾기 버튼 클릭 핸들러
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
     e.stopPropagation();
+    //console.log(`[${title}] 별 클릭됨! ID:`, documentId);
+    //console.log('타입 확인:', typeof isBookmarked, isBookmarked);
     onBookmarkClick?.(documentId);
   };
   // 폴더&썸네일 판단
@@ -116,7 +116,14 @@ export default function LibraryDocument({
           )}
         >
           <IconStar
-            className={cn('h-8 w-8', isBookmarked ? 'text-primary-200' : 'text-gray-200')}
+            className="h-8 w-8 transition-colors duration-200"
+            style={{
+              fill: isBookmarked ? '#FACC15' : 'transparent',
+              color: isBookmarked ? '#FACC15' : '#E5E7EB',
+              stroke: isBookmarked ? '#FACC15' : '#E5E7EB',
+              strokeWidth: isBookmarked ? '0' : '2px',
+              outline: 'none',
+            }}
             aria-hidden="true"
           />
         </button>
