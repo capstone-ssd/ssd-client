@@ -87,7 +87,7 @@ export default function RouteComponent() {
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
   const { data: serverData } = useFolderQuery(sort, folderId || 0);
-  const { mutate: toggleBookmark } = useBookmarkMutation();
+  const { mutate: toggleBookmark } = useBookmarkMutation(sort as string, folderId || 0);
   const { mutate: createFolder } = useCreateFolderMutation();
   const { mutate: uploadDoc, isPending: isUploading } = useDocumentUpload();
 
@@ -109,12 +109,11 @@ export default function RouteComponent() {
     MODIFIED: '최근 수정일순',
   };
 
-  //FIXME: 임마 제대로 수정해야되어요 -> 지금 평가 작성 어떻게 구분하는지 아리까리해요
   const handleDocumentClick = (docId: number) => {
-    if (uploadMode === 'evaluate') {
-      navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
-    } else {
+    if (uploadMode === 'writing') {
       navigate({ to: '/write/$id', params: { id: String(docId) } });
+    } else {
+      navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
     }
   };
 
@@ -285,18 +284,8 @@ export default function RouteComponent() {
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
                 onBookmarkClick={(id) => {
-                  toggleBookmark(id, {
-                    onSuccess: (res: any) => {
-                      const updatedStatus = res.data ? res.data.bookmark : res.bookmark;
-                      queryClient.setQueryData(['folders', sort, folderId || 0], (oldData: any) => {
-                        if (!oldData) return oldData;
-                        const newDocs = oldData.documents.map((d: any) =>
-                          d.id === id ? { ...d, bookmark: updatedStatus } : d
-                        );
-                        return { ...oldData, documents: newDocs };
-                      });
-                    },
-                  });
+                  // 이제 호출만 하면 훅 내부에서 캐시까지 알아서 다 고쳐줍니다.
+                  toggleBookmark(id);
                 }}
               />
             </div>
@@ -325,7 +314,14 @@ export default function RouteComponent() {
         isLoading={isUploading}
         onClose={() => setIsUploadModalOpen(false)}
         onConfirm={(file, fId) => {
-          if (file) uploadDoc({ file, folderId: fId, mode: uploadMode });
+          // 사용자가 모달 트리에서 위치를 변경하지 않았다면 현재 folderId를 기본값으로 사용
+          if (file) {
+            uploadDoc({
+              file,
+              folderId: fId || folderId || null,
+              mode: uploadMode,
+            });
+          }
         }}
       />
     </div>

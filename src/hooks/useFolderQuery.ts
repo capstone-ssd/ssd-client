@@ -19,21 +19,33 @@ export function useFolderQuery(sort: string = 'LATEST', folderId?: number) {
   });
 }
 
-export function useBookmarkMutation() {
+export function useBookmarkMutation(sort: string = 'LATEST', folderId: number = 0) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (documentId: number) =>
       apiRequest<DocumentBookmarkResponse>({
         method: 'PATCH',
-        // ✅ url 맨 앞에 '/'를 붙여보세요. (상대경로 vs 절대경로 문제)
         url: `/api/v1/documents/${documentId}/bookmark`,
       }),
-    onSuccess: (res) => {
-      console.log('진짜 북마크 상태:', res.bookmark);
-      queryClient.invalidateQueries({
-        queryKey: ['folders'],
+    onSuccess: (res, documentId) => {
+      // 서버 응답에서 실제 북마크 상태 추출 (res 구조에 맞춰 확인 필요)
+      const updatedStatus = res.bookmark;
+
+      // ✅ 훅 내부에서 직접 캐시를 업데이트하여 'queryClient'를 사용함
+      queryClient.setQueryData(['folders', sort, folderId], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          documents: oldData.documents.map((d: any) =>
+            d.id === documentId ? { ...d, bookmark: updatedStatus } : d
+          ),
+        };
       });
+
+      // (선택사항) 'folders' 전체 무효화는 지우거나, exact: false 없이 구체적인 키만 무효화
+      // queryClient.invalidateQueries({ queryKey: ['folders', sort, folderId] });
     },
   });
 }
