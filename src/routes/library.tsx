@@ -154,18 +154,6 @@ export default function RouteComponent() {
       {/* 내비게이션 영역 */}
       <div className="flex flex-col items-start gap-4 pt-10 pl-20">
         <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
-        {folderId !== undefined && folderId !== 0 && (
-          <Link
-            to="/library"
-            search={(prev: any) => ({ ...prev, folderId: undefined, selectedId: undefined })}
-            className="flex w-fit items-center gap-2 pl-5 opacity-50 transition-opacity hover:opacity-100"
-          >
-            <span className="text-2xl">📂↑</span>
-            <span className="text-[14px] font-bold text-gray-500 underline underline-offset-4">
-              홈으로
-            </span>
-          </Link>
-        )}
       </div>
 
       <div
@@ -176,11 +164,11 @@ export default function RouteComponent() {
           {/* ✅ 추가 기능 드롭다운 (다른 필터들과 같은 스타일) */}
           <div className="relative" ref={addDropdown.ref}>
             <Button
-              variant="main" // 강조를 위해 색상을 다르게 할 수 있음
+              variant="normal"
               onClick={addDropdown.toggle}
-              className="flex h-[40px] w-[140px] items-center justify-between px-3"
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3"
             >
-              <span className="font-bold">+ 추가하기</span>
+              <span>추가하기</span>
               <ChevronRight
                 className={cn(
                   'h-4 w-4 transition-transform',
@@ -197,7 +185,7 @@ export default function RouteComponent() {
                   }}
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
                 >
-                  📁 새 폴더 생성
+                  새 폴더
                 </button>
                 <div className="my-1 h-[1px] bg-gray-100" />
                 <button
@@ -206,9 +194,9 @@ export default function RouteComponent() {
                     setIsUploadModalOpen(true);
                     addDropdown.close();
                   }}
-                  className="text-primary-600 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium hover:bg-gray-100"
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  🔍 문서 업로드 (평가)
+                  문서 업로드 (평가)
                 </button>
                 <button
                   onClick={() => {
@@ -218,7 +206,7 @@ export default function RouteComponent() {
                   }}
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  ✍️ 문서 업로드 (작성)
+                  문서 업로드 (작성)
                 </button>
               </div>
             )}
@@ -378,12 +366,23 @@ export default function RouteComponent() {
       {/* 모달들 */}
       <FolderCreateModal
         isOpen={isFolderModalOpen}
-        data={serverData ?? null}
+        // 이미지 레이아웃에 맞춰 위치 선택(data)이 필요 없다면 제거 가능
         onClose={() => setIsFolderModalOpen(false)}
-        onConfirm={(name, pId, color) =>
+        onConfirm={(name, color) =>
           createFolder(
-            { name, parentId: pId || undefined, color },
-            { onSuccess: () => setIsFolderModalOpen(false) }
+            {
+              name,
+              // 이미지 디자인상 위치 선택이 없으므로 현재 폴더(folderId) 혹은 최상위에 생성
+              parentId: folderId || undefined,
+              color,
+            },
+            {
+              onSuccess: () => {
+                setIsFolderModalOpen(false);
+                // 생성 후 목록 새로고침을 위해 쿼리 무효화 (필요시)
+                queryClient.invalidateQueries({ queryKey: ['folders'] });
+              },
+            }
           )
         }
       />
