@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
@@ -18,7 +18,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 
 type LibrarySearch = {
-  selectedId?: number;
   folderId?: number;
   sort?: 'LATEST' | 'OLDEST' | 'NAME' | 'MODIFIED';
   sidebar?: string;
@@ -32,7 +31,6 @@ export const Route = createFileRoute('/library')({
   beforeLoad: () => requireAuth(),
   validateSearch: (search: Record<string, unknown>): any => {
     return {
-      selectedId: search.selectedId ? Number(search.selectedId) : undefined,
       folderId: search.folderId ? Number(search.folderId) : undefined,
       sort: (search.sort as any) || 'LATEST',
       sidebar: search.sidebar,
@@ -50,7 +48,7 @@ interface BreadcrumbProps {
 
 export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProps) {
   const { data, isLoading } = useAllFolderQuery(currentFolderId);
-  if (isLoading || !data) return <div className="h-6 animate-pulse rounded bg-gray-100" />;
+  if (isLoading || !data) return <div className="h-6 rounded bg-gray-100" />;
 
   return (
     <div className="body-xlarge pl-5">
@@ -69,7 +67,7 @@ export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProp
               {item.name}
             </span>
             {index < data.breadcrumb.length - 1 && (
-              <ChevronRight className="mx-2 h-5 w-5 text-gray-300" />
+              <ChevronRight className="mx-5 h-5 w-5 text-gray-300" />
             )}
           </div>
         ))}
@@ -81,14 +79,12 @@ export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProp
 export default function RouteComponent() {
   const navigate = useNavigate();
   const allSearch = Route.useSearch();
-  const { selectedId, folderId, sort = 'LATEST' } = allSearch;
+  const { folderId, sort = 'LATEST' } = allSearch;
 
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadMode, setUploadMode] = useState<'evaluate' | 'writing'>('evaluate');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
-
-  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: serverData } = useFolderQuery(sort, folderId || 0);
   const { mutate: toggleBookmark } = useBookmarkMutation();
@@ -100,6 +96,11 @@ export default function RouteComponent() {
   const sortDropdown = useDropdown();
   const queryClient = useQueryClient();
 
+  const createFolderMap = {
+    FOLDER: '새 폴더',
+    WRITE: '새 파일 (작성)',
+    EVALUATE: '새 파일 (평가)',
+  };
   const statusMap = { ALL: '전체 문서', WRITING: '작성 문서', EVALUATED: '평가 문서' };
   const sortMap = {
     LATEST: '최신순',
@@ -108,19 +109,12 @@ export default function RouteComponent() {
     MODIFIED: '최근 수정일순',
   };
 
-  const hasSelectedId = selectedId !== undefined;
-  const selectedItem = serverData?.documents?.find((doc) => doc.id === selectedId) || null;
-
+  //FIXME: 임마 제대로 수정해야되어요 -> 지금 평가 작성 어떻게 구분하는지 아리까리해요
   const handleDocumentClick = (docId: number) => {
-    if (clickTimer.current) {
-      clearTimeout(clickTimer.current);
-      clickTimer.current = null;
+    if (uploadMode === 'evaluate') {
       navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
     } else {
-      clickTimer.current = setTimeout(() => {
-        (navigate as any)({ search: (prev: any) => ({ ...prev, selectedId: docId }) });
-        clickTimer.current = null;
-      }, 250);
+      navigate({ to: '/write/$id', params: { id: String(docId) } });
     }
   };
 
@@ -151,84 +145,27 @@ export default function RouteComponent() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-white">
-      {/* 내비게이션 영역 */}
-      <div className="flex flex-col items-start gap-4 pt-10 pl-20">
+      <div className="flex flex-col items-start gap-4 pt-3 pl-5">
         <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
       </div>
 
-      <div
-        className={cn('flex-1 px-20 pt-8 transition-all duration-300', selectedId ? 'mr-80' : '')}
-      >
+      <div className="flex-1 px-20 pt-8">
         {/* 필터 및 생성 영역 */}
         <div className="relative mb-12 flex justify-end gap-3">
-          {/* ✅ 추가 기능 드롭다운 (다른 필터들과 같은 스타일) */}
-          <div className="relative" ref={addDropdown.ref}>
-            <Button
-              variant="normal"
-              onClick={addDropdown.toggle}
-              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3"
-            >
-              <span>추가하기</span>
-              <ChevronRight
-                className={cn(
-                  'h-4 w-4 transition-transform',
-                  addDropdown.isOpen ? 'rotate-90' : ''
-                )}
-              />
-            </Button>
-            {addDropdown.isOpen && (
-              <div className="absolute right-0 z-50 mt-1 w-[180px] rounded-md border bg-white py-1 shadow-lg">
-                <button
-                  onClick={() => {
-                    setIsFolderModalOpen(true);
-                    addDropdown.close();
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
-                >
-                  새 폴더
-                </button>
-                <div className="my-1 h-[1px] bg-gray-100" />
-                <button
-                  onClick={() => {
-                    setUploadMode('evaluate');
-                    setIsUploadModalOpen(true);
-                    addDropdown.close();
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  문서 업로드 (평가)
-                </button>
-                <button
-                  onClick={() => {
-                    setUploadMode('writing');
-                    setIsUploadModalOpen(true);
-                    addDropdown.close();
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  문서 업로드 (작성)
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 기존 필터들 */}
+          {/* 1. 상태 필터 */}
           <div className="relative" ref={statusDropdown.ref}>
             <Button
               variant="normal"
               onClick={statusDropdown.toggle}
-              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3"
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
             >
-              <span>{statusMap[selectedStatus]}</span>
-              <ChevronRight
-                className={cn(
-                  'h-4 w-4 transition-transform',
-                  statusDropdown.isOpen ? 'rotate-90' : ''
-                )}
-              />
+              <span className="text-[20px] leading-none text-gray-900">
+                {statusMap[selectedStatus]}
+              </span>
+              <ChevronRight className="h-5 w-5 transition-transform" />
             </Button>
             {statusDropdown.isOpen && (
-              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white shadow-lg">
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
                 {Object.entries(statusMap).map(([key, label]) => (
                   <button
                     key={key}
@@ -236,7 +173,7 @@ export default function RouteComponent() {
                       setSelectedStatus(key as any);
                       statusDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
                   >
                     {label}
                   </button>
@@ -245,22 +182,20 @@ export default function RouteComponent() {
             )}
           </div>
 
+          {/* 2. 정렬 필터 */}
           <div className="relative" ref={sortDropdown.ref}>
             <Button
               variant="normal"
               onClick={sortDropdown.toggle}
-              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3"
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
             >
-              <span>{sortMap[sort as keyof typeof sortMap]}</span>
-              <ChevronRight
-                className={cn(
-                  'h-4 w-4 transition-transform',
-                  sortDropdown.isOpen ? 'rotate-90' : ''
-                )}
-              />
+              <span className="text-[20px] leading-none text-gray-900">
+                {sortMap[sort as keyof typeof sortMap]}
+              </span>
+              <ChevronRight className="h-5 w-5 transition-transform" />
             </Button>
             {sortDropdown.isOpen && (
-              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white shadow-lg">
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
                 {Object.entries(sortMap).map(([key, label]) => (
                   <button
                     key={key}
@@ -268,7 +203,48 @@ export default function RouteComponent() {
                       (navigate as any)({ search: (prev: any) => ({ ...prev, sort: key }) });
                       sortDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. 새로만들기 */}
+          <div className="relative" ref={addDropdown.ref}>
+            <Button
+              variant="normal"
+              onClick={addDropdown.toggle}
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
+            >
+              <span className="text-[20px] leading-none text-gray-900">새로만들기</span>
+              <ChevronRight
+                className={cn(
+                  'h-5 w-5 transition-transform',
+                  addDropdown.isOpen ? 'rotate-90' : ''
+                )}
+              />
+            </Button>
+            {addDropdown.isOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
+                {Object.entries(createFolderMap).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      if (key === 'FOLDER') setIsFolderModalOpen(true);
+                      if (key === 'WRITE') {
+                        setUploadMode('writing');
+                        setIsUploadModalOpen(true);
+                      }
+                      if (key === 'EVALUATE') {
+                        setUploadMode('evaluate');
+                        setIsUploadModalOpen(true);
+                      }
+                      addDropdown.close();
+                    }}
+                    className="w-full px-3 py-2 text-left text-[16px] leading-tight text-gray-700 hover:bg-gray-100"
                   >
                     {label}
                   </button>
@@ -328,58 +304,15 @@ export default function RouteComponent() {
         </main>
       </div>
 
-      {/* 우측 상세 정보창 (기존 코드와 동일) */}
-      {hasSelectedId && (
-        <aside className="fixed top-0 right-0 z-[9999] flex h-full w-80 flex-col border-l border-gray-200 bg-white p-6 pt-24 shadow-2xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">상세 정보</h2>
-            <Link
-              to="/library"
-              search={(prev: any) => ({ ...prev, selectedId: undefined })}
-              className="text-2xl text-gray-400 hover:text-black"
-            >
-              ✕
-            </Link>
-          </div>
-          {!selectedItem ? (
-            <div className="flex flex-1 items-center justify-center">정보를 불러오는 중...</div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex h-48 w-full items-center justify-center rounded-xl bg-gray-50 text-6xl">
-                📄
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-400">이름</label>
-                  <p className="font-semibold text-gray-900">{selectedItem.title}</p>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-400">마지막 수정일</label>
-                  <p className="text-sm text-gray-600">{selectedItem.updatedAt?.split('T')[0]}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </aside>
-      )}
-
-      {/* 모달들 */}
       <FolderCreateModal
         isOpen={isFolderModalOpen}
-        // 이미지 레이아웃에 맞춰 위치 선택(data)이 필요 없다면 제거 가능
         onClose={() => setIsFolderModalOpen(false)}
         onConfirm={(name, color) =>
           createFolder(
-            {
-              name,
-              // 이미지 디자인상 위치 선택이 없으므로 현재 폴더(folderId) 혹은 최상위에 생성
-              parentId: folderId || undefined,
-              color,
-            },
+            { name, parentId: folderId || undefined, color },
             {
               onSuccess: () => {
                 setIsFolderModalOpen(false);
-                // 생성 후 목록 새로고침을 위해 쿼리 무효화 (필요시)
                 queryClient.invalidateQueries({ queryKey: ['folders'] });
               },
             }

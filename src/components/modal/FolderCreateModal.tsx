@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { cn } from '@/utils/cn';
 import { Close } from '@/components/icons';
-import FolderFilled from '@/components/icons/FolderFilled'; // 기존 폴더 아이콘 사용
+import FolderFilled from '@/components/icons/FolderFilled';
 
 export interface FolderCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // 이미지 레이아웃에 맞춰 필요한 인자만 유지 (이름, 색상 등)
   onConfirm: (folderName: string, folderColor: string) => void;
 }
 
 export default function FolderCreateModal({ isOpen, onClose, onConfirm }: FolderCreateModalProps) {
   const [folderName, setFolderName] = useState('');
-  // 기본 폴더 색상 (이미지의 노란색 계열)
   const DEFAULT_COLOR = '#F2D060';
 
   function handleClose() {
@@ -33,12 +31,9 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* 배경 어둡게 */}
       <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={handleClose} />
 
-      {/* 모달 본체: 이미지 비율에 맞춰 너비 조정 */}
       <div className="relative z-10 flex w-[700px] flex-col overflow-hidden rounded-sm bg-white shadow-2xl">
-        {/* 헤더: 중앙 제목과 우측 닫기 아이콘 */}
         <header className="relative flex h-16 items-center justify-center border-b border-gray-100 px-6">
           <h2 className="text-2xl font-bold text-black">새 폴더 만들기</h2>
           <button
@@ -48,14 +43,11 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
             <Close className="h-7 w-7" />
           </button>
         </header>
-
         <div className="flex flex-col items-center px-16 py-12">
-          {/* 중앙 폴더 아이콘: 이미지처럼 크게 배치 */}
           <div className="mb-10">
             <FolderFilled className="h-32 w-auto" style={{ color: DEFAULT_COLOR }} />
           </div>
 
-          {/* 입력창: 테두리를 연하게 하고 중앙 정렬 placeholder */}
           <div className="w-full">
             <input
               type="text"
@@ -71,7 +63,6 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
             />
           </div>
 
-          {/* 하단 버튼 영역: 나란히 배치 */}
           <div className="mt-12 flex w-full justify-end gap-4">
             <button
               onClick={handleClose}
