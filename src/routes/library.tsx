@@ -3,7 +3,9 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
+import { ChevronDown } from '@/components/icons';
 import { Plus } from '@/components/icons';
+
 import {
   useFolderQuery,
   useBookmarkMutation,
@@ -176,7 +178,7 @@ export default function RouteComponent() {
               <span className="text-[20px] leading-none text-gray-900">
                 {statusMap[selectedStatus]}
               </span>
-              <ChevronRight className="h-5 w-5 transition-transform" />
+              <ChevronDown className="h-5 w-5 transition-transform" />
             </Button>
             {statusDropdown.isOpen && (
               <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
@@ -206,7 +208,7 @@ export default function RouteComponent() {
               <span className="text-[20px] leading-none text-gray-900">
                 {sortMap[sort as keyof typeof sortMap]}
               </span>
-              <ChevronRight className="h-5 w-5 transition-transform" />
+              <ChevronDown className="h-5 w-5 transition-transform" />
             </Button>
             {sortDropdown.isOpen && (
               <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
@@ -234,7 +236,7 @@ export default function RouteComponent() {
               className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
             >
               <span className="text-[20px] leading-none text-gray-900">새로만들기</span>
-              <ChevronRight
+              <Plus
                 className={cn(
                   'h-5 w-5 transition-transform',
                   addDropdown.isOpen ? 'rotate-90' : ''
