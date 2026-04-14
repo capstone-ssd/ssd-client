@@ -1,0 +1,7 @@
+import type { SVGProps } from 'react';
+const SvgPlus = (props: SVGProps<SVGSVGElement>) => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 4L10 16M16 10L4 10" stroke="black" stroke-width="2" stroke-linecap="round" />
+  </svg>
+);
+export default SvgPlus;

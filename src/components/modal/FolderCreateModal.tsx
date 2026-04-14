@@ -8,13 +8,21 @@ export interface FolderCreateModalProps {
   onClose: () => void;
   onConfirm: (folderName: string, folderColor: string) => void;
 }
+type FolderType = 'write' | 'eval';
 
 export default function FolderCreateModal({ isOpen, onClose, onConfirm }: FolderCreateModalProps) {
   const [folderName, setFolderName] = useState('');
-  const DEFAULT_COLOR = '#F2D060';
+  const [folderType, setFolderType] = useState<FolderType>('write');
+
+  // 모드별 테마 컬러 설정
+  const THEME = {
+    write: { color: 'var(--color-primary-500)', label: '작성' },
+    eval: { color: 'var(--color-secondary-200)', label: '평가' },
+  };
 
   function handleClose() {
     setFolderName('');
+    setFolderType('write');
     onClose();
   }
 
@@ -23,7 +31,7 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
       alert('폴더 이름을 입력해주세요!');
       return;
     }
-    onConfirm(folderName, DEFAULT_COLOR);
+    onConfirm(folderName, THEME[folderType].color);
     handleClose();
   }
 
@@ -43,9 +51,32 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
             <Close className="h-7 w-7" />
           </button>
         </header>
-        <div className="flex flex-col items-center px-16 py-12">
-          <div className="mb-10">
-            <FolderFilled className="h-32 w-auto" style={{ color: DEFAULT_COLOR }} />
+
+        <div className="flex flex-col items-center px-16 py-10">
+          {/* 모드 선택 탭 */}
+          <div className="mb-8 flex w-64 rounded-xl bg-gray-100 p-1">
+            {(['write', 'eval'] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setFolderType(type)}
+                className={cn(
+                  'flex-1 rounded-lg py-2 text-xl font-semibold transition-all',
+                  folderType === type
+                    ? 'bg-white text-black shadow-sm'
+                    : 'text-gray-400 hover:text-gray-600'
+                )}
+              >
+                {THEME[type].label}
+              </button>
+            ))}
+          </div>
+
+          {/* 폴더 아이콘 (모드에 따라 색상 변경) */}
+          <div className="mb-10 transition-transform duration-300 ease-out">
+            <FolderFilled
+              className="h-32 w-auto transition-colors duration-300"
+              style={{ color: THEME[folderType].color }}
+            />
           </div>
 
           <div className="w-full">
@@ -53,10 +84,10 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
               type="text"
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
-              placeholder="이름 없는 폴더"
+              placeholder={`${THEME[folderType].label} 폴더 이름을 입력하세요`}
               className={cn(
-                'h-14 w-full rounded-lg border border-gray-200 px-4 text-center text-lg',
-                'focus:border-primary-400 placeholder:text-gray-300 focus:outline-none'
+                'h-14 w-full rounded-lg border border-gray-200 px-4 text-center text-lg transition-all',
+                'placeholder:text-gray-300 focus:border-gray-400 focus:outline-none'
               )}
               autoFocus
               onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}

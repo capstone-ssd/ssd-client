@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
+import { Plus } from '@/components/icons';
 import {
   useFolderQuery,
   useBookmarkMutation,
@@ -96,6 +97,11 @@ export default function RouteComponent() {
   const sortDropdown = useDropdown();
   const queryClient = useQueryClient();
 
+  const FOLDER_THEME = {
+    WRITING: 'var(--color-primary-500)',
+    EVALUATED: 'var(--color-secondary-200)',
+  };
+
   const createFolderMap = {
     FOLDER: '새 폴더',
     WRITE: '새 파일 (작성)',
@@ -127,7 +133,16 @@ export default function RouteComponent() {
 
   const displayFolders = (serverData?.folders ?? []).filter((folder) => {
     if (selectedStatus === 'ALL') return true;
-    return hasDocumentType(folder, selectedStatus);
+
+    if (selectedStatus === 'WRITING') {
+      return folder.color === FOLDER_THEME.WRITING;
+    }
+
+    if (selectedStatus === 'EVALUATED') {
+      return folder.color === FOLDER_THEME.EVALUATED;
+    }
+
+    return true;
   });
 
   const displayDocuments = serverData?.documents ?? [];
