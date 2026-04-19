@@ -52,33 +52,25 @@ function toChecklistItems(checkList: Record<string, boolean>): ChecklistItem[] {
 
 export function AiEvaluationTab() {
   const { id: documentId } = useParams({ strict: false });
-  const { data: evaluationData, isLoading: isEvaluationLoading } = useAiEvaluationQuery(documentId);
-  const { data: checklistData, isLoading: isChecklistLoading } = useAiChecklistQuery(documentId);
+  const { data: evaluationData } = useAiEvaluationQuery(documentId);
+  const { data: checklistData } = useAiChecklistQuery(documentId);
 
   const checklistItems = checklistData?.checkList ? toChecklistItems(checklistData.checkList) : [];
 
   const scoreItems = evaluationData ? toScoreItems(evaluationData) : [];
 
   return (
-    <>
-      {isChecklistLoading ? (
-        <p className="body-xsmall px-1 text-gray-400">체크리스트 불러오는 중...</p>
-      ) : (
-        <ChecklistContent items={checklistItems} />
-      )}
-      {isEvaluationLoading ? (
-        <p className="body-xsmall px-1 text-gray-400">AI 평가 불러오는 중...</p>
-      ) : (
-        <ReviewContent
-          reviewId="ai-evaluation"
-          userName="AI 상세평가"
-          userEmail=""
-          timestamp=""
-          totalScore={evaluationData?.totalScore ?? 0}
-          scoreItems={scoreItems}
-          barColor="#facc15"
-        />
-      )}
-    </>
+    <div className="flex flex-1 flex-col gap-4">
+      <ChecklistContent items={checklistItems} />
+      <ReviewContent
+        reviewId="ai-evaluation"
+        userName="AI 상세평가"
+        userEmail=""
+        timestamp=""
+        totalScore={evaluationData?.totalScore ?? 0}
+        scoreItems={scoreItems}
+        barColor="#facc15"
+      />
+    </div>
   );
 }

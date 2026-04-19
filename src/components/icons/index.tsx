@@ -1,7 +1,6 @@
 export { default as IconSave } from './IconSave';
 export { default as IconShare } from './IconShare';
 export { default as IconStar } from './IconStar';
-export { default as IconStar } from './IconStar';
 export { default as AiEvaluation } from './AiEvaluation';
 export { default as Book05 } from './Book05';
 export { default as Bookmark } from './Bookmark';
