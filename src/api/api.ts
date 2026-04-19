@@ -10,20 +10,29 @@
  * ---------------------------------------------------------------
  */
 
-export interface CreateDocumentParagraphRequest {
-  /** @minLength 1 */
-  content: string;
-  /** @pattern ^#{0,6}$ */
-  role: string;
+export interface CreateDocumentBlockRequest {
+  type?: "PARAGRAPH" | "IMAGE";
+  content?: string;
+  role?: string;
   /** @format int32 */
   blockId?: number;
+  blobKey?: string;
+  url?: string;
+  validBlockStructure?: boolean;
 }
 
 export interface UpdateDocumentRequest {
   title?: string;
   /** @minLength 1 */
   text: string;
-  paragraphs?: CreateDocumentParagraphRequest[];
+  paragraphs?: CreateDocumentBlockRequest[];
+}
+
+export interface DocumentImageMetaRequest {
+  /** @minLength 1 */
+  blobKey: string;
+  /** @format int32 */
+  blockId: number;
 }
 
 export interface ApiResponseUpdateDocumentResponse {
@@ -88,12 +97,6 @@ export interface ApiResponseString {
   code?: string;
   msg?: string;
   data?: string;
-}
-
-export interface ApiResponseBoolean {
-  code?: string;
-  msg?: string;
-  data?: boolean;
 }
 
 export interface ExternalDocumentIdRequest {
@@ -205,7 +208,7 @@ export interface CreateDocumentRequest {
   title?: string;
   /** @minLength 1 */
   text: string;
-  paragraphs?: CreateDocumentParagraphRequest[];
+  paragraphs?: CreateDocumentBlockRequest[];
   /** @format int64 */
   folderId?: number;
 }
@@ -387,18 +390,15 @@ export interface ApiResponseGetDocumentResponse {
   data?: GetDocumentResponse;
 }
 
-export interface DocumentParagraphDto {
-  /** @minLength 1 */
-  content: string;
-  /** @pattern ^#{0,6}$ */
-  role: string;
-  /**
-   * @format int32
-   * @min 1
-   */
+export interface DocumentBlockResponseItem {
+  type?: "PARAGRAPH" | "IMAGE";
+  content?: string;
+  role?: string;
+  /** @format int32 */
   pageNumber?: number;
   /** @format int32 */
   blockId?: number;
+  url?: string;
 }
 
 export interface GetDocumentResponse {
@@ -406,7 +406,7 @@ export interface GetDocumentResponse {
   id?: number;
   title?: string;
   text?: string;
-  paragraphs?: DocumentParagraphDto[];
+  paragraphs?: DocumentBlockResponseItem[];
   summary?: string;
   details?: string;
   /** @format int64 */
