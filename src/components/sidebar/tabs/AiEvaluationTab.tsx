@@ -3,6 +3,7 @@ import { ChecklistContent, type ChecklistItem } from '@/components/accordion';
 import ReviewContent from '@/components/accordion/content/ReviewContent';
 import { useAiEvaluationQuery } from '@/hooks/useAiEvaluationQuery';
 import { useAiChecklistQuery } from '@/hooks/useAiChecklistQuery';
+import { useRefreshChecklistMutation } from '@/hooks/useRefreshChecklistMutation';
 import type { ExternalAiEvaluationCardResponse } from '@/api/api';
 import type { ReviewScoreItem } from '@/components/accordion/content/ReviewContent';
 
@@ -54,6 +55,7 @@ export function AiEvaluationTab() {
   const { id: documentId } = useParams({ strict: false });
   const { data: evaluationData } = useAiEvaluationQuery(documentId);
   const { data: checklistData } = useAiChecklistQuery(documentId);
+  const { mutate: refreshChecklist } = useRefreshChecklistMutation(documentId);
 
   const checklistItems = checklistData?.checkList ? toChecklistItems(checklistData.checkList) : [];
 
@@ -61,7 +63,7 @@ export function AiEvaluationTab() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <ChecklistContent items={checklistItems} />
+      <ChecklistContent items={checklistItems} onRefresh={() => refreshChecklist()} />
       <ReviewContent
         reviewId="ai-evaluation"
         userName="AI 상세평가"
