@@ -8,6 +8,7 @@ import { ReviewTab } from '@/components/sidebar/tabs/ReviewTab';
 import { getTabsByRole } from '../sidebar/utils/getTabsByRole';
 import { SidebarLoadingState } from '@/components/common/SidebarLoadingState';
 import { useParams } from '@tanstack/react-router';
+import { useMutationState } from '@tanstack/react-query';
 import { useKeywordQuery } from '@/hooks/useKeywordQuery';
 import { useSummaryQuery } from '@/hooks/useSummaryQuery';
 import { useAiEvaluationQuery } from '@/hooks/useAiEvaluationQuery';
@@ -16,29 +17,32 @@ import { useDocumentLogsQuery } from '@/hooks/useDocumentLogsQuery';
 import { useDocumentCommentsQuery } from '@/hooks/useDocumentCommentsQuery';
 import { useDocumentReviewsQuery } from '@/hooks/useDocumentReviewsQuery';
 
-function useSidebarLoading(currentSidebar: string | null, documentId: string | undefined) {
-  const { isLoading: isKeywordLoading } = useKeywordQuery(documentId);
-  const { isLoading: isSummaryLoading } = useSummaryQuery(documentId);
-  const { isLoading: isEvaluationLoading } = useAiEvaluationQuery(documentId);
-  const { isLoading: isChecklistLoading } = useAiChecklistQuery(documentId);
-  const { isLoading: isLogsLoading } = useDocumentLogsQuery(documentId);
-  const { isLoading: isCommentsLoading } = useDocumentCommentsQuery(documentId);
-  const { isLoading: isReviewsLoading } = useDocumentReviewsQuery(documentId);
+function useSidebarLoading(documentId: string | undefined) {
+  const { isFetching: isKeywordFetching } = useKeywordQuery(documentId);
+  const { isFetching: isSummaryFetching } = useSummaryQuery(documentId);
+  const { isFetching: isEvaluationFetching } = useAiEvaluationQuery(documentId);
+  const { isFetching: isChecklistFetching } = useAiChecklistQuery(documentId);
+  const { isFetching: isLogsFetching } = useDocumentLogsQuery(documentId);
+  const { isFetching: isCommentsFetching } = useDocumentCommentsQuery(documentId);
+  const { isFetching: isReviewsFetching } = useDocumentReviewsQuery(documentId);
 
-  switch (currentSidebar) {
-    case 'summary':
-      return isKeywordLoading || isSummaryLoading;
-    case 'ai-evaluation':
-      return isEvaluationLoading || isChecklistLoading;
-    case 'history':
-      return isLogsLoading;
-    case 'comments':
-      return isCommentsLoading;
-    case 'review':
-      return isReviewsLoading;
-    default:
-      return false;
-  }
+  const isKeywordRefreshing = useMutationState({
+    filters: { mutationKey: ['refresh-keyword', documentId], status: 'pending' },
+  }).length > 0;
+
+  const isSummaryRefreshing = useMutationState({
+    filters: { mutationKey: ['refresh-summary', documentId], status: 'pending' },
+  }).length > 0;
+
+  const isChecklistRefreshing = useMutationState({
+    filters: { mutationKey: ['refresh-checklist', documentId], status: 'pending' },
+  }).length > 0;
+
+  return (
+    isKeywordFetching || isSummaryFetching || isEvaluationFetching || isChecklistFetching ||
+    isLogsFetching || isCommentsFetching || isReviewsFetching ||
+    isKeywordRefreshing || isSummaryRefreshing || isChecklistRefreshing
+  );
 }
 
 export function Sidebar() {
@@ -46,7 +50,7 @@ export function Sidebar() {
   const { id: documentId } = useParams({ strict: false });
   const allowedTabIds = new Set(getTabsByRole(currentRole).map((tab) => tab.id));
   const canRender = !!currentSidebar && allowedTabIds.has(currentSidebar);
-  const isLoading = useSidebarLoading(currentSidebar, documentId);
+  const isLoading = useSidebarLoading(documentId);
 
   return (
     <aside className="relative flex w-97.5 flex-col border-l border-gray-200 bg-white">
