@@ -74,7 +74,7 @@ export const AccordionTrigger = React.forwardRef<
         <button
           type="button"
           aria-label="새로고침"
-          onClick={() => onRefresh?.()}
+          onClick={(e) => { e.stopPropagation(); onRefresh?.(); }}
           className="rounded p-0.5 hover:text-gray-600"
         >
           <Refresh className="h-[9.6px] w-[9.6px] shrink-0 text-gray-800" aria-hidden="true" />
