@@ -90,7 +90,7 @@ export default function LibraryDocument({
   const hasThumbnail = !!thumbnailUrl;
 
   const status = isFolder
-    ? folderColor?.includes('secondary')
+    ? folderColor?.includes('secondary-200')
       ? 'evaluate'
       : 'writing'
     : purpose === 'EVALUATION'

@@ -105,8 +105,8 @@ export default function RouteComponent() {
   const queryClient = useQueryClient();
 
   const FOLDER_THEME = {
-    WRITING: 'var(--color-primary-500)',
-    EVALUATED: 'var(--color-secondary-200)',
+    WRITING: 'primary-500',
+    EVALUATED: 'secondary-200',
   };
 
   const createFolderMap = {
@@ -137,18 +137,28 @@ export default function RouteComponent() {
     if (hasInDocs) return true;
     return folder.childFolders?.some((child: any) => hasDocumentType(child, targetType)) ?? false;
   };
-
   const displayFolders = (serverData?.folders ?? []).filter((folder) => {
     if (selectedStatus === 'ALL') return true;
-    if (selectedStatus === 'WRITING') return folder.color === FOLDER_THEME.WRITING;
-    if (selectedStatus === 'EVALUATED') return folder.color === FOLDER_THEME.EVALUATED;
+
+    if (selectedStatus === 'WRITING') {
+      return folder.color === FOLDER_THEME.WRITING;
+    }
+
+    if (selectedStatus === 'EVALUATED') {
+      return folder.color === FOLDER_THEME.EVALUATED;
+    }
+
     return true;
   });
 
   const displayDocuments = (serverData?.documents ?? []).filter((doc) => {
     if (selectedStatus === 'ALL') return true;
-    if (selectedStatus === 'WRITING') return doc.purpose === 'WRITING';
-    if (selectedStatus === 'EVALUATED') return doc.purpose === 'EVALUATION';
+    if (selectedStatus === 'WRITING') {
+      return doc.purpose === 'WRITING';
+    }
+    if (selectedStatus === 'EVALUATED') {
+      return doc.purpose === 'EVALUATION';
+    }
 
     return true;
   });
@@ -212,7 +222,10 @@ export default function RouteComponent() {
                       setSelectedStatus(key as any);
                       statusDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
+                    className={cn(
+                      'w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100',
+                      selectedStatus === key ? 'bg-gray-100 font-bold' : ''
+                    )}
                   >
                     {label}
                   </button>
