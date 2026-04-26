@@ -55,7 +55,7 @@ export default function LibraryDocument({
   date,
   thumbnailUrl,
   folderColor,
-  isBookmarked = false,
+  isBookmarked,
   onBookmarkClick,
   onDeleteClick, // 핸들러들 추가
   onRenameClick,
@@ -129,7 +129,7 @@ export default function LibraryDocument({
             <IconStar
               className={cn(
                 'h-8 w-8 transition-all',
-                isBookmarked
+                isBookmarked === true
                   ? 'fill-primary-400 text-primary-400'
                   : 'fill-transparent text-gray-300'
               )}
@@ -165,7 +165,6 @@ export default function LibraryDocument({
               type="button"
               aria-label="더보기"
               onClick={(e) => {
-                // [수정] e.preventDefault()를 통해 브라우저 기본 이동 본능을 차단함
                 e.preventDefault();
                 e.stopPropagation();
                 dropdown.toggle();
@@ -178,39 +177,45 @@ export default function LibraryDocument({
               <DotVertical className="h-10 w-5" aria-hidden="true" />
             </button>
 
-            {/* 드롭다운 메뉴 본체 */}
+            {/* ★ 드롭다운 메뉴 본체: 시안 디자인 적용 */}
             {dropdown.isOpen && (
-              <div className="absolute right-0 bottom-full z-[60] mb-2 w-[160px] rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl">
-                {/* 이름 바꾸기 버튼 */}
+              <div className="absolute right-0 bottom-full z-[60] mb-2 w-[130px] rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                {/* 1. 이름 바꾸기 */}
                 <button
                   type="button"
                   onClick={(e) => handleAction(e, onRenameClick)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+                  className="group flex w-full items-center justify-center py-1.5"
                 >
-                  <Writing className="h-4 w-4 text-gray-500" />
-                  <span>이름바꾸기</span>
+                  <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                    <Writing className="h-4 w-4 text-gray-500" />
+                    <span className="text-[16px] leading-none text-gray-700">이름바꾸기</span>
+                  </div>
                 </button>
 
-                {/* 이동 버튼 */}
+                {/* 2. 이동 */}
                 <button
                   type="button"
                   onClick={(e) => handleAction(e, onMoveClick)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+                  className="group flex w-full items-center justify-center py-1.5"
                 >
-                  <Folder className="h-4 w-4 text-gray-500" />
-                  <span>이동</span>
+                  <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                    <Folder className="h-4 w-4 text-gray-500" />
+                    <span className="text-[16px] leading-none text-gray-700">이동</span>
+                  </div>
                 </button>
 
-                <div className="mx-1 my-1 h-[1px] bg-gray-100" />
+                <div className="mx-2 my-1 h-[1px] bg-gray-100" />
 
-                {/* 삭제 버튼 - 텍스트 색상 red-500 적용 */}
+                {/* 3. 삭제 */}
                 <button
                   type="button"
                   onClick={handleDeleteAction}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
+                  className="group flex w-full items-center justify-center py-1.5"
                 >
-                  <Close className="h-4 w-4 opacity-70" />
-                  <span>삭제</span>
+                  <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                    <Close className="h-4 w-4 text-gray-500" />
+                    <span className="text-[16px] leading-none text-gray-700">삭제</span>
+                  </div>
                 </button>
               </div>
             )}

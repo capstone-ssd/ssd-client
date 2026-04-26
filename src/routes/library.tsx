@@ -177,10 +177,6 @@ export default function RouteComponent() {
       renameDoc({ id, newTitle: newName });
     }
   };
-  const handleMove = (id: number) => {
-    // 이동용 모달을 띄우거나 이동 로직 실행
-    console.log(`${id}번 아이템 이동 로직 실행`);
-  };
 
   const handleNavigate = (id: number) => {
     (navigate as any)({
@@ -222,12 +218,18 @@ export default function RouteComponent() {
                       setSelectedStatus(key as any);
                       statusDropdown.close();
                     }}
-                    className={cn(
-                      'w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100',
-                      selectedStatus === key ? 'bg-gray-100 font-bold' : ''
-                    )}
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        selectedStatus === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -255,9 +257,18 @@ export default function RouteComponent() {
                       (navigate as any)({ search: (prev: any) => ({ ...prev, sort: key }) });
                       sortDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        sort === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -296,9 +307,11 @@ export default function RouteComponent() {
                       }
                       addDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] leading-tight text-gray-700 hover:bg-gray-100"
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div className="flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 text-[16px] leading-none text-gray-700 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -323,26 +336,24 @@ export default function RouteComponent() {
                 folderColor={folder.color}
                 onDeleteClick={(id) => deleteItem({ id, type: 'folder' })}
                 onRenameClick={(id) => handleRename(id, 'folder', folder.name || '')}
-                onMoveClick={(id) => handleMove(id)}
               />
             </Link>
           ))}
           {displayDocuments.map((doc) => (
             <div
-              key={`doc-${doc.id}`}
+              key={`doc-${doc.id}-${doc.bookmark}`}
               onClick={() => handleDocumentClick(doc.id, doc.purpose)}
               className="cursor-pointer"
             >
               <LibraryDocument
                 itemType="document"
                 title={doc.title}
-                isBookmarked={doc.bookmark}
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
                 purpose={doc.purpose}
                 onDeleteClick={(id) => deleteItem({ id, type: 'document' })}
                 onRenameClick={(id) => handleRename(id, 'document', doc.title)}
-                onMoveClick={(id) => handleMove(id)}
+                isBookmarked={doc.bookmark}
                 onBookmarkClick={(id) => {
                   toggleBookmark(id);
                 }}
