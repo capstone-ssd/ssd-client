@@ -278,6 +278,7 @@ export default function RouteComponent() {
               to="/library"
               search={(prev: any) => ({ ...prev, folderId: folder.id, selectedId: undefined })}
               className="cursor-pointer"
+              folderColor={folder.folderColor}
             >
               <LibraryDocument
                 itemType="folder"

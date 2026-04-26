@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority';
 import DotVertical from '@/components/icons/DotVertical';
 import IconStar from '@/components/icons/IconStar';
 import FolderFilled from '@/components/icons/FolderFilled';
-
+import { TypeEvalute, TypeWriting, Writing, Folder, Close } from '../icons';
 import { cn } from '@/utils/cn';
 
 type LibraryItemType = 'document' | 'folder';
@@ -18,6 +18,9 @@ export interface LibraryDocumentProps {
   folderColor?: string;
   isBookmarked?: boolean;
   onBookmarkClick?: (documentId: number) => void;
+  onDeleteClick?: (documentId: number) => void;
+  onRenameClick?: (documentId: number) => void;
+  onMoveClick?: (documentId: number) => void;
   className?: string;
 }
 // 문서 썸네일
@@ -48,106 +51,89 @@ export default function LibraryDocument({
   title,
   date,
   thumbnailUrl,
-  folderColor = '',
+  folderColor,
   isBookmarked = false,
   onBookmarkClick,
+  onDeleteClick, // 핸들러들 추가
+  onRenameClick,
+  onMoveClick,
   className,
 }: LibraryDocumentProps) {
   const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     onBookmarkClick?.(documentId);
   };
-  // 폴더&썸네일 판단
+  console.log('아이디:', documentId, ' | 넘어온 컬러값:', folderColor);
   const isFolder = itemType === 'folder';
   const hasThumbnail = !!thumbnailUrl;
+  const status =
+    folderColor === 'var(--color-secondary-200)' // 사용하지 않는 폴더 색상으로 테마 유형 구분하게 설정, UI에 나타나는 색은 기본값
+      ? 'evaluate'
+      : folderColor === 'var(--color-primary-500)'
+        ? 'writing'
+        : undefined;
 
+  const renderThumbnail = () => {
+    if (isFolder) {
+      return <FolderFilled className="text-primary-400 h-auto w-[150px]" role="img" />;
+    }
+    return hasThumbnail ? (
+      <img src={thumbnailUrl} alt="" className="h-full w-full object-cover" draggable={false} />
+    ) : (
+      <div className="h-full w-full bg-sky-200" aria-hidden="true" />
+    );
+  };
+
+  const renderOverlay = () => {
+    return (
+      <>
+        {status && (
+          <div className="absolute top-0 left-0 z-20">
+            {status === 'evaluate' ? (
+              <TypeEvalute className="h-auto w-[64px]" />
+            ) : (
+              <TypeWriting className="h-auto w-[64px]" />
+            )}
+          </div>
+        )}
+
+        {!isFolder && (
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            className="absolute top-[6px] right-[6px] z-30 flex items-center justify-center p-1"
+          >
+            <IconStar
+              className={cn(
+                'h-8 w-8 transition-all',
+                isBookmarked
+                  ? 'fill-primary-400 text-primary-400'
+                  : 'fill-transparent text-gray-300'
+              )}
+            />
+          </button>
+        )}
+      </>
+    );
+  };
   return (
     <article
       className={cn(
-        [
-          'h-[370px] w-[250px]',
-          'overflow-hidden rounded-none bg-white text-left',
-          'px-[40px] py-[20px]',
-          'transition-colors hover:bg-gray-100',
-          'relative flex flex-col',
-        ].join(' '),
+        'relative flex h-[370px] w-[250px] flex-col overflow-hidden bg-white px-[40px] py-[20px] text-left transition-colors hover:bg-gray-100',
         className
       )}
     >
-      {/* 썸네일*/}
-      <div className={cn('relative z-10', 'flex w-full justify-center')}>
-        <div className={thumbnailButtonVariants({ itemType })}>
-          {isFolder && (
-            <FolderFilled
-              className={cn('h-auto w-[150px]')}
-              style={{ color: folderColor }}
-              role="img"
-              aria-label="폴더 썸네일"
-            />
-          )}
-          {!isFolder && hasThumbnail && (
-            <img
-              src={thumbnailUrl}
-              alt=""
-              className="h-full w-full object-cover"
-              draggable={false}
-            />
-          )}
-          {!isFolder && !hasThumbnail && <div className="h-full w-full" aria-hidden="true" />}
-        </div>
-
-        {/* 즐겨찾기 */}
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          aria-label={isBookmarked ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          aria-pressed={isBookmarked}
-          className={cn(
-            [
-              'rounded-full',
-              'p-2',
-              'transition-transform',
-              'hover:scale-105',
-              'absolute top-0 right-0',
-              'bg-transparent backdrop-blur hover:bg-white/50',
-            ].join(' ')
-          )}
-        >
-          <IconStar
-            key={isBookmarked ? 'active' : 'inactive'}
-            className={cn(
-              'h-8 w-8 transition-colors duration-200',
-              isBookmarked ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-gray-300'
-            )}
-            style={{
-              strokeWidth: isBookmarked ? '0' : '2px',
-              outline: 'none',
-            }}
-            aria-hidden="true"
-          />
-        </button>
+      <div className="relative z-10 flex w-full justify-center">
+        <div className={thumbnailButtonVariants({ itemType })}>{renderThumbnail()}</div>
+        {renderOverlay()}
       </div>
-
-      {/* 본문 */}
-      <div className={cn('relative z-10', 'mt-[10px] flex flex-1 flex-col')}>
-        {/* 타이틀 클릭 시 extract 이동 */}
-        <div
-          className={cn(
-            [
-              'body-medium leading-snug text-gray-900',
-              'overflow-hidden text-ellipsis',
-              '[display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]',
-              'text-center',
-              'flex-1',
-            ].join(' ')
-          )}
-        >
+      <div className="relative z-10 mt-[10px] flex flex-1 flex-col">
+        <div className="body-medium [display:-webkit-box] flex-1 overflow-hidden text-center leading-snug text-ellipsis text-gray-900 [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
           {title}
         </div>
 
         <div className="mt-[10px] flex items-center justify-between">
           <div className="text-[16px] text-gray-700">{date}</div>
-          {/*더보기 아이콘만(기능 없음)*/}
           <button
             type="button"
             aria-label="더보기"

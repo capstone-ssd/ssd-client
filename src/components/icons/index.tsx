@@ -26,5 +26,5 @@ export { default as Summary } from './Summary';
 export { default as Upload } from './Upload';
 export { default as Writing } from './Writing';
 export { default as Plus } from './Plus';
-export { default as TypeEvaluate } from './DocumentTypeE';
+export { default as TypeEvalute } from './DocumentTypeE';
 export { default as TypeWriting } from './DocumentTypeW';
