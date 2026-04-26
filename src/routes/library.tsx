@@ -19,6 +19,11 @@ import FolderCreateModal from '@/components/modal/FolderCreateModal';
 import DocUploadModal from '@/components/modal/DocUploadModal';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { useDeleteLibraryItemMutation } from '@/hooks/useDeleteDocument';
+import {
+  useUpdateFolderNameMutation,
+  useUpdateDocumentNameMutation,
+} from '@/hooks/useRenameMutation';
 
 type LibrarySearch = {
   folderId?: number;
@@ -117,8 +122,8 @@ export default function RouteComponent() {
     MODIFIED: '최근 수정일순',
   };
 
-  const handleDocumentClick = (docId: number) => {
-    if (uploadMode === 'writing') {
+  const handleDocumentClick = (docId: number, purpose: string) => {
+    if (purpose === 'WRITING') {
       navigate({ to: '/write/$id', params: { id: String(docId) } });
     } else {
       navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
@@ -135,19 +140,37 @@ export default function RouteComponent() {
 
   const displayFolders = (serverData?.folders ?? []).filter((folder) => {
     if (selectedStatus === 'ALL') return true;
+    if (selectedStatus === 'WRITING') return folder.color === FOLDER_THEME.WRITING;
+    if (selectedStatus === 'EVALUATED') return folder.color === FOLDER_THEME.EVALUATED;
+    return true;
+  });
 
-    if (selectedStatus === 'WRITING') {
-      return folder.color === FOLDER_THEME.WRITING;
-    }
-
-    if (selectedStatus === 'EVALUATED') {
-      return folder.color === FOLDER_THEME.EVALUATED;
-    }
+  const displayDocuments = (serverData?.documents ?? []).filter((doc) => {
+    if (selectedStatus === 'ALL') return true;
+    if (selectedStatus === 'WRITING') return doc.purpose === 'WRITING';
+    if (selectedStatus === 'EVALUATED') return doc.purpose === 'EVALUATION';
 
     return true;
   });
 
-  const displayDocuments = serverData?.documents ?? [];
+  const { mutate: deleteItem } = useDeleteLibraryItemMutation(folderId);
+  const { mutate: renameFolder } = useUpdateFolderNameMutation(folderId);
+  const { mutate: renameDoc } = useUpdateDocumentNameMutation(folderId);
+
+  const handleRename = (id: number, type: 'folder' | 'document', currentTitle: string) => {
+    const newName = window.prompt('새 이름을 입력하세요', currentTitle);
+    if (!newName || newName === currentTitle) return;
+
+    if (type === 'folder') {
+      renameFolder({ id, newName });
+    } else {
+      renameDoc({ id, newTitle: newName });
+    }
+  };
+  const handleMove = (id: number) => {
+    // 이동용 모달을 띄우거나 이동 로직 실행
+    console.log(`${id}번 아이템 이동 로직 실행`);
+  };
 
   const handleNavigate = (id: number) => {
     (navigate as any)({
@@ -278,21 +301,23 @@ export default function RouteComponent() {
               to="/library"
               search={(prev: any) => ({ ...prev, folderId: folder.id, selectedId: undefined })}
               className="cursor-pointer"
-              folderColor={folder.folderColor}
             >
               <LibraryDocument
                 itemType="folder"
                 documentId={folder.id}
-                title={folder.name}
-                date={folder.updatedAt?.split('T')[0]}
+                title={folder.name || ''}
+                date={folder.updatedAt?.split('T')[0] || ''}
                 folderColor={folder.color}
+                onDeleteClick={(id) => deleteItem({ id, type: 'folder' })}
+                onRenameClick={(id) => handleRename(id, 'folder', folder.name || '')}
+                onMoveClick={(id) => handleMove(id)}
               />
             </Link>
           ))}
           {displayDocuments.map((doc) => (
             <div
               key={`doc-${doc.id}`}
-              onClick={() => handleDocumentClick(doc.id)}
+              onClick={() => handleDocumentClick(doc.id, doc.purpose)}
               className="cursor-pointer"
             >
               <LibraryDocument
@@ -301,6 +326,10 @@ export default function RouteComponent() {
                 isBookmarked={doc.bookmark}
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
+                purpose={doc.purpose}
+                onDeleteClick={(id) => deleteItem({ id, type: 'document' })}
+                onRenameClick={(id) => handleRename(id, 'document', doc.title)}
+                onMoveClick={(id) => handleMove(id)}
                 onBookmarkClick={(id) => {
                   toggleBookmark(id);
                 }}
@@ -330,15 +359,23 @@ export default function RouteComponent() {
         data={serverData ?? null}
         isLoading={isUploading}
         onClose={() => setIsUploadModalOpen(false)}
-        onConfirm={(file, fId) => {
+        // ★ 중요: 인자를 (file, fId, purpose) 세 개 다 명시해야 합니다!
+        onConfirm={(file, fId, purpose) => {
           if (file) {
+            // 콘솔로 확인 사살!
+            console.log('업로드 시도 중 - 모드:', uploadMode, '서버로 보낼 목적:', purpose);
+
             uploadDoc({
               file,
               folderId: fId || folderId || null,
               mode: uploadMode,
+              purpose: purpose,
             });
+
+            setIsUploadModalOpen(false);
           }
         }}
+        initialPurpose={uploadMode === 'writing' ? 'WRITING' : 'EVALUATION'}
       />
     </div>
   );

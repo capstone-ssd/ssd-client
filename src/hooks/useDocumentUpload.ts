@@ -15,9 +15,10 @@ interface UploadVariables {
   file: File;
   folderId: number | null;
   mode: UploadMode;
+  purpose: 'WRITING' | 'EVALUATION';
 }
 
-async function uploadDocument({ file, folderId, mode }: UploadVariables) {
+async function uploadDocument({ file, folderId, mode, purpose }: UploadVariables) {
   const pdfContent = await extractPDFCompound(file);
   const markdown = convertToMarkdown(pdfContent);
 
@@ -27,10 +28,11 @@ async function uploadDocument({ file, folderId, mode }: UploadVariables) {
     role: p.role ?? '',
   }));
 
-  const body: CreateDocumentRequest = {
+  const body: CreateDocumentRequest & { purpose: string } = {
     text: markdown,
     paragraphs,
     folderId: folderId ?? 0,
+    purpose: purpose,
   };
 
   const res = await apiRequest<CreateDocumentResponse>({

@@ -18,8 +18,14 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
 
   // 모드별 테마 컬러 설정
   const THEME = {
-    write: { color: '#f4be00', label: '작성' },
-    eval: { color: '#476af6', label: '평가' },
+    write: {
+      color: 'primary-500',
+      label: '작성',
+    },
+    eval: {
+      color: 'secondary-200',
+      label: '평가',
+    },
   };
 
   function handleClose() {
@@ -81,9 +87,9 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
             {/* 2. 추가된 부분: 버튼(탭) 선택에 따라 라벨 SVG를 폴더 위에 겹쳐서 보여줌 */}
             <div className="absolute -top-2 -left-2 scale-110">
               {folderType === 'eval' ? (
-                <TypeWriting className="h-auto w-16" />
-              ) : (
                 <TypeEvalute className="h-auto w-16" />
+              ) : (
+                <TypeWriting className="h-auto w-16" />
               )}
             </div>
           </div>

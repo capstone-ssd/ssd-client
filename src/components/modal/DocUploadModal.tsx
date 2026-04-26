@@ -14,7 +14,12 @@ export interface DocUploadModalProps {
   data: LibraryData | null;
   isLoading?: boolean;
   onClose: () => void;
-  onConfirm: (file: File | null, folderId: number | null) => void;
+  onConfirm: (
+    file: File | null,
+    folderId: number | null,
+    purpose: 'WRITING' | 'EVALUATION'
+  ) => void;
+  initialPurpose?: 'WRITING' | 'EVALUATION';
 }
 
 function getOnlyPDF(dataTransfer: DataTransfer): File | null {
@@ -27,6 +32,7 @@ export default function DocUploadModal({
   isLoading,
   onClose,
   onConfirm,
+  initialPurpose = 'WRITING',
 }: DocUploadModalProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
@@ -63,7 +69,7 @@ export default function DocUploadModal({
   }
 
   function handleConfirm() {
-    onConfirm(selectedFileRef.current, selectedFolderId);
+    onConfirm(selectedFileRef.current, selectedFolderId, initialPurpose);
   }
 
   function handleClose() {

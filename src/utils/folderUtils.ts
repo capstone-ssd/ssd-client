@@ -29,6 +29,7 @@ export function toLibraryData(res: FolderContentResponse): LibraryData {
       folderId: d.folderId ?? 0,
       updatedAt: d.updatedAt ?? '',
       bookmark: d.bookmark ?? d.isBookmarked ?? d.isBookmark ?? false,
+      purpose: d.purpose,
     })),
   };
 }
