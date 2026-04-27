@@ -8,7 +8,7 @@ import { useCreateCommentMutation } from '@/hooks/useCreateCommentMutation';
 export function CommentsTab() {
   const { id: documentId } = useParams({ strict: false });
   const { currentBlockId } = useSidebarNavigation();
-  const { data: comments, isLoading } = useDocumentCommentsQuery(documentId);
+  const { data: comments } = useDocumentCommentsQuery(documentId);
   const { mutate: createComment, isPending: isSubmitting } = useCreateCommentMutation(documentId);
   const [commentText, setCommentText] = useState('');
 
@@ -43,8 +43,7 @@ export function CommentsTab() {
         </div>
       )}
 
-      {isLoading && <p className="body-xsmall text-gray-400">불러오는 중...</p>}
-      {!isLoading && comments?.length === 0 && (
+      {comments?.length === 0 && (
         <p className="body-xsmall text-gray-400">등록된 주석이 없습니다.</p>
       )}
       {comments?.map((comment, index) => (

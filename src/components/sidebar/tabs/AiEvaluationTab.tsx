@@ -3,6 +3,8 @@ import { ChecklistContent, type ChecklistItem } from '@/components/accordion';
 import ReviewContent from '@/components/accordion/content/ReviewContent';
 import { useAiEvaluationQuery } from '@/hooks/useAiEvaluationQuery';
 import { useAiChecklistQuery } from '@/hooks/useAiChecklistQuery';
+import { useRefreshChecklistMutation } from '@/hooks/useRefreshChecklistMutation';
+import { useRefreshEvaluationMutation } from '@/hooks/useRefreshEvaluationMutation';
 import type { ExternalAiEvaluationCardResponse } from '@/api/api';
 import type { ReviewScoreItem } from '@/components/accordion/content/ReviewContent';
 
@@ -20,6 +22,7 @@ function toScoreItems(data: ExternalAiEvaluationCardResponse): ReviewScoreItem[]
     .map((m) => ({
       label: m!.label ?? '',
       score: m!.score ?? 0,
+      review: m!.review,
     }));
 }
 
@@ -52,33 +55,28 @@ function toChecklistItems(checkList: Record<string, boolean>): ChecklistItem[] {
 
 export function AiEvaluationTab() {
   const { id: documentId } = useParams({ strict: false });
-  const { data: evaluationData, isLoading: isEvaluationLoading } = useAiEvaluationQuery(documentId);
-  const { data: checklistData, isLoading: isChecklistLoading } = useAiChecklistQuery(documentId);
+  const { data: evaluationData } = useAiEvaluationQuery(documentId);
+  const { data: checklistData } = useAiChecklistQuery(documentId);
+  const { mutate: refreshChecklist } = useRefreshChecklistMutation(documentId);
+  const { mutate: refreshEvaluation } = useRefreshEvaluationMutation(documentId);
 
   const checklistItems = checklistData?.checkList ? toChecklistItems(checklistData.checkList) : [];
 
   const scoreItems = evaluationData ? toScoreItems(evaluationData) : [];
 
   return (
-    <>
-      {isChecklistLoading ? (
-        <p className="body-xsmall px-1 text-gray-400">체크리스트 불러오는 중...</p>
-      ) : (
-        <ChecklistContent items={checklistItems} />
-      )}
-      {isEvaluationLoading ? (
-        <p className="body-xsmall px-1 text-gray-400">AI 평가 불러오는 중...</p>
-      ) : (
-        <ReviewContent
-          reviewId="ai-evaluation"
-          userName="AI 상세평가"
-          userEmail=""
-          timestamp=""
-          totalScore={evaluationData?.totalScore ?? 0}
-          scoreItems={scoreItems}
-          barColor="#facc15"
-        />
-      )}
-    </>
+    <div className="flex flex-1 flex-col gap-4">
+      <ChecklistContent items={checklistItems} onRefresh={() => refreshChecklist()} />
+      <ReviewContent
+        reviewId="ai-evaluation"
+        userName="AI 상세평가"
+        userEmail=""
+        timestamp=""
+        totalScore={evaluationData?.totalScore ?? 0}
+        scoreItems={scoreItems}
+        barColor="#facc15"
+        onRefresh={() => refreshEvaluation()}
+      />
+    </div>
   );
 }

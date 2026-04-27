@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgMoveItem = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 18 18" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M1.802 6.312v6.644a2 2 0 0 0 2 2H14.2a2 2 0 0 0 2-2V6.259a1 1 0 0 0-1-1H9.064L6.99 3.044H2.8a1 1 0 0 0-1 1z" /></svg>;
+export default SvgMoveItem;

@@ -20,26 +20,22 @@ function toLogEntry(log: DocumentLogItemResponse, index: number): LogEntry {
 
 export function HistoryTab() {
   const { id: documentId } = useParams({ strict: false });
-  const { data, isLoading } = useDocumentLogsQuery(documentId);
+  const { data } = useDocumentLogsQuery(documentId);
 
   const records = data?.records ?? [];
 
-  if (isLoading) return <p className="body-xsmall text-gray-400">불러오는 중...</p>;
-
-  if (records.length === 0) {
-    return <p className="body-xsmall text-gray-400">기록이 없습니다.</p>;
-  }
-
   return (
     <div className="flex flex-col gap-4">
-      {records.map((group, index) => (
-        <LogContent
-          key={group.savedDate ?? index}
-          date={group.savedDate ?? ''}
-          entries={(group.logs ?? []).map(toLogEntry)}
-          defaultOpen={index === 0}
-        />
-      ))}
+      {records.length === 0 && <p className="body-xsmall text-gray-400">기록이 없습니다.</p>}
+      {records.length > 0 &&
+        records.map((group, index) => (
+          <LogContent
+            key={group.savedDate ?? index}
+            date={group.savedDate ?? ''}
+            entries={(group.logs ?? []).map(toLogEntry)}
+            defaultOpen={index === 0}
+          />
+        ))}
     </div>
   );
 }

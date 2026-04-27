@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/api/axios';
-import type { GetDocumentResponse, DocumentParagraphDto } from '@/api/api';
+import type { DocumentBlockResponseItem, GetDocumentResponse } from '@/api/api';
 import type { Paragraph } from '@/components/markdown/types/markdown-view.types';
 
-function toParagraph(dto: DocumentParagraphDto): Paragraph {
+function toParagraph(dto: DocumentBlockResponseItem): Paragraph {
   return {
     blockId: dto.blockId ?? null,
     content: dto.content ?? '',

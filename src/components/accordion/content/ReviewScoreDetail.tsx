@@ -5,9 +5,10 @@ interface ScoreBarProps {
   score: number;
   maxScore: number;
   barColor?: string;
+  review?: string;
 }
 
-const ScoreBar = ({ label, score, maxScore, barColor = '#1f2937' }: ScoreBarProps) => {
+const ScoreBar = ({ label, score, maxScore, barColor = '#1f2937', review }: ScoreBarProps) => {
   const percentage = maxScore > 0 ? Math.min(100, Math.max(0, (score / maxScore) * 100)) : 0;
 
   return (
@@ -31,6 +32,7 @@ const ScoreBar = ({ label, score, maxScore, barColor = '#1f2937' }: ScoreBarProp
           style={{ width: `${percentage}%`, backgroundColor: barColor }}
         />
       </div>
+      {review && <p className="body-xxsmall text-gray-500">{review}</p>}
     </div>
   );
 };
@@ -92,6 +94,7 @@ const ReviewScoreDetail = ({
               score={item.score}
               maxScore={item.maxScore ?? 100}
               barColor={barColor}
+              review={item.review}
             />
           </li>
         ))}

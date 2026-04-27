@@ -6,7 +6,7 @@ import { apiRequest } from '@/api/axios';
 import type {
   CreateDocumentRequest,
   CreateDocumentResponse,
-  DocumentParagraphDto,
+  DocumentBlockResponseItem,
 } from '@/api/api';
 
 type UploadMode = 'writing' | 'evaluate';
@@ -22,7 +22,7 @@ async function uploadDocument({ file, folderId, mode, purpose }: UploadVariables
   const pdfContent = await extractPDFCompound(file);
   const markdown = convertToMarkdown(pdfContent);
 
-  const paragraphs: DocumentParagraphDto[] = pdfContent.paragraphs.map((p, index) => ({
+  const paragraphs: DocumentBlockResponseItem[] = pdfContent.paragraphs.map((p, index) => ({
     blockId: index + 1,
     content: p.content,
     role: p.role ?? '',
