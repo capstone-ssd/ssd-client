@@ -1,0 +1,3 @@
+import type { SVGProps } from 'react';
+const SvgRename = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 13 15" role="img" {...props}><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" d="M.5 2.882h12M5 10.823V6.06m3 4.764V6.06M9.5 14h-6c-.828 0-1.5-.711-1.5-1.588V3.676c0-.438.336-.794.75-.794h7.5c.414 0 .75.356.75.794v8.736C11 13.289 10.328 14 9.5 14M5 2.882h3c.414 0 .75-.355.75-.794v-.794C8.75.856 8.414.5 8 .5H5c-.414 0-.75.356-.75.794v.794c0 .439.336.794.75.794" /></svg>;
+export default SvgRename;

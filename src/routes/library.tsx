@@ -3,6 +3,9 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
+import { ChevronDown } from '@/components/icons';
+import { Plus } from '@/components/icons';
+
 import {
   useFolderQuery,
   useBookmarkMutation,
@@ -16,6 +19,11 @@ import FolderCreateModal from '@/components/modal/FolderCreateModal';
 import DocUploadModal from '@/components/modal/DocUploadModal';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { useDeleteLibraryItemMutation } from '@/hooks/useDeleteDocument';
+import {
+  useUpdateFolderNameMutation,
+  useUpdateDocumentNameMutation,
+} from '@/hooks/useRenameMutation';
 
 type LibrarySearch = {
   folderId?: number;
@@ -96,6 +104,11 @@ export default function RouteComponent() {
   const sortDropdown = useDropdown();
   const queryClient = useQueryClient();
 
+  const FOLDER_THEME = {
+    WRITING: 'primary-500',
+    EVALUATED: 'secondary-200',
+  };
+
   const createFolderMap = {
     FOLDER: '새 폴더',
     WRITE: '새 파일 (작성)',
@@ -109,8 +122,8 @@ export default function RouteComponent() {
     MODIFIED: '최근 수정일순',
   };
 
-  const handleDocumentClick = (docId: number) => {
-    if (uploadMode === 'writing') {
+  const handleDocumentClick = (docId: number, purpose: string) => {
+    if (purpose === 'WRITING') {
       navigate({ to: '/write/$id', params: { id: String(docId) } });
     } else {
       navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
@@ -124,13 +137,46 @@ export default function RouteComponent() {
     if (hasInDocs) return true;
     return folder.childFolders?.some((child: any) => hasDocumentType(child, targetType)) ?? false;
   };
-
   const displayFolders = (serverData?.folders ?? []).filter((folder) => {
     if (selectedStatus === 'ALL') return true;
-    return hasDocumentType(folder, selectedStatus);
+
+    if (selectedStatus === 'WRITING') {
+      return folder.color === FOLDER_THEME.WRITING;
+    }
+
+    if (selectedStatus === 'EVALUATED') {
+      return folder.color === FOLDER_THEME.EVALUATED;
+    }
+
+    return true;
   });
 
-  const displayDocuments = serverData?.documents ?? [];
+  const displayDocuments = (serverData?.documents ?? []).filter((doc) => {
+    if (selectedStatus === 'ALL') return true;
+    if (selectedStatus === 'WRITING') {
+      return doc.purpose === 'WRITING';
+    }
+    if (selectedStatus === 'EVALUATED') {
+      return doc.purpose === 'EVALUATION';
+    }
+
+    return true;
+  });
+
+  const { mutate: deleteItem } = useDeleteLibraryItemMutation(folderId);
+  const { mutate: renameFolder } = useUpdateFolderNameMutation(folderId);
+  const { mutate: renameDoc } = useUpdateDocumentNameMutation(folderId);
+
+  const handleRename = (id: number, type: 'folder' | 'document', currentTitle: string) => {
+    const newName = window.prompt('새 이름을 입력하세요', currentTitle);
+    if (!newName || newName === currentTitle) return;
+
+    if (type === 'folder') {
+      renameFolder({ id, newName });
+    } else {
+      renameDoc({ id, newTitle: newName });
+    }
+  };
 
   const handleNavigate = (id: number) => {
     (navigate as any)({
@@ -161,7 +207,7 @@ export default function RouteComponent() {
               <span className="text-[20px] leading-none text-gray-900">
                 {statusMap[selectedStatus]}
               </span>
-              <ChevronRight className="h-5 w-5 transition-transform" />
+              <ChevronDown className="h-5 w-5 transition-transform" />
             </Button>
             {statusDropdown.isOpen && (
               <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
@@ -172,9 +218,18 @@ export default function RouteComponent() {
                       setSelectedStatus(key as any);
                       statusDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        selectedStatus === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -191,7 +246,7 @@ export default function RouteComponent() {
               <span className="text-[20px] leading-none text-gray-900">
                 {sortMap[sort as keyof typeof sortMap]}
               </span>
-              <ChevronRight className="h-5 w-5 transition-transform" />
+              <ChevronDown className="h-5 w-5 transition-transform" />
             </Button>
             {sortDropdown.isOpen && (
               <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
@@ -202,9 +257,18 @@ export default function RouteComponent() {
                       (navigate as any)({ search: (prev: any) => ({ ...prev, sort: key }) });
                       sortDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] hover:bg-gray-100"
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        sort === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -219,7 +283,7 @@ export default function RouteComponent() {
               className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
             >
               <span className="text-[20px] leading-none text-gray-900">새로만들기</span>
-              <ChevronRight
+              <Plus
                 className={cn(
                   'h-5 w-5 transition-transform',
                   addDropdown.isOpen ? 'rotate-90' : ''
@@ -243,9 +307,11 @@ export default function RouteComponent() {
                       }
                       addDropdown.close();
                     }}
-                    className="w-full px-3 py-2 text-left text-[16px] leading-tight text-gray-700 hover:bg-gray-100"
+                    className="group flex w-full items-center justify-center py-1.5"
                   >
-                    {label}
+                    <div className="flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 text-[16px] leading-none text-gray-700 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                      {label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -265,24 +331,29 @@ export default function RouteComponent() {
               <LibraryDocument
                 itemType="folder"
                 documentId={folder.id}
-                title={folder.name}
-                date={folder.updatedAt?.split('T')[0]}
+                title={folder.name || ''}
+                date={folder.updatedAt?.split('T')[0] || ''}
                 folderColor={folder.color}
+                onDeleteClick={(id) => deleteItem({ id, type: 'folder' })}
+                onRenameClick={(id) => handleRename(id, 'folder', folder.name || '')}
               />
             </Link>
           ))}
           {displayDocuments.map((doc) => (
             <div
-              key={`doc-${doc.id}`}
-              onClick={() => handleDocumentClick(doc.id)}
+              key={`doc-${doc.id}-${doc.bookmark}`}
+              onClick={() => handleDocumentClick(doc.id, doc.purpose)}
               className="cursor-pointer"
             >
               <LibraryDocument
                 itemType="document"
                 title={doc.title}
-                isBookmarked={doc.bookmark}
                 documentId={doc.id}
                 date={doc.updatedAt?.split('T')[0]}
+                purpose={doc.purpose}
+                onDeleteClick={(id) => deleteItem({ id, type: 'document' })}
+                onRenameClick={(id) => handleRename(id, 'document', doc.title)}
+                isBookmarked={doc.bookmark}
                 onBookmarkClick={(id) => {
                   toggleBookmark(id);
                 }}
@@ -312,15 +383,19 @@ export default function RouteComponent() {
         data={serverData ?? null}
         isLoading={isUploading}
         onClose={() => setIsUploadModalOpen(false)}
-        onConfirm={(file, fId) => {
+        onConfirm={(file, fId, purpose) => {
           if (file) {
             uploadDoc({
               file,
               folderId: fId || folderId || null,
               mode: uploadMode,
+              purpose: purpose,
             });
+
+            setIsUploadModalOpen(false);
           }
         }}
+        initialPurpose={uploadMode === 'writing' ? 'WRITING' : 'EVALUATION'}
       />
     </div>
   );

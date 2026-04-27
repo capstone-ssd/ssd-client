@@ -10,11 +10,18 @@ export function useDropdown() {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
-  const toggle = () => setIsOpen((prev) => !prev);
+  const toggle = (e?: React.MouseEvent) => {
+    e?.stopPropagation(); // 이벤트 전파 방지를 위해 인자 추가 가능
+    setIsOpen((prev) => !prev);
+  };
   const close = () => setIsOpen(false);
 
   return { isOpen, ref, toggle, close, setIsOpen };

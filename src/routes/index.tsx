@@ -33,7 +33,15 @@ function RouteComponent() {
 
   function handleConfirm(file: File | null, folderId: number | null) {
     if (!file) return;
-    upload({ file, folderId, mode: activeMode }, { onSuccess: () => setIsModalOpen(false) });
+    upload(
+      {
+        file,
+        folderId,
+        mode: activeMode,
+        purpose: activeMode === 'writing' ? 'WRITING' : 'EVALUATION',
+      },
+      { onSuccess: () => setIsModalOpen(false) }
+    );
   }
 
   const handlers: Record<CardVariant, (() => void) | undefined> = {
