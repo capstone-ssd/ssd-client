@@ -2,31 +2,24 @@ import { useState } from 'react';
 import { cn } from '@/utils/cn';
 import { Close } from '@/components/icons';
 import FolderFilled from '@/components/icons/FolderFilled';
-import { TypeEvalute } from '../icons';
-import { TypeWriting } from '../icons';
+import { TypeEvalute, TypeWriting } from '../icons';
 
 export interface FolderCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (folderName: string, folderColor: string) => void;
 }
-type FolderType = 'write' | 'eval';
 
 export default function FolderCreateModal({ isOpen, onClose, onConfirm }: FolderCreateModalProps) {
   const [folderName, setFolderName] = useState('');
   const [folderType, setFolderType] = useState<FolderType>('write');
 
-  // 모드별 테마 컬러 설정
+  // 임시: 폴더 색상을 통해 작성 / 평가 구분
   const THEME = {
-    write: {
-      color: 'primary-500',
-      label: '작성',
-    },
-    eval: {
-      color: 'secondary-200',
-      label: '평가',
-    },
-  };
+    write: { color: 'primary-500', label: '작성' },
+    eval: { color: 'secondary-200', label: '평가' },
+  } as const;
+  type FolderType = keyof typeof THEME;
 
   function handleClose() {
     setFolderName('');
@@ -82,7 +75,7 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
           {/* 폴더 아이콘 (모드에 따라 색상 변경) */}
           <div className="relative mb-10 transition-transform duration-300 ease-out">
             {/* 1. 폴더 본체: 색상은 고정하거나 테마에 맞게 둡니다 */}
-            <FolderFilled className="h-32 w-auto transition-colors duration-300" />
+            <FolderFilled className="text-primary-400 h-32 w-auto transition-colors duration-300" />
 
             {/* 2. 추가된 부분: 버튼(탭) 선택에 따라 라벨 SVG를 폴더 위에 겹쳐서 보여줌 */}
             <div className="absolute -top-2 -left-2 scale-110">

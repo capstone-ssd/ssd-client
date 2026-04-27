@@ -89,13 +89,17 @@ export default function LibraryDocument({
   const isFolder = itemType === 'folder';
   const hasThumbnail = !!thumbnailUrl;
 
-  const status = isFolder
+  const status: 'writing' | 'evaluate' | undefined = isFolder
     ? folderColor?.includes('secondary-200')
       ? 'evaluate'
-      : 'writing'
+      : folderColor?.includes('primary-500')
+        ? 'writing'
+        : undefined
     : purpose === 'EVALUATION'
       ? 'evaluate'
-      : 'writing';
+      : purpose === 'WRITING'
+        ? 'writing'
+        : undefined;
 
   const renderThumbnail = () => {
     if (isFolder) {

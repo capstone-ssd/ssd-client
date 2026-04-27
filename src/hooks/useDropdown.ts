@@ -13,7 +13,6 @@ export function useDropdown() {
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
