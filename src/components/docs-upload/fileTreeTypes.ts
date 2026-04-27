@@ -12,6 +12,7 @@ export interface DocumentItem {
   folderId: number;
   updatedAt: string;
   bookmark: boolean;
+  purpose: 'WRITING' | 'EVALUATION';
 }
 
 export interface LibraryData {
