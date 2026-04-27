@@ -1,3 +1,3 @@
 import type { SVGProps } from 'react';
-const SvgSpinner = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 48 48" role="img" {...props}><rect width={44} height={44} x={2} y={2} stroke="#CDD1D5" strokeWidth={4} rx={22} /><path stroke="currentColor" strokeLinecap="round" strokeWidth={4} d="M27.82 45.666A22 22 0 0 1 2.214 20.938" /></svg>;
+const SvgSpinner = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 48 48" role="img" {...props}><rect width={44} height={44} x={2} y={2} stroke="#CDD1D5" strokeWidth={4} rx={22} /><path stroke="#fff" strokeLinecap="round" strokeWidth={4} d="M27.82 45.666A22 22 0 0 1 2.214 20.938" /></svg>;
 export default SvgSpinner;
