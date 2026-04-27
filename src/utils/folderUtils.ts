@@ -7,9 +7,9 @@ export function toLibraryData(res: FolderContentResponse): LibraryData {
     folders: (res.folders ?? []).map((f) => {
       let status: 'writing' | 'evaluate' | undefined;
 
-      if (f.color === 'var(--color-primary-500)') {
+      if (f.color === 'primary-500') {
         status = 'writing';
-      } else if (f.color === 'var(--color-secondary-200)') {
+      } else if (f.color === 'secondary-200') {
         status = 'evaluate';
       }
       // 일단 색상으로 폴더 유형 구별 가능하게 만들었는데, 나중에 시간 더 남으면 api에 폴더 status도 추가하는게 장기적으론 좋을 거 같습니다!
