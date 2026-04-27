@@ -4,6 +4,7 @@ import ReviewContent from '@/components/accordion/content/ReviewContent';
 import { useAiEvaluationQuery } from '@/hooks/useAiEvaluationQuery';
 import { useAiChecklistQuery } from '@/hooks/useAiChecklistQuery';
 import { useRefreshChecklistMutation } from '@/hooks/useRefreshChecklistMutation';
+import { useRefreshEvaluationMutation } from '@/hooks/useRefreshEvaluationMutation';
 import type { ExternalAiEvaluationCardResponse } from '@/api/api';
 import type { ReviewScoreItem } from '@/components/accordion/content/ReviewContent';
 
@@ -21,6 +22,7 @@ function toScoreItems(data: ExternalAiEvaluationCardResponse): ReviewScoreItem[]
     .map((m) => ({
       label: m!.label ?? '',
       score: m!.score ?? 0,
+      review: m!.review,
     }));
 }
 
@@ -56,6 +58,7 @@ export function AiEvaluationTab() {
   const { data: evaluationData } = useAiEvaluationQuery(documentId);
   const { data: checklistData } = useAiChecklistQuery(documentId);
   const { mutate: refreshChecklist } = useRefreshChecklistMutation(documentId);
+  const { mutate: refreshEvaluation } = useRefreshEvaluationMutation(documentId);
 
   const checklistItems = checklistData?.checkList ? toChecklistItems(checklistData.checkList) : [];
 
@@ -72,6 +75,7 @@ export function AiEvaluationTab() {
         totalScore={evaluationData?.totalScore ?? 0}
         scoreItems={scoreItems}
         barColor="#facc15"
+        onRefresh={() => refreshEvaluation()}
       />
     </div>
   );

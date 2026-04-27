@@ -38,10 +38,14 @@ function useSidebarLoading(documentId: string | undefined) {
     filters: { mutationKey: ['refresh-checklist', documentId], status: 'pending' },
   }).length > 0;
 
+  const isEvaluationRefreshing = useMutationState({
+    filters: { mutationKey: ['refresh-evaluation', documentId], status: 'pending' },
+  }).length > 0;
+
   return (
     isKeywordFetching || isSummaryFetching || isEvaluationFetching || isChecklistFetching ||
     isLogsFetching || isCommentsFetching || isReviewsFetching ||
-    isKeywordRefreshing || isSummaryRefreshing || isChecklistRefreshing
+    isKeywordRefreshing || isSummaryRefreshing || isChecklistRefreshing || isEvaluationRefreshing
   );
 }
 
