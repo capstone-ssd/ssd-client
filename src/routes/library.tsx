@@ -383,12 +383,8 @@ export default function RouteComponent() {
         data={serverData ?? null}
         isLoading={isUploading}
         onClose={() => setIsUploadModalOpen(false)}
-        // ★ 중요: 인자를 (file, fId, purpose) 세 개 다 명시해야 합니다!
         onConfirm={(file, fId, purpose) => {
           if (file) {
-            // 콘솔로 확인 사살!
-            console.log('업로드 시도 중 - 모드:', uploadMode, '서버로 보낼 목적:', purpose);
-
             uploadDoc({
               file,
               folderId: fId || folderId || null,
