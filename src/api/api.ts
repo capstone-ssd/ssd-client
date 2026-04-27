@@ -211,6 +211,7 @@ export interface CreateDocumentRequest {
   paragraphs?: CreateDocumentBlockRequest[];
   /** @format int64 */
   folderId?: number;
+  purpose: "WRITING" | "EVALUATION";
 }
 
 export interface ApiResponseCreateDocumentResponse {
@@ -351,6 +352,7 @@ export interface DocumentListItemResponse {
   /** @format int64 */
   id?: number;
   title?: string;
+  purpose?: "WRITING" | "EVALUATION";
   /** @format int64 */
   folderId?: number;
   /** @format date-time */
@@ -376,6 +378,18 @@ export interface FolderListItemResponse {
   hasChildren?: boolean;
   /** @format date-time */
   updatedAt?: string;
+}
+
+export interface ApiResponseExternalAiHealthResponse {
+  code?: string;
+  msg?: string;
+  data?: ExternalAiHealthResponse;
+}
+
+export interface ExternalAiHealthResponse {
+  status?: string;
+  available?: boolean;
+  message?: string;
 }
 
 export interface ApiResponseListDocumentListItemResponse {
@@ -409,6 +423,7 @@ export interface GetDocumentResponse {
   paragraphs?: DocumentBlockResponseItem[];
   summary?: string;
   details?: string;
+  purpose?: "WRITING" | "EVALUATION";
   /** @format int64 */
   folderId?: number;
   bookmark?: boolean;
