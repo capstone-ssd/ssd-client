@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority';
 import DotVertical from '@/components/icons/DotVertical';
 import IconStar from '@/components/icons/IconStar';
 import FolderFilled from '@/components/icons/FolderFilled';
-import { TypeEvalute, TypeWriting, Writing, Folder, Close } from '../icons';
+import { TypeEvalute, TypeWriting, Rename, Move, Delete } from '../icons';
 import { cn } from '@/utils/cn';
 import { useDropdown } from '@/hooks/useDropdown';
 
@@ -181,7 +181,6 @@ export default function LibraryDocument({
               <DotVertical className="h-10 w-5" aria-hidden="true" />
             </button>
 
-            {/* ★ 드롭다운 메뉴 본체: 시안 디자인 적용 */}
             {dropdown.isOpen && (
               <div className="absolute right-0 bottom-full z-[60] mb-2 w-[130px] rounded-md border border-gray-200 bg-white py-1 shadow-lg">
                 {/* 1. 이름 바꾸기 */}
@@ -191,7 +190,7 @@ export default function LibraryDocument({
                   className="group flex w-full items-center justify-center py-1.5"
                 >
                   <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
-                    <Writing className="h-4 w-4 text-gray-500" />
+                    <Rename className="h-4 w-4 text-gray-500" />
                     <span className="text-[16px] leading-none text-gray-700">이름바꾸기</span>
                   </div>
                 </button>
@@ -203,7 +202,7 @@ export default function LibraryDocument({
                   className="group flex w-full items-center justify-center py-1.5"
                 >
                   <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
-                    <Folder className="h-4 w-4 text-gray-500" />
+                    <Move className="h-4 w-4 text-gray-500" />
                     <span className="text-[16px] leading-none text-gray-700">이동</span>
                   </div>
                 </button>
@@ -217,7 +216,7 @@ export default function LibraryDocument({
                   className="group flex w-full items-center justify-center py-1.5"
                 >
                   <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
-                    <Close className="h-4 w-4 text-gray-500" />
+                    <Delete className="h-4 w-4 text-gray-500" />
                     <span className="text-[16px] leading-none text-gray-700">삭제</span>
                   </div>
                 </button>

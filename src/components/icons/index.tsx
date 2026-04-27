@@ -28,3 +28,6 @@ export { default as Writing } from './Writing';
 export { default as Plus } from './Plus';
 export { default as TypeEvalute } from './DocumentTypeE';
 export { default as TypeWriting } from './DocumentTypeW';
+export { default as Move } from './Moveitem';
+export { default as Delete } from './Delete';
+export { default as Rename } from './Rename';
