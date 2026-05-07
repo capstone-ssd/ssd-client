@@ -4,9 +4,9 @@ import { cva } from 'class-variance-authority';
 import DotVertical from '@/components/icons/DotVertical';
 import IconStar from '@/components/icons/IconStar';
 import FolderFilled from '@/components/icons/FolderFilled';
-import { TypeEvalute, TypeWriting, Rename, Move, Delete } from '../icons';
 import { cn } from '@/utils/cn';
 import { useDropdown } from '@/hooks/useDropdown';
+import { Delete, DocumentTypeE, DocumentTypeW, MoveItem, Rename } from '../icons';
 
 type LibraryItemType = 'document' | 'folder';
 
@@ -118,9 +118,9 @@ export default function LibraryDocument({
         {status && (
           <div className="absolute top-0 left-0 z-20">
             {status === 'evaluate' ? (
-              <TypeEvalute className="h-auto w-[64px]" />
+              <DocumentTypeE className="h-auto w-[64px]" />
             ) : (
-              <TypeWriting className="h-auto w-[64px]" />
+              <DocumentTypeW className="h-auto w-[64px]" />
             )}
           </div>
         )}
@@ -202,7 +202,7 @@ export default function LibraryDocument({
                   className="group flex w-full items-center justify-center py-1.5"
                 >
                   <div className="flex h-[20px] w-[118px] items-center gap-2 rounded-sm px-2 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
-                    <Move className="h-4 w-4 text-gray-500" />
+                    <MoveItem className="h-4 w-4 text-gray-500" />
                     <span className="text-[16px] leading-none text-gray-700">이동</span>
                   </div>
                 </button>

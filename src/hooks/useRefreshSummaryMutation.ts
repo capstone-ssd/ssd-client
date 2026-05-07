@@ -8,11 +8,12 @@ export function useRefreshSummaryMutation(documentId: string | undefined) {
   const canRefresh = !!documentId;
 
   return useMutation({
+    mutationKey: ['refresh-summary', documentId],
     mutationFn: () => {
       if (!canRefresh) return Promise.reject(new Error('documentId is required'));
       return apiRequest<void>({
         method: 'POST',
-        url: 'api/v1/mock/external-ai/summarization/basic',
+        url: 'api/v1/external-ai/summarization/basic',
         data: { docId: documentId } satisfies ExternalDocumentIdRequest,
       });
     },

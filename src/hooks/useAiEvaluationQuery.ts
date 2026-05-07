@@ -7,7 +7,7 @@ export function useAiEvaluationQuery(documentId: string | undefined) {
     queryKey: ['documents', documentId, 'ai-evaluation'],
     queryFn: () =>
       apiRequest<ExternalAiEvaluationCardResponse>({
-        url: `api/v1/mock/external-ai/evaluate/${documentId}`,
+        url: `api/v1/external-ai/evaluate/${documentId}`,
       }),
     enabled: !!documentId,
   });

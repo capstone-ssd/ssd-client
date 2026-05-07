@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/utils/cn';
-import { Close } from '@/components/icons';
+import { Close, DocumentTypeE, DocumentTypeW } from '@/components/icons';
 import FolderFilled from '@/components/icons/FolderFilled';
-import { TypeEvalute, TypeWriting } from '../icons';
 
 export interface FolderCreateModalProps {
   isOpen: boolean;
@@ -80,9 +79,9 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
             {/* 2. 추가된 부분: 버튼(탭) 선택에 따라 라벨 SVG를 폴더 위에 겹쳐서 보여줌 */}
             <div className="absolute -top-2 -left-2 scale-110">
               {folderType === 'eval' ? (
-                <TypeEvalute className="h-auto w-16" />
+                <DocumentTypeE className="h-auto w-16" />
               ) : (
-                <TypeWriting className="h-auto w-16" />
+                <DocumentTypeW className="h-auto w-16" />
               )}
             </div>
           </div>

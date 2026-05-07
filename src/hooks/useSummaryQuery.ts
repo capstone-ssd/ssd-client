@@ -7,7 +7,7 @@ export function useSummaryQuery(documentId: string | undefined) {
     queryKey: ['documents', documentId, 'summary'],
     queryFn: () =>
       apiRequest<ExternalAiSummaryResponse>({
-        url: `api/v1/mock/external-ai/summarization/basic/${documentId}`,
+        url: `api/v1/external-ai/summarization/basic/${documentId}`,
       }),
     enabled: !!documentId,
   });
