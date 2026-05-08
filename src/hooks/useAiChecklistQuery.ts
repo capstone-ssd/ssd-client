@@ -7,7 +7,7 @@ export function useAiChecklistQuery(documentId: string | undefined) {
     queryKey: ['documents', documentId, 'ai-checklist'],
     queryFn: () =>
       apiRequest<ExternalAiDocumentCheckResponse>({
-        url: `api/v1/mock/external-ai/check/new-text/${documentId}`,
+        url: `api/v1/external-ai/check/new-text/${documentId}`,
       }),
     enabled: !!documentId,
   });

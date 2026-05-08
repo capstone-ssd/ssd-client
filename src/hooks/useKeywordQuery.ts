@@ -7,7 +7,7 @@ export function useKeywordQuery(documentId: string | undefined) {
     queryKey: ['documents', documentId, 'keyword'],
     queryFn: () =>
       apiRequest<ExternalAiKeywordResponse>({
-        url: `api/v1/mock/external-ai/summarization/keyword/${documentId}`,
+        url: `api/v1/external-ai/summarization/keyword/${documentId}`,
       }),
     enabled: !!documentId,
   });

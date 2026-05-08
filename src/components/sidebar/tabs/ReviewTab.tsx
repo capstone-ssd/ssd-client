@@ -22,7 +22,7 @@ export function ReviewTab() {
   const { id: documentId } = useParams({ strict: false });
   const [isWritingOpen, setIsWritingOpen] = useState(false);
 
-  const { data: reviewList, isLoading } = useDocumentReviewsQuery(documentId);
+  const { data: reviewList } = useDocumentReviewsQuery(documentId);
   const { data: myReview } = useMyReviewQuery(documentId);
   const { mutate: createReview, isPending: isCreating } = useCreateReviewMutation(documentId);
   const { mutate: updateReview, isPending: isUpdating } = useUpdateReviewMutation(documentId);
@@ -78,8 +78,7 @@ export function ReviewTab() {
             {hasMyReview ? '리뷰 수정' : '리뷰 쓰기'}
           </Button>
 
-          {isLoading && <p className="body-xsmall text-gray-400">불러오는 중...</p>}
-          {!isLoading && reviews.length === 0 && (
+          {reviews.length === 0 && (
             <p className="body-xsmall text-gray-400">등록된 리뷰가 없습니다.</p>
           )}
           {reviews.map((review, index) => (

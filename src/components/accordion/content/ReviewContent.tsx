@@ -14,6 +14,7 @@ export interface ReviewScoreItem {
   label: string;
   score: number;
   maxScore?: number;
+  review?: string;
 }
 
 /**
@@ -39,6 +40,7 @@ export interface ReviewContentProps {
   scoreItems: ReviewScoreItem[];
   comment?: string;
   barColor?: string;
+  onRefresh?: () => void;
   defaultOpen?: boolean;
   className?: string;
 }
@@ -88,6 +90,7 @@ const ReviewContent = ({
   scoreItems,
   comment,
   barColor,
+  onRefresh,
   defaultOpen = false,
   className,
 }: ReviewContentProps) => {
@@ -100,7 +103,7 @@ const ReviewContent = ({
     >
       <Accordion type="single" collapsible defaultValue={defaultOpen ? itemValue : undefined}>
         <Accordion.Item value={itemValue} className="mb-0 rounded-xl border-0 bg-white">
-          <Accordion.Trigger className="items-start">
+          <Accordion.Trigger className="items-start" showRefreshIcon={!!onRefresh} onRefresh={onRefresh}>
             {/* open:N — 프로필 이미지 + col(이름, 종합점수) */}
             <div className="flex gap-5 group-data-[state=open]:hidden">
               <div

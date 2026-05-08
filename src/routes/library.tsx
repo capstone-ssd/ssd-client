@@ -1,264 +1,402 @@
-import { useState, useEffect, useRef } from 'react';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import LibraryDocument from '@/components/common/LibDoc.tsx';
 import Button from '@/components/common/Button';
 import { ChevronRight } from '@/components/icons';
-import { useFolderQuery, useBookmarkMutation } from '@/hooks/useFolderQuery';
+import { ChevronDown } from '@/components/icons';
+import { Plus } from '@/components/icons';
+
+import {
+  useFolderQuery,
+  useBookmarkMutation,
+  useCreateFolderMutation,
+  useAllFolderQuery,
+} from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
 import { requireAuth } from '@/utils/authGuard';
+import { useDropdown } from '@/hooks/useDropdown';
+import FolderCreateModal from '@/components/modal/FolderCreateModal';
+import DocUploadModal from '@/components/modal/DocUploadModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { useDeleteLibraryItemMutation } from '@/hooks/useDeleteDocument';
+import {
+  useUpdateFolderNameMutation,
+  useUpdateDocumentNameMutation,
+} from '@/hooks/useRenameMutation';
+
+type LibrarySearch = {
+  folderId?: number;
+  sort?: 'LATEST' | 'OLDEST' | 'NAME' | 'MODIFIED';
+  sidebar?: string;
+  role?: string;
+  blockId?: number;
+  documentId?: number;
+};
 
 export const Route = createFileRoute('/library')({
   component: RouteComponent,
   beforeLoad: () => requireAuth(),
+  validateSearch: (search: Record<string, unknown>): any => {
+    return {
+      folderId: search.folderId ? Number(search.folderId) : undefined,
+      sort: (search.sort as any) || 'LATEST',
+      sidebar: search.sidebar,
+      role: search.role,
+      blockId: search.blockId ? Number(search.blockId) : undefined,
+      documentId: search.documentId ? Number(search.documentId) : undefined,
+    } as LibrarySearch;
+  },
 });
+
+interface BreadcrumbProps {
+  currentFolderId: number;
+  onNavigate: (id: number) => void;
+}
+
+export function FolderBreadcrumb({ currentFolderId, onNavigate }: BreadcrumbProps) {
+  const { data, isLoading } = useAllFolderQuery(currentFolderId);
+  if (isLoading || !data) return <div className="h-6 rounded bg-gray-100" />;
+
+  return (
+    <div className="body-xlarge pl-5">
+      <div className="flex flex-wrap items-center gap-y-2">
+        {data.breadcrumb.map((item, index) => (
+          <div key={item.id} className="flex items-center">
+            <span
+              className={cn(
+                'text-large cursor-pointer transition-colors hover:text-black',
+                index === data.breadcrumb.length - 1
+                  ? 'font-bold text-gray-900'
+                  : 'font-medium text-gray-400'
+              )}
+              onClick={() => onNavigate(item.id)}
+            >
+              {item.name}
+            </span>
+            {index < data.breadcrumb.length - 1 && (
+              <ChevronRight className="mx-5 h-5 w-5 text-gray-300" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function RouteComponent() {
   const navigate = useNavigate();
-  const [currentSort, setCurrentSort] = useState<'LATEST' | 'OLDEST' | 'NAME' | 'MODIFIED'>(
-    'LATEST'
-  );
-  const [currentFolderId, setCurrentFolderId] = useState<number>(0);
-  const [isTypeOpen, setIsTypeOpen] = useState(false);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const allSearch = Route.useSearch();
+  const { folderId, sort = 'LATEST' } = allSearch;
 
-  const [selectedType, setSelectedType] = useState('일반문서');
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'evaluate' | 'writing'>('evaluate');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
-  // 외부 클릭 감지를 위한 Ref
-  const typeRef = useRef<HTMLDivElement>(null);
-  const sortRef = useRef<HTMLDivElement>(null);
-  const statusRef = useRef<HTMLDivElement>(null);
+  const { data: serverData } = useFolderQuery(sort, folderId || 0);
+  const { mutate: toggleBookmark } = useBookmarkMutation(sort as string, folderId || 0);
+  const { mutate: createFolder } = useCreateFolderMutation();
+  const { mutate: uploadDoc, isPending: isUploading } = useDocumentUpload();
 
-  const { data: serverData } = useFolderQuery(currentSort, currentFolderId);
-  const { mutate: toggleBookmark } = useBookmarkMutation();
+  const addDropdown = useDropdown();
+  const statusDropdown = useDropdown();
+  const sortDropdown = useDropdown();
+  const queryClient = useQueryClient();
 
+  const FOLDER_THEME = {
+    WRITING: 'primary-500',
+    EVALUATED: 'secondary-200',
+  };
+
+  const createFolderMap = {
+    FOLDER: '새 폴더',
+    WRITE: '새 파일 (작성)',
+    EVALUATE: '새 파일 (평가)',
+  };
+  const statusMap = { ALL: '전체 문서', WRITING: '작성 문서', EVALUATED: '평가 문서' };
   const sortMap = {
     LATEST: '최신순',
     OLDEST: '오래된순',
     NAME: '이름순',
     MODIFIED: '최근 수정일순',
   };
-  const statusMap = {
-    ALL: '전체 문서',
-    WRITING: '작성 문서',
-    EVALUATED: '평가 문서',
-  };
-  // 외부 클릭 시 닫히는 로직
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (typeRef.current && !typeRef.current.contains(event.target as Node)) {
-        setIsTypeOpen(false);
-      }
-      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-        setIsSortOpen(false);
-      }
-      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
-        setIsStatusOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  const folders = serverData?.folders ?? [];
-  const documents = serverData?.documents ?? [];
-  const handleSort = (sortKey: keyof typeof sortMap) => {
-    setCurrentSort(sortKey);
-    setIsSortOpen(false);
+  const handleDocumentClick = (docId: number, purpose: string) => {
+    if (purpose === 'WRITING') {
+      navigate({ to: '/write/$id', params: { id: String(docId) } });
+    } else {
+      navigate({ to: '/evaluate/$id', params: { id: String(docId) } });
+    }
   };
 
-  const handleFolderClick = (id: number) => {
-    setCurrentFolderId(id);
+  const hasDocumentType = (folder: any, targetType: 'WRITING' | 'EVALUATED'): boolean => {
+    const hasInDocs = folder.documents?.some((doc: any) =>
+      targetType === 'WRITING' ? doc.status !== 'DONE' : doc.status === 'DONE'
+    );
+    if (hasInDocs) return true;
+    return folder.childFolders?.some((child: any) => hasDocumentType(child, targetType)) ?? false;
+  };
+  const displayFolders = (serverData?.folders ?? []).filter((folder) => {
+    if (selectedStatus === 'ALL') return true;
+
+    if (selectedStatus === 'WRITING') {
+      return folder.color === FOLDER_THEME.WRITING;
+    }
+
+    if (selectedStatus === 'EVALUATED') {
+      return folder.color === FOLDER_THEME.EVALUATED;
+    }
+
+    return true;
+  });
+
+  const displayDocuments = (serverData?.documents ?? []).filter((doc) => {
+    if (selectedStatus === 'ALL') return true;
+    if (selectedStatus === 'WRITING') {
+      return doc.purpose === 'WRITING';
+    }
+    if (selectedStatus === 'EVALUATED') {
+      return doc.purpose === 'EVALUATION';
+    }
+
+    return true;
+  });
+
+  const { mutate: deleteItem } = useDeleteLibraryItemMutation(folderId);
+  const { mutate: renameFolder } = useUpdateFolderNameMutation(folderId);
+  const { mutate: renameDoc } = useUpdateDocumentNameMutation(folderId);
+
+  const handleRename = (id: number, type: 'folder' | 'document', currentTitle: string) => {
+    const newName = window.prompt('새 이름을 입력하세요', currentTitle);
+    if (!newName || newName === currentTitle) return;
+
+    if (type === 'folder') {
+      renameFolder({ id, newName });
+    } else {
+      renameDoc({ id, newTitle: newName });
+    }
   };
 
-  const handleDocumentClick = (docId: number) => {
-    navigate({
-      to: '/evaluate/$id',
-      params: { id: String(docId) },
+  const handleNavigate = (id: number) => {
+    (navigate as any)({
+      search: (prev: any) => ({
+        ...prev,
+        folderId: id === 0 ? undefined : id,
+        selectedId: undefined,
+      }),
     });
   };
 
-  const handleBookmarkToggle = (id: number) => {
-    toggleBookmark(id);
-  };
-
   return (
-    <div className="min-h-screen w-full bg-white px-20 pt-16">
-      <div className="relative mb-12 flex justify-end gap-3">
-        {/* 문서 유형 드롭다운 */}
-        <div className="relative" ref={typeRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsTypeOpen(!isTypeOpen);
-              setIsSortOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>문서 유형</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isTypeOpen ? 'rotate-90' : '')}
-            />
-          </Button>
-
-          {isTypeOpen && (
-            <div className="absolute left-0 z-50 mt-1 w-full overflow-hidden rounded-md border border-gray-100 bg-white shadow-lg">
-              {['일반문서', '공유문서'].map((opt) => {
-                const isSelected = selectedType === opt;
-
-                return (
-                  <button
-                    key={opt}
-                    onClick={() => {
-                      setSelectedType(opt);
-                      setIsTypeOpen(false);
-                    }}
-                    className={cn(
-                      'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                      isSelected
-                        ? 'bg-gray-300 text-gray-900'
-                        : 'bg-white text-gray-900 hover:bg-gray-100'
-                    )}
-                  >
-                    <span className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}>
-                      ✓
-                    </span>
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        {/*  작성/평가 문서 드롭다운 */}
-        <div className="relative" ref={statusRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsStatusOpen(!isStatusOpen);
-              setIsTypeOpen(false);
-              setIsSortOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>{statusMap[selectedStatus]}</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isStatusOpen ? 'rotate-90' : '')}
-            />
-          </Button>
-
-          {isStatusOpen && (
-            <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
-              {(Object.entries(statusMap) as [keyof typeof statusMap, string][]).map(
-                ([key, label]) => {
-                  const isSelected = selectedStatus === key;
-
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => {
-                        setSelectedStatus(key);
-                        setIsStatusOpen(false);
-                        // TODO: API 재호출 로직(나중에 추가)
-                      }}
-                      className={cn(
-                        'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                        isSelected
-                          ? 'bg-gray-300 text-gray-900'
-                          : 'bg-white text-gray-900 hover:bg-gray-100'
-                      )}
-                    >
-                      <span
-                        className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}
-                      >
-                        ✓
-                      </span>
-                      {label}
-                    </button>
-                  );
-                }
-              )}
-            </div>
-          )}
-        </div>
-        {/* 정렬 순서 드롭다운 */}
-        <div className="relative" ref={sortRef}>
-          <Button
-            variant="normal"
-            onClick={() => {
-              setIsSortOpen(!isSortOpen);
-              setIsTypeOpen(false);
-            }}
-            className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-3 text-[20px] text-gray-900"
-          >
-            <span>정렬 순서</span>
-            <ChevronRight
-              className={cn('h-4 w-4 transition-transform', isSortOpen ? 'rotate-90' : '')}
-            />
-          </Button>
-
-          {isSortOpen && (
-            <div className="absolute right-0 z-50 mt-1 w-[160px] rounded-md border border-gray-100 bg-white shadow-lg">
-              {(Object.entries(sortMap) as [keyof typeof sortMap, string][]).map(([key, label]) => {
-                const isSelected = currentSort === key;
-
-                return (
-                  <button
-                    key={key}
-                    onClick={() => handleSort(key)}
-                    className={cn(
-                      'flex w-full items-center px-3 py-2 text-left text-[16px] transition-colors',
-                      isSelected
-                        ? 'bg-gray-300 text-gray-900'
-                        : 'bg-white text-gray-900 hover:bg-gray-100'
-                    )}
-                  >
-                    <span className={cn('mr-2 w-4 shrink-0', isSelected ? 'visible' : 'invisible')}>
-                      ✓
-                    </span>
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-white">
+      <div className="flex flex-col items-start gap-4 pt-3 pl-5">
+        <FolderBreadcrumb currentFolderId={folderId || 0} onNavigate={handleNavigate} />
       </div>
 
-      <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4">
-        {folders.map((folder) => (
-          <div
-            key={`folder-${folder.id}`}
-            onClick={() => handleFolderClick(folder.id)}
-            className="cursor-pointer"
-          >
-            <LibraryDocument
-              documentId={folder.id}
-              itemType="folder"
-              title={folder.name}
-              date={folder.updatedAt?.split('T')[0] || '-'}
-            />
+      <div className="flex-1 px-20 pt-8">
+        {/* 필터 및 생성 영역 */}
+        <div className="relative mb-12 flex justify-end gap-3">
+          {/* 1. 상태 필터 */}
+          <div className="relative" ref={statusDropdown.ref}>
+            <Button
+              variant="normal"
+              onClick={statusDropdown.toggle}
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
+            >
+              <span className="text-[20px] leading-none text-gray-900">
+                {statusMap[selectedStatus]}
+              </span>
+              <ChevronDown className="h-5 w-5 transition-transform" />
+            </Button>
+            {statusDropdown.isOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
+                {Object.entries(statusMap).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setSelectedStatus(key as any);
+                      statusDropdown.close();
+                    }}
+                    className="group flex w-full items-center justify-center py-1.5"
+                  >
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        selectedStatus === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
 
-        {documents.map((doc) => (
-          <div
-            key={`doc-${doc.id}`}
-            onClick={() => handleDocumentClick(doc.id)}
-            className="cursor-pointer"
-          >
-            <LibraryDocument
-              documentId={doc.id}
-              itemType="document"
-              title={doc.title}
-              date={doc.updatedAt?.split('T')[0] || '-'}
-              isBookmarked={doc.bookmark}
-              onBookmarkClick={handleBookmarkToggle}
-            />
+          {/* 2. 정렬 필터 */}
+          <div className="relative" ref={sortDropdown.ref}>
+            <Button
+              variant="normal"
+              onClick={sortDropdown.toggle}
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
+            >
+              <span className="text-[20px] leading-none text-gray-900">
+                {sortMap[sort as keyof typeof sortMap]}
+              </span>
+              <ChevronDown className="h-5 w-5 transition-transform" />
+            </Button>
+            {sortDropdown.isOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
+                {Object.entries(sortMap).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      (navigate as any)({ search: (prev: any) => ({ ...prev, sort: key }) });
+                      sortDropdown.close();
+                    }}
+                    className="group flex w-full items-center justify-center py-1.5"
+                  >
+                    <div
+                      className={cn(
+                        'flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 transition-colors',
+                        'text-[16px] leading-none text-gray-700',
+                        'group-hover:bg-gray-100 group-active:bg-gray-300',
+                        sort === key ? 'bg-gray-200 font-bold' : ''
+                      )}
+                    >
+                      {label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
-      </main>
+
+          {/* 3. 새로만들기 */}
+          <div className="relative" ref={addDropdown.ref}>
+            <Button
+              variant="normal"
+              onClick={addDropdown.toggle}
+              className="flex h-[40px] w-[140px] items-center justify-between border border-gray-200 bg-white px-2"
+            >
+              <span className="text-[20px] leading-none text-gray-900">새로만들기</span>
+              <Plus
+                className={cn(
+                  'h-5 w-5 transition-transform',
+                  addDropdown.isOpen ? 'rotate-90' : ''
+                )}
+              />
+            </Button>
+            {addDropdown.isOpen && (
+              <div className="absolute right-0 z-50 mt-1 w-[140px] rounded-md border bg-white py-1 shadow-lg">
+                {Object.entries(createFolderMap).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      if (key === 'FOLDER') setIsFolderModalOpen(true);
+                      if (key === 'WRITE') {
+                        setUploadMode('writing');
+                        setIsUploadModalOpen(true);
+                      }
+                      if (key === 'EVALUATE') {
+                        setUploadMode('evaluate');
+                        setIsUploadModalOpen(true);
+                      }
+                      addDropdown.close();
+                    }}
+                    className="group flex w-full items-center justify-center py-1.5"
+                  >
+                    <div className="flex h-[20px] w-[118px] items-center justify-start rounded-sm px-2 text-[16px] leading-none text-gray-700 transition-colors group-hover:bg-gray-100 group-active:bg-gray-300">
+                      {label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 메인 리스트 */}
+        <main className="mx-auto grid max-w-[1400px] grid-cols-6 justify-items-center gap-x-10 gap-y-14 px-4 pb-20">
+          {displayFolders.map((folder) => (
+            <Link
+              key={`folder-${folder.id}`}
+              to="/library"
+              search={(prev: any) => ({ ...prev, folderId: folder.id, selectedId: undefined })}
+              className="cursor-pointer"
+            >
+              <LibraryDocument
+                itemType="folder"
+                documentId={folder.id}
+                title={folder.name || ''}
+                date={folder.updatedAt?.split('T')[0] || ''}
+                folderColor={folder.color}
+                onDeleteClick={(id) => deleteItem({ id, type: 'folder' })}
+                onRenameClick={(id) => handleRename(id, 'folder', folder.name || '')}
+              />
+            </Link>
+          ))}
+          {displayDocuments.map((doc) => (
+            <div
+              key={`doc-${doc.id}-${doc.bookmark}`}
+              onClick={() => handleDocumentClick(doc.id, doc.purpose)}
+              className="cursor-pointer"
+            >
+              <LibraryDocument
+                itemType="document"
+                title={doc.title}
+                documentId={doc.id}
+                date={doc.updatedAt?.split('T')[0]}
+                purpose={doc.purpose}
+                onDeleteClick={(id) => deleteItem({ id, type: 'document' })}
+                onRenameClick={(id) => handleRename(id, 'document', doc.title)}
+                isBookmarked={doc.bookmark}
+                onBookmarkClick={(id) => {
+                  toggleBookmark(id);
+                }}
+              />
+            </div>
+          ))}
+        </main>
+      </div>
+
+      <FolderCreateModal
+        isOpen={isFolderModalOpen}
+        onClose={() => setIsFolderModalOpen(false)}
+        onConfirm={(name, color) =>
+          createFolder(
+            { name, parentId: folderId || undefined, color },
+            {
+              onSuccess: () => {
+                setIsFolderModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['folders'] });
+              },
+            }
+          )
+        }
+      />
+      <DocUploadModal
+        isOpen={isUploadModalOpen}
+        data={serverData ?? null}
+        isLoading={isUploading}
+        onClose={() => setIsUploadModalOpen(false)}
+        onConfirm={(file, fId, purpose) => {
+          if (file) {
+            uploadDoc({
+              file,
+              folderId: fId || folderId || null,
+              mode: uploadMode,
+              purpose: purpose,
+            });
+
+            setIsUploadModalOpen(false);
+          }
+        }}
+        initialPurpose={uploadMode === 'writing' ? 'WRITING' : 'EVALUATION'}
+      />
     </div>
   );
 }

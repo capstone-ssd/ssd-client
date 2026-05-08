@@ -1,7 +1,7 @@
 import Svglogo from '@/components/icons/logo';
 import { createFileRoute } from '@tanstack/react-router';
 import Button from '@/components/common/Button';
-import Svgkakaologo from '@/components/icons/Kakaologo';
+import Svgkakaologo from '@/components/icons/KakaoLogo';
 export const Route = createFileRoute('/signup')({
   component: RouteComponent,
 });
