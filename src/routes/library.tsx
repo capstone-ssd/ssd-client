@@ -385,14 +385,15 @@ export default function RouteComponent() {
         onClose={() => setIsUploadModalOpen(false)}
         onConfirm={(file, fId, purpose) => {
           if (file) {
-            uploadDoc({
-              file,
-              folderId: fId || folderId || null,
-              mode: uploadMode,
-              purpose: purpose,
-            });
-
-            setIsUploadModalOpen(false);
+            uploadDoc(
+              {
+                file,
+                folderId: fId || folderId || null,
+                mode: uploadMode,
+                purpose: purpose,
+              },
+              { onSuccess: () => setIsUploadModalOpen(false) }
+            );
           }
         }}
         initialPurpose={uploadMode === 'writing' ? 'WRITING' : 'EVALUATION'}
