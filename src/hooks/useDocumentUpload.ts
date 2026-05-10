@@ -49,6 +49,7 @@ export function useDocumentUpload() {
   const navigate = useNavigate();
 
   return useMutation({
+    mutationKey: ['document-upload'],
     mutationFn: uploadDocument,
     onSuccess: ({ id, mode }) => {
       if (mode === 'evaluate') navigate({ to: '/evaluate/$id', params: { id: String(id) } });
