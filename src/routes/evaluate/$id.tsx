@@ -28,7 +28,7 @@ function RouteComponent() {
           navigate({ to: '/evaluate/$id', params: { id: String(docId) } })
         }
       />
-      <div className="flex flex-1 items-center justify-center overflow-y-auto bg-gray-50 px-13">
+      <div className="flex flex-1 overflow-y-auto bg-gray-50 px-13">
         {error ? (
           <DocumentErrorView error={error} />
         ) : data ? (
