@@ -10,7 +10,7 @@ import { syncParagraphsWithTracking } from '@/utils/markdownParagraphs';
 import { useGetDocument } from '@/hooks/useGetDocument';
 import { useUpdateDocumentMutation } from '@/hooks/useUpdateDocumentMutation';
 import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
-import { DocsHeader } from '@/components/layout/extract/DocsHeader';
+import { DocsHeader } from '@/components/layout/DocsHeader';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { DocumentErrorView } from '@/components/common/DocumentErrorView';
 

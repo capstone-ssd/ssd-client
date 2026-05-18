@@ -5,7 +5,7 @@ import MarkdownViewer from '@/components/markdown/MarkdownViewer';
 import { useGetDocument } from '@/hooks/useGetDocument';
 import { useBookmarkToggleMutation } from '@/hooks/useBookmarkToggleMutation';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
-import { DocsHeader } from '@/components/layout/extract/DocsHeader';
+import { DocsHeader } from '@/components/layout/DocsHeader';
 import { requireAuth } from '@/utils/authGuard';
 import { DocumentErrorView } from '@/components/common/DocumentErrorView';
 
