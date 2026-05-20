@@ -241,8 +241,6 @@ export default function LibraryDocument({
                   </div>
                 </button>
 
-                <div className="mx-2 my-1 h-[1px] bg-gray-100" />
-
                 {/* 3. 삭제 */}
                 <button
                   type="button"
