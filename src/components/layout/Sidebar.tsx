@@ -1,5 +1,6 @@
 import SidebarTab from '@/components/sidebar/SidebarTab';
 import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
+import { useAutoGenerateAi } from '@/hooks/useAutoGenerateAi';
 import { SummaryTab } from '@/components/sidebar/tabs/SummaryTab';
 import { AiEvaluationTab } from '@/components/sidebar/tabs/AiEvaluationTab';
 import { HistoryTab } from '@/components/sidebar/tabs/HistoryTab';
@@ -17,7 +18,7 @@ import { useDocumentLogsQuery } from '@/hooks/useDocumentLogsQuery';
 import { useDocumentCommentsQuery } from '@/hooks/useDocumentCommentsQuery';
 import { useDocumentReviewsQuery } from '@/hooks/useDocumentReviewsQuery';
 
-function useSidebarLoading(documentId: string | undefined) {
+function useSidebarLoading(documentId: string | undefined, currentSidebar: string | null) {
   const { isFetching: isKeywordFetching } = useKeywordQuery(documentId);
   const { isFetching: isSummaryFetching } = useSummaryQuery(documentId);
   const { isFetching: isEvaluationFetching } = useAiEvaluationQuery(documentId);
@@ -26,27 +27,40 @@ function useSidebarLoading(documentId: string | undefined) {
   const { isFetching: isCommentsFetching } = useDocumentCommentsQuery(documentId);
   const { isFetching: isReviewsFetching } = useDocumentReviewsQuery(documentId);
 
-  const isKeywordRefreshing = useMutationState({
-    filters: { mutationKey: ['refresh-keyword', documentId], status: 'pending' },
-  }).length > 0;
+  const isKeywordRefreshing =
+    useMutationState({
+      filters: { mutationKey: ['refresh-keyword', documentId], status: 'pending' },
+    }).length > 0;
 
-  const isSummaryRefreshing = useMutationState({
-    filters: { mutationKey: ['refresh-summary', documentId], status: 'pending' },
-  }).length > 0;
+  const isSummaryRefreshing =
+    useMutationState({
+      filters: { mutationKey: ['refresh-summary', documentId], status: 'pending' },
+    }).length > 0;
 
-  const isChecklistRefreshing = useMutationState({
-    filters: { mutationKey: ['refresh-checklist', documentId], status: 'pending' },
-  }).length > 0;
+  const isChecklistRefreshing =
+    useMutationState({
+      filters: { mutationKey: ['refresh-checklist', documentId], status: 'pending' },
+    }).length > 0;
 
-  const isEvaluationRefreshing = useMutationState({
-    filters: { mutationKey: ['refresh-evaluation', documentId], status: 'pending' },
-  }).length > 0;
+  const isEvaluationRefreshing =
+    useMutationState({
+      filters: { mutationKey: ['refresh-evaluation', documentId], status: 'pending' },
+    }).length > 0;
 
-  return (
-    isKeywordFetching || isSummaryFetching || isEvaluationFetching || isChecklistFetching ||
-    isLogsFetching || isCommentsFetching || isReviewsFetching ||
-    isKeywordRefreshing || isSummaryRefreshing || isChecklistRefreshing || isEvaluationRefreshing
-  );
+  const isOnAiTab = currentSidebar === 'summary' || currentSidebar === 'ai-evaluation';
+
+  const isAiLoading =
+    isOnAiTab &&
+    (isKeywordFetching ||
+      isSummaryFetching ||
+      isEvaluationFetching ||
+      isChecklistFetching ||
+      isKeywordRefreshing ||
+      isSummaryRefreshing ||
+      isChecklistRefreshing ||
+      isEvaluationRefreshing);
+
+  return isAiLoading || isLogsFetching || isCommentsFetching || isReviewsFetching;
 }
 
 export function Sidebar() {
@@ -54,7 +68,10 @@ export function Sidebar() {
   const { id: documentId } = useParams({ strict: false });
   const allowedTabIds = new Set(getTabsByRole(currentRole).map((tab) => tab.id));
   const canRender = !!currentSidebar && allowedTabIds.has(currentSidebar);
-  const isLoading = useSidebarLoading(documentId);
+  const isOnAiTab = currentSidebar === 'summary' || currentSidebar === 'ai-evaluation';
+  const isGeneratingAi = useAutoGenerateAi(documentId);
+  const isQueryLoading = useSidebarLoading(documentId, currentSidebar);
+  const isLoading = isQueryLoading || (isOnAiTab && isGeneratingAi);
 
   return (
     <aside className="relative flex w-97.5 flex-col border-l border-gray-200 bg-white">
