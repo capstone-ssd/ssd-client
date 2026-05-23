@@ -8,7 +8,7 @@ export interface PDFContent {
     fontSize?: number;
   }>;
   tables: Array<{ rows: number; cols: number; data: string[][]; pageNumber?: number }>;
-  images: Array<{ data: string; width: number; height: number; pageNumber: number }>;
+  images: Array<{ data: string; file: Blob; width: number; height: number; pageNumber: number }>;
   tablePagesNumbers?: number[];
 }
 
