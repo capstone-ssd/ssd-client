@@ -298,6 +298,24 @@ export interface UpdateFolderResponse {
   id?: number;
 }
 
+export interface MoveDocumentFolderRequest {
+  /** @format int64 */
+  folderId: number;
+}
+
+export interface ApiResponseMoveDocumentFolderResponse {
+  code?: string;
+  msg?: string;
+  data?: MoveDocumentFolderResponse;
+}
+
+export interface MoveDocumentFolderResponse {
+  /** @format int64 */
+  documentId?: number;
+  /** @format int64 */
+  folderId?: number;
+}
+
 export interface ApiResponseDocumentBookmarkResponse {
   code?: string;
   msg?: string;
@@ -357,6 +375,7 @@ export interface DocumentListItemResponse {
   folderId?: number;
   /** @format date-time */
   updatedAt?: string;
+  bookmark?: boolean;
 }
 
 export interface FolderContentResponse {
@@ -427,6 +446,8 @@ export interface GetDocumentResponse {
   /** @format int64 */
   folderId?: number;
   bookmark?: boolean;
+  /** 외부 AI 결과가 한 번이라도 정상 반영되었는지 여부 */
+  hasExternalAiResult?: boolean;
   /** @format int64 */
   authorId?: number;
   authorName?: string;
@@ -506,4 +527,16 @@ export interface DocumentCommentItemResponse {
   createdAt?: string;
   content?: string;
   comment?: string;
+}
+
+export interface ApiResponseListDocumentSearchSuggestionResponse {
+  code?: string;
+  msg?: string;
+  data?: DocumentSearchSuggestionResponse[];
+}
+
+export interface DocumentSearchSuggestionResponse {
+  keyword?: string;
+  /** @format double */
+  score?: number;
 }
