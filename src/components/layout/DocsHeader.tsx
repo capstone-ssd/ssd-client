@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { cva } from 'class-variance-authority';
 import IconSave from '@/components/icons/IconSave';
 import IconStarN from '@/components/icons/IconStarN';
@@ -41,8 +42,15 @@ export function DocsHeader({
   isFavorite = false,
   onToggleFavorite,
 }: ExtractHeaderProps) {
-  // 현재 role이 작성자인 경우만 저장버튼 활성화
   const canSave = role === 'writer';
+  const [copied, setCopied] = useState(false);
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   return (
     <header className="flex h-[70px] items-center justify-between border-b border-gray-200 bg-white px-[20px] py-[10px]">
@@ -89,9 +97,9 @@ export function DocsHeader({
         </button>
 
         {/* 공유 버튼 */}
-        <button type="button" className={actionButtonVariants()}>
+        <button type="button" onClick={handleShare} className={actionButtonVariants({ active: copied })}>
           <IconShare className="h-5 w-5" />
-          <span className="body-xxsmall">공유</span>
+          <span className="body-xxsmall">{copied ? '복사됨!' : '공유'}</span>
         </button>
       </div>
     </header>
