@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import CodeMirror, { keymap, Prec, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
@@ -22,7 +23,22 @@ const doubleEnterKeymap = keymap.of([
   },
 ]);
 
-export default function MarkdownEditor({ text, onChange, className }: MarkdownEditorProps) {
+const extensions = [
+  markdown({ base: markdownLanguage, codeLanguages: languages }),
+  markdownEditorTheme,
+  Prec.highest(doubleEnterKeymap),
+  EditorView.lineWrapping,
+];
+
+const basicSetup = {
+  lineNumbers: false,
+  foldGutter: false,
+  dropCursor: true,
+  allowMultipleSelections: false,
+  indentOnInput: true,
+};
+
+export default memo(function MarkdownEditor({ text, onChange, className }: MarkdownEditorProps) {
   return (
     <div className={cn('h-full min-w-0 flex-1', className)}>
       <CodeMirror
@@ -30,24 +46,10 @@ export default function MarkdownEditor({ text, onChange, className }: MarkdownEd
         height="100%"
         width="100%"
         style={{ height: '100%' }}
-        onChange={(value) => onChange(value)}
-        extensions={[
-          markdown({
-            base: markdownLanguage,
-            codeLanguages: languages,
-          }),
-          markdownEditorTheme,
-          Prec.highest(doubleEnterKeymap),
-          EditorView.lineWrapping,
-        ]}
-        basicSetup={{
-          lineNumbers: false,
-          foldGutter: false,
-          dropCursor: true,
-          allowMultipleSelections: false,
-          indentOnInput: true,
-        }}
+        onChange={onChange}
+        extensions={extensions}
+        basicSetup={basicSetup}
       />
     </div>
   );
-}
+});

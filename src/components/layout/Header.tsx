@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { MENU_TABS } from '@/constants/navigation';
-import SvgMenu from '../icons/menu';
 import SvgMainLogo from '../icons/MainLogo';
 import { useMeQuery } from '@/hooks/useMeQuery';
 import { removeAccessToken, getAccessToken } from '@/api/axios';
@@ -129,9 +128,6 @@ export const Header = () => {
               </Link>
             </div>
           )}
-          <button type="button" aria-label="메뉴 열기">
-            <SvgMenu className="h-[23px] w-[30px] text-black" />
-          </button>
         </div>
       </header>
 

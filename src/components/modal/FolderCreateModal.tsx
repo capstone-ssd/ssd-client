@@ -73,10 +73,8 @@ export default function FolderCreateModal({ isOpen, onClose, onConfirm }: Folder
 
           {/* 폴더 아이콘 (모드에 따라 색상 변경) */}
           <div className="relative mb-10 transition-transform duration-300 ease-out">
-            {/* 1. 폴더 본체: 색상은 고정하거나 테마에 맞게 둡니다 */}
             <FolderFilled className="text-primary-400 h-32 w-auto transition-colors duration-300" />
 
-            {/* 2. 추가된 부분: 버튼(탭) 선택에 따라 라벨 SVG를 폴더 위에 겹쳐서 보여줌 */}
             <div className="absolute -top-2 -left-2 scale-110">
               {folderType === 'eval' ? (
                 <DocumentTypeE className="h-auto w-16" />

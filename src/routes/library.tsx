@@ -11,11 +11,14 @@ import {
   useBookmarkMutation,
   useCreateFolderMutation,
   useAllFolderQuery,
+  useMoveFolderMutation,
+  useMoveDocumentMutation,
 } from '@/hooks/useFolderQuery';
 import { cn } from '@/utils/cn';
 import { requireAuth } from '@/utils/authGuard';
 import { useDropdown } from '@/hooks/useDropdown';
 import FolderCreateModal from '@/components/modal/FolderCreateModal';
+import DocMoveModal from '@/components/modal/DocMoveModal';
 import DocUploadModal from '@/components/modal/DocUploadModal';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
@@ -94,16 +97,43 @@ export default function RouteComponent() {
   const [uploadMode, setUploadMode] = useState<'evaluate' | 'writing'>('evaluate');
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'WRITING' | 'EVALUATED'>('ALL');
 
-  const { data: serverData } = useFolderQuery(sort, folderId || 0);
+  const { data: serverData, isLoading } = useFolderQuery(sort, folderId || 0);
   const { mutate: toggleBookmark } = useBookmarkMutation(sort as string, folderId || 0);
   const { mutate: createFolder } = useCreateFolderMutation();
   const { mutate: uploadDoc, isPending: isUploading } = useDocumentUpload();
+
+  const { mutate: moveFolder } = useMoveFolderMutation(sort, folderId || 0);
+  const { mutate: moveDocument } = useMoveDocumentMutation(sort, folderId || 0);
 
   const addDropdown = useDropdown();
   const statusDropdown = useDropdown();
   const sortDropdown = useDropdown();
   const queryClient = useQueryClient();
 
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [activeMoveDoc, setActiveMoveDoc] = useState<{ id: number; title: string } | null>(null);
+
+  const handleOpenMoveModal = (id: number, title: string) => {
+    setActiveMoveDoc({ id, title });
+    setIsMoveModalOpen(true);
+  };
+
+  const handleItemDrop = (
+    draggedId: number,
+    draggedType: 'document' | 'folder',
+    targetFolderId: number
+  ) => {
+    if (draggedType === 'folder' && draggedId === targetFolderId) return;
+
+    if (draggedType === 'folder') {
+      moveFolder({ folderId: draggedId, targetFolderId });
+    } else if (draggedType === 'document') {
+      moveDocument({
+        documentId: draggedId,
+        targetFolderId: targetFolderId,
+      });
+    }
+  };
   const FOLDER_THEME = {
     WRITING: 'primary-500',
     EVALUATED: 'secondary-200',
@@ -137,31 +167,36 @@ export default function RouteComponent() {
     if (hasInDocs) return true;
     return folder.childFolders?.some((child: any) => hasDocumentType(child, targetType)) ?? false;
   };
-  const displayFolders = (serverData?.folders ?? []).filter((folder) => {
-    if (selectedStatus === 'ALL') return true;
 
-    if (selectedStatus === 'WRITING') {
-      return folder.color === FOLDER_THEME.WRITING;
-    }
+  // 📂 1. 폴더 가공 및 백엔드 정렬 정합성 보정
+  const displayFolders = (serverData?.folders ?? [])
+    .filter((folder) => {
+      if (selectedStatus === 'ALL') return true;
+      if (selectedStatus === 'WRITING') return folder.color === FOLDER_THEME.WRITING;
+      if (selectedStatus === 'EVALUATED') return folder.color === FOLDER_THEME.EVALUATED;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === 'NAME') return (a.name || '').localeCompare(b.name || '');
+      if (sort === 'OLDEST')
+        return new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime();
+      return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+    });
 
-    if (selectedStatus === 'EVALUATED') {
-      return folder.color === FOLDER_THEME.EVALUATED;
-    }
-
-    return true;
-  });
-
-  const displayDocuments = (serverData?.documents ?? []).filter((doc) => {
-    if (selectedStatus === 'ALL') return true;
-    if (selectedStatus === 'WRITING') {
-      return doc.purpose === 'WRITING';
-    }
-    if (selectedStatus === 'EVALUATED') {
-      return doc.purpose === 'EVALUATION';
-    }
-
-    return true;
-  });
+  // 📄 2. 문서 가공 및 백엔드 정렬 정합성 보정
+  const displayDocuments = (serverData?.documents ?? [])
+    .filter((doc) => {
+      if (selectedStatus === 'ALL') return true;
+      if (selectedStatus === 'WRITING') return doc.purpose === 'WRITING';
+      if (selectedStatus === 'EVALUATED') return doc.purpose === 'EVALUATION';
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === 'NAME') return (a.title || '').localeCompare(b.title || '');
+      if (sort === 'OLDEST')
+        return new Date(a.updatedAt || 0).getTime() - new Date(b.updatedAt || 0).getTime();
+      return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+    });
 
   const { mutate: deleteItem } = useDeleteLibraryItemMutation(folderId);
   const { mutate: renameFolder } = useUpdateFolderNameMutation(folderId);
@@ -327,6 +362,9 @@ export default function RouteComponent() {
               to="/library"
               search={(prev: any) => ({ ...prev, folderId: folder.id, selectedId: undefined })}
               className="cursor-pointer"
+              onClick={(e) => {
+                if (e.defaultPrevented) return;
+              }}
             >
               <LibraryDocument
                 itemType="folder"
@@ -336,6 +374,9 @@ export default function RouteComponent() {
                 folderColor={folder.color}
                 onDeleteClick={(id) => deleteItem({ id, type: 'folder' })}
                 onRenameClick={(id) => handleRename(id, 'folder', folder.name || '')}
+                onItemDrop={handleItemDrop}
+                // 💡 스코프에 맞게 folder 변수를 사용하여 바인딩을 전면 수정했습니다.
+                onMoveClick={() => handleOpenMoveModal(folder.id, folder.name || '')}
               />
             </Link>
           ))}
@@ -357,6 +398,8 @@ export default function RouteComponent() {
                 onBookmarkClick={(id) => {
                   toggleBookmark(id);
                 }}
+                onItemDrop={handleItemDrop}
+                onMoveClick={() => handleOpenMoveModal(doc.id, doc.title)}
               />
             </div>
           ))}
@@ -385,17 +428,42 @@ export default function RouteComponent() {
         onClose={() => setIsUploadModalOpen(false)}
         onConfirm={(file, fId, purpose) => {
           if (file) {
-            uploadDoc({
-              file,
-              folderId: fId || folderId || null,
-              mode: uploadMode,
-              purpose: purpose,
-            });
-
-            setIsUploadModalOpen(false);
+            uploadDoc(
+              {
+                file,
+                folderId: fId || folderId || null,
+                mode: uploadMode,
+                purpose: purpose,
+              },
+              { onSuccess: () => setIsUploadModalOpen(false) }
+            );
           }
         }}
         initialPurpose={uploadMode === 'writing' ? 'WRITING' : 'EVALUATION'}
+      />
+
+      <DocMoveModal
+        isOpen={isMoveModalOpen}
+        data={serverData ?? null}
+        isLoading={isLoading}
+        documentTitle={activeMoveDoc?.title}
+        onClose={() => {
+          setIsMoveModalOpen(false);
+          setActiveMoveDoc(null);
+        }}
+        onConfirm={(targetFolderId) => {
+          if (activeMoveDoc) {
+            moveDocument(
+              { documentId: activeMoveDoc.id, targetFolderId },
+              {
+                onSuccess: () => {
+                  setIsMoveModalOpen(false);
+                  setActiveMoveDoc(null);
+                },
+              }
+            );
+          }
+        }}
       />
     </div>
   );

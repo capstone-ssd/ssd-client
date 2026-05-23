@@ -25,6 +25,8 @@ export interface LibraryDocumentProps {
   className?: string;
 
   purpose?: 'WRITING' | 'EVALUATION';
+
+  onItemDrop?: (draggedId: number, draggedType: LibraryItemType, targetFolderId: number) => void;
 }
 // 문서 썸네일
 const thumbnailButtonVariants = cva(
@@ -62,6 +64,7 @@ export default function LibraryDocument({
   onMoveClick,
   className,
   purpose,
+  onItemDrop,
 }: LibraryDocumentProps) {
   const dropdown = useDropdown();
 
@@ -84,6 +87,33 @@ export default function LibraryDocument({
       onDeleteClick?.(documentId, itemType);
       dropdown.close();
     }
+  };
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/draggedId', String(documentId));
+    e.dataTransfer.setData('text/draggedType', itemType);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isFolder) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (!isFolder) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const draggedId = Number(e.dataTransfer.getData('text/draggedId'));
+    const draggedType = e.dataTransfer.getData('text/draggedType') as LibraryItemType;
+
+    if (draggedId === documentId && draggedType === 'folder') return;
+
+    onItemDrop?.(draggedId, draggedType, documentId);
   };
 
   const isFolder = itemType === 'folder';
@@ -116,11 +146,11 @@ export default function LibraryDocument({
     return (
       <>
         {status && (
-          <div className="absolute top-0 left-0 z-20">
+          <div className="absolute -top-7 left-0 z-20">
             {status === 'evaluate' ? (
-              <DocumentTypeE className="h-auto w-[64px]" />
+              <DocumentTypeE className="h-auto w-[107px]" />
             ) : (
-              <DocumentTypeW className="h-auto w-[64px]" />
+              <DocumentTypeW className="h-auto w-[107px]" />
             )}
           </div>
         )}
@@ -146,6 +176,10 @@ export default function LibraryDocument({
 
   return (
     <article
+      draggable
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
       className={cn(
         'relative flex h-[370px] w-[250px] flex-col overflow-hidden bg-white px-[40px] py-[20px] text-left transition-colors hover:bg-gray-100',
         className
@@ -206,8 +240,6 @@ export default function LibraryDocument({
                     <span className="text-[16px] leading-none text-gray-700">이동</span>
                   </div>
                 </button>
-
-                <div className="mx-2 my-1 h-[1px] bg-gray-100" />
 
                 {/* 3. 삭제 */}
                 <button
