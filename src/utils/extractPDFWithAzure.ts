@@ -228,6 +228,10 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
  * @param analyzeResult - Azure API 분석 결과
  * @returns 표 데이터 배열
  */
+function normalizeAzureCellContent(content: string): string {
+  return content.replace(/:selected:/g, '☑').replace(/:unselected:/g, '☐');
+}
+
 function parseTableData(analyzeResult: AzureAnalyzeResult): ExtractedTable[] {
   return (
     analyzeResult.tables?.map((table) => {
@@ -236,7 +240,7 @@ function parseTableData(analyzeResult: AzureAnalyzeResult): ExtractedTable[] {
         .map(() => Array(table.columnCount).fill(''));
 
       table.cells.forEach((cell) => {
-        grid[cell.rowIndex][cell.columnIndex] = cell.content;
+        grid[cell.rowIndex][cell.columnIndex] = normalizeAzureCellContent(cell.content);
       });
 
       return {
