@@ -5,6 +5,8 @@ import type { PDFOperatorList, TextContent } from 'pdfjs-dist/types/src/display/
 import {
   IMAGE_DECODE_DELAY,
   IMAGE_QUALITY,
+  NEW_LINE_Y_THRESHOLD,
+  SAME_LINE_Y_THRESHOLD,
   TABLE_LINE_THRESHOLD,
 } from '../constants/pdf-extraction.constants';
 import type { PDFPageProxy } from 'pdfjs-dist';
@@ -115,10 +117,13 @@ function extractTextItems(textContent: TextContent, pageHeight: number) {
 }
 
 /**
- * 텍스트 아이템을 폰트 크기 변화 기준으로 단락으로 그룹화
- * @param items - 텍스트 아이템 배열
- * @param pageNum - 페이지 번호
- * @returns 단락 배열
+ * 텍스트 아이템을 yRatio + 폰트 크기 변화 기준으로 단락으로 그룹화
+ *
+ * 판단 기준:
+ * 1. yRatio 차이가 SAME_LINE_Y_THRESHOLD 이내 → 같은 줄로 취급 (폰트 크기 무시)
+ * 2. yRatio 차이가 NEW_LINE_Y_THRESHOLD 이상 → 새 단락으로 분리
+ * 3. 그 사이(다음 줄이지만 인접)이고 폰트 크기가 다를 때 → 새 단락 분리
+ * 4. 그 사이이고 폰트 크기가 같을 때 → 같은 단락으로 이어붙임
  */
 function groupIntoParagraphs(
   items: Array<{ text: string; fontSize: number; yRatio: number }>,
@@ -126,38 +131,49 @@ function groupIntoParagraphs(
 ): Paragraphs[] {
   const paragraphs: Paragraphs[] = [];
   let currentParagraph = '';
-  let lastFontSize = items[0].fontSize; // 이전 폰트 크기 추적 용도
+  let lastFontSize = items[0].fontSize;
+  let lastYRatio = items[0].yRatio;
   let paragraphYRatio = items[0].yRatio;
+
+  const flush = () => {
+    if (currentParagraph.trim()) {
+      paragraphs.push({
+        content: currentParagraph.trim(),
+        role: '',
+        pageNumber: pageNum,
+        yRatio: paragraphYRatio,
+        fontSize: lastFontSize,
+      });
+    }
+    currentParagraph = '';
+  };
 
   for (const item of items) {
     if (!item.text) continue;
 
-    // 폰트 크기가 변하거나(제목/본문 구분) 줄바꿈 등으로 단락이 나뉠 때
-    if (item.fontSize !== lastFontSize && currentParagraph !== '') {
-      paragraphs.push({
-        content: currentParagraph.trim(),
-        role: '', // Compound에서 한꺼번에 결정할 것이므로 비워둠
-        pageNumber: pageNum,
-        yRatio: paragraphYRatio,
-        fontSize: lastFontSize, // 이 단락의 폰트 크기 저장
-      });
-      currentParagraph = '';
+    const yDiff = Math.abs(item.yRatio - lastYRatio);
+    const isSameLine = yDiff <= SAME_LINE_Y_THRESHOLD;
+    const isNewParagraph = yDiff >= NEW_LINE_Y_THRESHOLD;
+    const fontChanged = item.fontSize !== lastFontSize;
+
+    if (currentParagraph === '') {
+      // 첫 아이템
+      paragraphYRatio = item.yRatio;
+    } else if (isSameLine) {
+      // 같은 줄 — 폰트 크기 달라도 이어붙임
+    } else if (isNewParagraph || fontChanged) {
+      // 줄 간격이 크거나 폰트 크기가 다를 때 -> 새 단락
+      flush();
       paragraphYRatio = item.yRatio;
     }
+    // 인접한 같은 폰트 -> 이어붙임 (else 분기 없음)
 
     currentParagraph += item.text + ' ';
     lastFontSize = item.fontSize;
+    lastYRatio = item.yRatio;
   }
 
-  if (currentParagraph) {
-    paragraphs.push({
-      content: currentParagraph.trim(),
-      role: '',
-      pageNumber: pageNum,
-      yRatio: paragraphYRatio,
-      fontSize: lastFontSize,
-    });
-  }
+  flush();
 
   return paragraphs;
 }
