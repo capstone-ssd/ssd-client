@@ -229,7 +229,12 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
  * @returns 표 데이터 배열
  */
 function normalizeAzureCellContent(content: string): string {
-  return content.replace(/:selected:/g, '☑').replace(/:unselected:/g, '☐');
+  return content
+    .replace(/:selected:/g, '☑')
+    .replace(/:unselected:/g, '☐')
+    .replace(/(☑\s*)+/g, '☑ ')
+    .replace(/(☐\s*)+/g, '☐ ')
+    .trim();
 }
 
 function parseTableData(analyzeResult: AzureAnalyzeResult): ExtractedTable[] {
