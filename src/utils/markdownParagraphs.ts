@@ -9,15 +9,34 @@ const cleanContent = (text: string): string => {
   return text
     .trim()
     .replace(/^#{1,6}\s+/, '')
+    .replace(/^[-*+]\s+/, '')
+    .replace(/^\d+\.\s+/, '')
     .replace(/\*\*/g, '')
     .replace(/\*/g, '');
 };
 
+const isListLine = (line: string): boolean =>
+  /^[-*+]\s/.test(line) || /^\d+\.\s/.test(line);
+
 /**
- * 원본 텍스트를 \n\n 기준으로 나누어 순수 텍스트 배열로 반환
+ * 원본 텍스트를 블록 단위로 분리. 리스트 블록은 항목별로 개별 분리.
  */
 const splitIntoBlocks = (text: string): string[] => {
-  return text.split('\n\n').filter((block) => block.trim().length > 0);
+  const doubleNewlineBlocks = text.split('\n\n').filter((block) => block.trim().length > 0);
+  const result: string[] = [];
+
+  for (const block of doubleNewlineBlocks) {
+    const lines = block.split('\n').filter((line) => line.trim().length > 0);
+    const isListBlock = lines.length > 1 && lines.every((line) => isListLine(line.trim()));
+
+    if (isListBlock) {
+      lines.forEach((line) => result.push(line.trim()));
+    } else {
+      result.push(block);
+    }
+  }
+
+  return result;
 };
 
 /**
