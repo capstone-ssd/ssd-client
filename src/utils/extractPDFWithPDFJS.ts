@@ -16,7 +16,7 @@ import type { PDFPageProxy } from 'pdfjs-dist';
  * @param file - 추출할 PDF 파일
  * @returns 추출된 단락, 이미지, 표 페이지 번호 정보
  */
-export async function extractPDFWithPDFJS(file: File) {
+export async function extractPDFWithPDFJS(file: File, options?: { debug?: boolean }) {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
   const tablePagesNumbers: number[] = [];
@@ -33,7 +33,13 @@ export async function extractPDFWithPDFJS(file: File) {
     /**
      * 선의 개수로 표가 있는지 검증하고 있다면 배열에 추가
      */
-    if (hasTable(operators)) {
+    const { result: tableDetected, lineCount } = hasTable(operators);
+    if (options?.debug) {
+      console.log(
+        `[DEBUG] 페이지 ${pageNum} 선 개수: ${lineCount} (임계값: ${TABLE_LINE_THRESHOLD}) → ${tableDetected ? 'Azure 호출' : 'pdfjs만 사용'}`,
+      );
+    }
+    if (tableDetected) {
       tablePagesNumbers.push(pageNum);
     }
 
@@ -55,11 +61,11 @@ export async function extractPDFWithPDFJS(file: File) {
      * 명령어 코드 배열을 순차로 순회하면서 이미지를 그리는 명령어가 등장하면 해당 명령어의 인자에서 이미지 식별자를 `imageNames` 배열에 추가함
      * `imageNames` 배열을 순회하면서 인식할 수 있는 url 형태로 변환
      */
-    const imageNames = extractImageNames(operators);
-    if (imageNames.length > 0) {
+    const imageInfos = extractImageNames(operators, pageHeight);
+    if (imageInfos.length > 0) {
       // pdfjs는 이미지 실행 명령어만 가지고 있기 때문에 실제로 렌더링하려면 Worker에게 이미지 렌더링 트리거하여 실제로 디코딩하도록
       await renderPageForImages(pageInfo, viewport);
-      const pageImages = await extractImages(pageInfo, imageNames, pageNum);
+      const pageImages = await extractImages(pageInfo, imageInfos, pageNum);
       images.push(...pageImages);
     }
   }
@@ -77,8 +83,7 @@ export async function extractPDFWithPDFJS(file: File) {
  * @param operators - pdfjs-dist의 operator list
  * @returns 표 존재 여부
  */
-function hasTable(operators: PDFOperatorList): boolean {
-  // 테이블을 그리는데 필요한 선의 수 카운팅하기 위한 변수
+function hasTable(operators: PDFOperatorList): { result: boolean; lineCount: number } {
   let lineCount = 0;
   for (let i = 0; i < operators.fnArray.length; i++) {
     const operator = operators.fnArray[i];
@@ -88,12 +93,9 @@ function hasTable(operators: PDFOperatorList): boolean {
       operator === pdfjsLib.OPS.rectangle
     ) {
       lineCount++;
-      if (lineCount >= TABLE_LINE_THRESHOLD) {
-        return true;
-      }
     }
   }
-  return false;
+  return { result: lineCount >= TABLE_LINE_THRESHOLD, lineCount };
 }
 
 /**
@@ -179,23 +181,33 @@ function groupIntoParagraphs(
 }
 
 /**
- * PDF 연산자 목록에서 이미지 식별자를 추출
- * @param operators - PDF.js의 operator list
- * @returns 이미지 식별자 배열
+ * PDF 연산자 목록에서 이미지 식별자와 y좌표를 추출
+ * transform(cm) 명령의 f값(y이동)을 추적하여 이미지 draw 시점의 yRatio를 기록
  */
-function extractImageNames(operators: PDFOperatorList): string[] {
-  const imageNames: string[] = [];
+function extractImageNames(
+  operators: PDFOperatorList,
+  pageHeight: number,
+): Array<{ name: string; yRatio: number }> {
+  const result: Array<{ name: string; yRatio: number }> = [];
+  let currentYRatio = 0;
+
   for (let i = 0; i < operators.fnArray.length; i++) {
-    const operator = operators.fnArray[i];
+    const op = operators.fnArray[i];
+
+    if (op === pdfjsLib.OPS.transform) {
+      const args = operators.argsArray[i] as number[];
+      currentYRatio = (pageHeight - args[5]) / pageHeight;
+    }
+
     if (
-      operator === pdfjsLib.OPS.paintImageXObject ||
-      operator === pdfjsLib.OPS.paintInlineImageXObject ||
-      operator === pdfjsLib.OPS.paintImageMaskXObject
+      op === pdfjsLib.OPS.paintImageXObject ||
+      op === pdfjsLib.OPS.paintInlineImageXObject ||
+      op === pdfjsLib.OPS.paintImageMaskXObject
     ) {
-      imageNames.push(operators.argsArray[i][0]);
+      result.push({ name: operators.argsArray[i][0], yRatio: currentYRatio });
     }
   }
-  return imageNames;
+  return result;
 }
 
 /**
@@ -230,14 +242,14 @@ async function renderPageForImages(
  */
 async function extractImages(
   pageInfo: PDFPageProxy,
-  imageNames: string[],
-  pageNum: number
+  imageInfos: Array<{ name: string; yRatio: number }>,
+  pageNum: number,
 ): Promise<Images[]> {
   const images: Images[] = [];
 
-  for (const imageName of imageNames) {
+  for (const { name, yRatio } of imageInfos) {
     try {
-      const image = pageInfo.objs.get(imageName); // 이미지 식별자(name)로 worker가 디코딩한 이미지 데이터 가져옴
+      const image = pageInfo.objs.get(name); // 이미지 식별자(name)로 worker가 디코딩한 이미지 데이터 가져옴
       if (!image) continue;
 
       const blob = await imageToBlob(image);
@@ -249,9 +261,10 @@ async function extractImages(
         width: image.width,
         height: image.height,
         pageNumber: pageNum,
+        yRatio,
       });
     } catch (error) {
-      console.warn(`이미지 ${imageName} 추출 실패:`, error);
+      console.warn(`이미지 ${name} 추출 실패:`, error);
     }
   }
 

@@ -8,8 +8,8 @@ import type {
   TableRegion,
 } from '../types/extracted-pdf.types';
 
-export async function extractPDFCompound(file: File): Promise<PDFContent> {
-  const pdfjsResult = await extractPDFWithPDFJS(file);
+export async function extractPDFCompound(file: File, options?: { debug?: boolean }): Promise<PDFContent> {
+  const pdfjsResult = await extractPDFWithPDFJS(file, options);
 
   let finalParagraphs = pdfjsResult.paragraphs;
   let tables: ExtractedTable[] = [];
@@ -29,6 +29,26 @@ export async function extractPDFCompound(file: File): Promise<PDFContent> {
       const mergedAzure = mergeAzureResults(azureResults);
       tables = mergedAzure.tables;
       tableRegions = mergedAzure.tableRegions;
+
+      if (options?.debug) {
+        console.log('[DEBUG] tableRegions:', tableRegions);
+        console.log(
+          '[DEBUG] paragraph yRatio vs tableRegion 비교:',
+          finalParagraphs.map((para) => {
+            const regionsInPage = tableRegions.filter((r) => r.pageNumber === para.pageNumber);
+            const matchedRegion = regionsInPage.find(
+              (region) => para.yRatio! >= region.top - 0.01 && para.yRatio! <= region.bottom + 0.01,
+            );
+            return {
+              content: para.content.slice(0, 30),
+              page: para.pageNumber,
+              paraYRatio: para.yRatio,
+              matchedRegion: matchedRegion ?? null,
+              filtered: !!matchedRegion,
+            };
+          }),
+        );
+      }
 
       // 표 영역 필터링(표 내부 텍스트 제거)
       finalParagraphs = finalParagraphs.filter((para) => {
