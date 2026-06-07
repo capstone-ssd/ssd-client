@@ -7,8 +7,8 @@ export interface PDFContent {
     yRatio?: number;
     fontSize?: number;
   }>;
-  tables: Array<{ rows: number; cols: number; data: string[][]; pageNumber?: number }>;
-  images: Array<{ data: string; file: Blob; width: number; height: number; pageNumber: number }>;
+  tables: Array<{ rows: number; cols: number; data: string[][]; pageNumber?: number; yRatio?: number }>;
+  images: Array<{ data: string; file: Blob; width: number; height: number; pageNumber: number; yRatio: number }>;
   tablePagesNumbers?: number[];
 }
 
@@ -17,6 +17,7 @@ export interface ExtractedTable {
   cols: number;
   data: string[][];
   pageNumber?: number;
+  yRatio?: number;
 }
 
 export interface TableRegion {
