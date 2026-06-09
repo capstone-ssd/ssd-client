@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import writingLogo from '../assets/images/logo-writing.png';
+import backgroundImage from '../assets/images/background.png';
 import DocUploadModal from '@/components/modal/DocUploadModal';
 import { DashboardCard, type CardVariant } from '@/components/dashboard-card/DashboardCard';
 import { CARD_META } from '@/components/dashboard-card/dashboard';
@@ -52,7 +53,10 @@ function RouteComponent() {
   };
 
   return (
-    <main className="bg-primary-50 flex h-full w-screen items-center justify-center gap-25">
+    <main
+      className="flex h-full w-screen items-center justify-center gap-25 bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <section className="flex flex-col items-start" aria-label="심사임당 서비스 로고">
         <img src={writingLogo} alt="심사임당 펜촉 메모장 로고 이미지" className="h-136.5 w-136.5" />
         <p className="flex text-[130px] leading-none font-bold" aria-label="심사임당">
