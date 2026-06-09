@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RedirectRouteImport } from './routes/redirect'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,6 +39,11 @@ const LoginRoute = LoginRouteImport.update({
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorRoute = EditorRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/editor': typeof EditorRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/editor'
+    | '/guide'
     | '/library'
     | '/login'
     | '/redirect'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/editor'
+    | '/guide'
     | '/library'
     | '/login'
     | '/redirect'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/editor'
+    | '/guide'
     | '/library'
     | '/login'
     | '/redirect'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   EditorRoute: typeof EditorRoute
+  GuideRoute: typeof GuideRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor': {
@@ -239,6 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   EditorRoute: EditorRoute,
+  GuideRoute: GuideRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,
