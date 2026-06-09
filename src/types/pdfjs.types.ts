@@ -19,4 +19,5 @@ export interface Images {
   width: number;
   height: number;
   pageNumber: number;
+  yRatio: number;
 }

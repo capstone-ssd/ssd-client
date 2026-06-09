@@ -214,7 +214,7 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
     pageHeightMap.set(page.pageNumber, page.height);
   });
 
-  const tables: ExtractedTable[] = parseTableData(analyzeResult);
+  const tables: ExtractedTable[] = parseTableData(analyzeResult, pageHeightMap);
   const tableRegions: TableRegion[] = parseTableRegions(analyzeResult, pageHeightMap);
 
   return {
@@ -228,7 +228,19 @@ function parseAzureResult(analyzeResult: AzureAnalyzeResult): AzureExtractionRes
  * @param analyzeResult - Azure API 분석 결과
  * @returns 표 데이터 배열
  */
-function parseTableData(analyzeResult: AzureAnalyzeResult): ExtractedTable[] {
+function normalizeAzureCellContent(content: string): string {
+  return content
+    .replace(/:selected:/g, '☑')
+    .replace(/:unselected:/g, '☐')
+    .replace(/(☑\s*)+/g, '☑ ')
+    .replace(/(☐\s*)+/g, '☐ ')
+    .trim();
+}
+
+function parseTableData(
+  analyzeResult: AzureAnalyzeResult,
+  pageHeightMap: Map<number, number>,
+): ExtractedTable[] {
   return (
     analyzeResult.tables?.map((table) => {
       const grid: string[][] = Array(table.rowCount)
@@ -236,14 +248,23 @@ function parseTableData(analyzeResult: AzureAnalyzeResult): ExtractedTable[] {
         .map(() => Array(table.columnCount).fill(''));
 
       table.cells.forEach((cell) => {
-        grid[cell.rowIndex][cell.columnIndex] = cell.content;
+        grid[cell.rowIndex][cell.columnIndex] = normalizeAzureCellContent(cell.content);
       });
+
+      const region = table.boundingRegions?.[0];
+      const polygon = region?.polygon || [];
+      const pageHeight = pageHeightMap.get(region?.pageNumber || 0) || 1;
+      const yValues = [polygon[1], polygon[3], polygon[5], polygon[7]].filter(
+        (v): v is number => v !== undefined,
+      );
+      const yRatio = yValues.length > 0 ? Math.min(...yValues) / pageHeight : 0;
 
       return {
         rows: table.rowCount,
         cols: table.columnCount,
         data: grid,
-        pageNumber: table.boundingRegions?.[0]?.pageNumber,
+        pageNumber: region?.pageNumber,
+        yRatio,
       };
     }) || []
   );

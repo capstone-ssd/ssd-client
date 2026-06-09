@@ -1,15 +1,21 @@
 import type { Components } from 'react-markdown';
 import BlockWrapper from './BlockWrapper';
 import { extractTextFromChildren } from './utils/extractTextFromChildren';
+import { cn } from '@/utils/cn';
+import type { SidebarSearch } from '@/schemas/searchSchemas';
 
 interface MarkdownComponentProps {
   getBlockIdForContent: (content: string) => number | null;
   getCommentCount: (blockId: number) => number;
+  openSidebar: (sidebar: SidebarSearch['sidebar'], blockId: SidebarSearch['blockId']) => void;
+  isBlockSelected: (id: number) => boolean;
 }
 
 export function MarkdownComponent({
   getBlockIdForContent,
   getCommentCount,
+  openSidebar,
+  isBlockSelected,
 }: MarkdownComponentProps): Components {
   return {
     h1: ({ children, ...props }) => {
@@ -164,20 +170,46 @@ export function MarkdownComponent({
       </strong>
     ),
     ul: ({ children, ...props }) => (
-      <ul className="mb-4 list-inside list-disc space-y-2" {...props}>
+      <ul className="mb-4 list-disc space-y-2 pl-5" {...props}>
         {children}
       </ul>
     ),
     ol: ({ children, ...props }) => (
-      <ol className="mb-4 list-inside list-decimal space-y-2" {...props}>
+      <ol className="mb-4 list-decimal space-y-2 pl-5" {...props}>
         {children}
       </ol>
     ),
-    li: ({ children, ...props }) => (
-      <li className="text-gray-700" {...props}>
-        {children}
-      </li>
-    ),
+    li: ({ children, ...props }) => {
+      const content = extractTextFromChildren(children).trim();
+      const blockId = getBlockIdForContent(content);
+
+      if (!blockId) {
+        return (
+          <li className="text-gray-700" {...props}>
+            {children}
+          </li>
+        );
+      }
+
+      const isSelected = isBlockSelected(blockId);
+      const hasComments = getCommentCount(blockId) > 0;
+
+      return (
+        <li
+          data-block-id={blockId}
+          onClick={() => openSidebar('comments', blockId)}
+          className={cn(
+            'cursor-pointer rounded px-2 transition-all duration-200 text-gray-700',
+            isSelected && 'bg-blue-100',
+            !isSelected && hasComments && 'bg-yellow-50 hover:bg-yellow-100',
+            !isSelected && !hasComments && 'hover:bg-gray-100',
+          )}
+          {...props}
+        >
+          {children}
+        </li>
+      );
+    },
     table: ({ children, ...props }) => (
       <div className="my-6 overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-300" {...props}>
