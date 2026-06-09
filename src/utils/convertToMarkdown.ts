@@ -56,41 +56,59 @@ export function convertToMarkdown(content: PDFContent): string {
     pageMap.get(image.pageNumber)?.images.push(image);
   });
 
+  type PageElement =
+    | { kind: 'paragraph'; yRatio: number; data: (typeof content.paragraphs)[0] }
+    | { kind: 'table'; yRatio: number; data: (typeof content.tables)[0] }
+    | { kind: 'image'; yRatio: number; data: (typeof content.images)[0] };
+
   const sections: string[] = [];
   const sortedPages = Array.from(allPageNumbers).sort((a, b) => a - b);
 
-  // 페이지별로 순회하며 Markdown 생성
+  let tableNum = 0;
+  let imageNum = 0;
+
+  // 페이지별로 순회하며 yRatio 기준 정렬 후 Markdown 생성
   sortedPages.forEach((pageNumber) => {
     const pageContent = pageMap.get(pageNumber);
     if (!pageContent) return;
 
-    // 단락
-    if (pageContent.paragraphs.length > 0) {
-      const textSection = pageContent.paragraphs
-        .map((para) => {
-          if (para.role && para.role !== '') {
-            return `${para.role} ${para.content}`;
-          }
-          return para.content;
-        })
-        .join('\n\n');
-      sections.push(textSection);
-    }
+    const elements: PageElement[] = [
+      ...pageContent.paragraphs.map((p) => ({
+        kind: 'paragraph' as const,
+        yRatio: p.yRatio ?? 0,
+        data: p,
+      })),
+      ...pageContent.tables.map((t) => ({
+        kind: 'table' as const,
+        yRatio: t.yRatio ?? 0,
+        data: t,
+      })),
+      ...pageContent.images.map((img) => ({
+        kind: 'image' as const,
+        yRatio: img.yRatio,
+        data: img,
+      })),
+    ];
 
-    // 표
-    if (pageContent.tables.length > 0) {
-      pageContent.tables.forEach((table, index) => {
-        sections.push(`\n**표 ${index + 1}**\n`);
-        sections.push(tableToMarkdown(table));
-      });
-    }
+    elements.sort((a, b) => a.yRatio - b.yRatio);
 
-    // 이미지
-    if (pageContent.images.length > 0) {
-      pageContent.images.forEach((image, index) => {
-        sections.push(`\n![이미지 ${index + 1}](${image.data})\n`);
-      });
-    }
+    elements.forEach((el) => {
+      if (el.kind === 'paragraph') {
+        const para = el.data;
+        if (para.role && para.role !== '') {
+          sections.push(`${para.role} ${para.content}`);
+        } else {
+          sections.push(para.content);
+        }
+      } else if (el.kind === 'table') {
+        tableNum++;
+        sections.push(`\n**표 ${tableNum}**\n`);
+        sections.push(tableToMarkdown(el.data));
+      } else if (el.kind === 'image') {
+        imageNum++;
+        sections.push(`\n![이미지 ${imageNum}](${el.data.data})\n`);
+      }
+    });
   });
 
   return sections.join('\n\n');

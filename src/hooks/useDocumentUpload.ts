@@ -10,6 +10,9 @@ import type {
   DocumentImageMetaRequest,
 } from '@/api/api';
 
+// 추출 결과 디버깅용 플래그 — true면 API 전송 없이 콘솔 출력만 함
+const DEBUG_EXTRACTION = false;
+
 type UploadMode = 'writing' | 'evaluate';
 
 interface UploadVariables {
@@ -20,8 +23,14 @@ interface UploadVariables {
 }
 
 async function uploadDocument({ file, folderId, mode, purpose }: UploadVariables) {
-  const pdfContent = await extractPDFCompound(file);
+  const pdfContent = await extractPDFCompound(file, { debug: DEBUG_EXTRACTION });
   const markdown = convertToMarkdown(pdfContent);
+
+  if (DEBUG_EXTRACTION) {
+    console.log('[DEBUG] extractPDFCompound result:', pdfContent);
+    console.log('[DEBUG] convertToMarkdown result:\n', markdown);
+    return null;
+  }
 
   const imageKeys = pdfContent.images.map((_, i) => `img-${Date.now()}-${i}`);
 
@@ -60,7 +69,10 @@ async function uploadDocument({ file, folderId, mode, purpose }: UploadVariables
   const formData = new FormData();
   formData.append('request', new Blob([JSON.stringify(requestData)], { type: 'application/json' }));
   if (imageMetas.length > 0) {
-    formData.append('imageMetas', new Blob([JSON.stringify(imageMetas)], { type: 'application/json' }));
+    formData.append(
+      'imageMetas',
+      new Blob([JSON.stringify(imageMetas)], { type: 'application/json' })
+    );
     pdfContent.images.forEach((image, i) => {
       formData.append('files', image.file, `${imageKeys[i]}.jpg`);
     });
@@ -82,7 +94,9 @@ export function useDocumentUpload() {
   return useMutation({
     mutationKey: ['document-upload'],
     mutationFn: uploadDocument,
-    onSuccess: ({ id, mode }) => {
+    onSuccess: (result) => {
+      if (!result) return;
+      const { id, mode } = result;
       if (mode === 'evaluate') navigate({ to: '/evaluate/$id', params: { id: String(id) } });
       if (mode === 'writing') navigate({ to: '/write/$id', params: { id: String(id) } });
     },
