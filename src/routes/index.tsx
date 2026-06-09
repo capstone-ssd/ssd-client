@@ -48,7 +48,7 @@ function RouteComponent() {
     writing: () => openModal('writing'),
     evaluate: () => openModal('evaluate'),
     library: () => navigate({ to: '/library' }),
-    calendar: undefined,
+    guide: () => navigate({ to: '/guide' }),
   };
 
   return (

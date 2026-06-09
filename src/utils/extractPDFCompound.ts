@@ -8,14 +8,19 @@ import type {
   TableRegion,
 } from '../types/extracted-pdf.types';
 
-export async function extractPDFCompound(file: File, options?: { debug?: boolean }): Promise<PDFContent> {
+const SKIP_AZURE = false;
+
+export async function extractPDFCompound(
+  file: File,
+  options?: { debug?: boolean }
+): Promise<PDFContent> {
   const pdfjsResult = await extractPDFWithPDFJS(file, options);
 
   let finalParagraphs = pdfjsResult.paragraphs;
   let tables: ExtractedTable[] = [];
   let tableRegions: TableRegion[] = [];
 
-  if (pdfjsResult.hasTable) {
+  if (!SKIP_AZURE && pdfjsResult.hasTable) {
     try {
       const azureResults: AzureExtractionResult[] = [];
       const tablePages = pdfjsResult.tablePagesNumbers || [];
@@ -37,7 +42,7 @@ export async function extractPDFCompound(file: File, options?: { debug?: boolean
           finalParagraphs.map((para) => {
             const regionsInPage = tableRegions.filter((r) => r.pageNumber === para.pageNumber);
             const matchedRegion = regionsInPage.find(
-              (region) => para.yRatio! >= region.top - 0.01 && para.yRatio! <= region.bottom + 0.01,
+              (region) => para.yRatio! >= region.top - 0.01 && para.yRatio! <= region.bottom + 0.01
             );
             return {
               content: para.content.slice(0, 30),
@@ -46,7 +51,7 @@ export async function extractPDFCompound(file: File, options?: { debug?: boolean
               matchedRegion: matchedRegion ?? null,
               filtered: !!matchedRegion,
             };
-          }),
+          })
         );
       }
 

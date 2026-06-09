@@ -9,13 +9,13 @@ export interface DashboardCardProps {
   onClick?: () => void;
 }
 
-export type CardVariant = 'writing' | 'evaluate' | 'library' | 'calendar';
+export type CardVariant = 'writing' | 'evaluate' | 'library' | 'guide';
 
 const HOVER_BORDER_CLASS: Record<CardVariant, string> = {
   writing: 'hover:border-[10px] hover:border-[rgb(245,200,22)]',
   evaluate: 'hover:border-[10px] hover:border-[rgb(135,207,235)]',
   library: 'hover:border-[10px] hover:border-[rgb(173,225,0)]',
-  calendar: 'hover:border-[10px] hover:border-[rgb(217,217,217)]',
+  guide: 'hover:border-[10px] hover:border-[rgb(217,217,217)]',
 };
 
 export function DashboardCard({
